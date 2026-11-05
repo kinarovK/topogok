@@ -1,0 +1,14 @@
+{
+  "name": "topogok",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "TopoGok – magyar és ukrán térképes gyakorló és számonkérő PWA",
+  "engines": { "node": ">=22.18.0" },
+  "scripts": {
+    "data:build": "node scripts/data/build.ts",
+    "data:validate": "node scripts/data/build.ts --check",
+    "test": "node --test --test-reporter=spec \"tests/unit/**/*.test.ts\"",
+    "typecheck": "tsc -p ."
+  }
+}

@@ -1,0 +1,15 @@
+# Local source backups; keep on disk, never publish as application assets.
+/backups/
+
+# Future frontend build/development artifacts.
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
