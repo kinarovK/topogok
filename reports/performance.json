@@ -1,0 +1,53 @@
+{
+  "runs": 5,
+  "results": [
+    {
+      "homeMs": 2518,
+      "mapMs": 1025,
+      "offlineMs": 6044,
+      "homeKiB": 384.2392578125,
+      "totalKiB": 736.54296875,
+      "clickP95": 113
+    },
+    {
+      "homeMs": 2471,
+      "mapMs": 996,
+      "offlineMs": 6010,
+      "homeKiB": 384.2392578125,
+      "totalKiB": 736.54296875,
+      "clickP95": 113
+    },
+    {
+      "homeMs": 2503,
+      "mapMs": 1151,
+      "offlineMs": 6162,
+      "homeKiB": 384.2392578125,
+      "totalKiB": 736.54296875,
+      "clickP95": 112
+    },
+    {
+      "homeMs": 2494,
+      "mapMs": 1172,
+      "offlineMs": 6174,
+      "homeKiB": 384.2392578125,
+      "totalKiB": 736.54296875,
+      "clickP95": 143
+    },
+    {
+      "homeMs": 2522,
+      "mapMs": 1092,
+      "offlineMs": 6071,
+      "homeKiB": 384.2392578125,
+      "totalKiB": 736.54296875,
+      "clickP95": 127
+    }
+  ],
+  "median": {
+    "homeInteractiveMs": 2503,
+    "mapReadyAfterStartMs": 1092,
+    "offlineReadyMs": 6071,
+    "homeTransferKiB": 384,
+    "fullPackageTransferKiB": 737,
+    "clickToSelectionP95Ms": 113
+  }
+}

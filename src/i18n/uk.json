@@ -94,7 +94,7 @@
     "percent": "Відсоток",
     "hitRate": "Частка влучних відповідей",
     "grade": "Оцінка",
-    "gradeValue": "Оцінка {grade} з 12",
+    "gradeValue": "{grade} з 12",
     "points": "Бали",
     "pointsValue": "{points} / {max}",
     "fraction": "{value} / {total}",

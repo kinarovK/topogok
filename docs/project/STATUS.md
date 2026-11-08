@@ -1,31 +1,31 @@
 # Projektállapot
 
-Frissítve: 2026-11-05 (megvalósítási munkamenet).
+Frissítve: 2026-11-09.
 
-- Termékinterjú: lezárva. Dokumentáció: elkészült; a tulajdonos 2026-11-05-én megvalósítási utasítást adott.
-- Implementáció: **elkezdődött, nem kész.** Nincs futtatható webalkalmazás, nincs produkciós build és böngészős teszt.
-- Akadály: a megvalósítási környezetben (felhős munkaterület és a tulajdonos gépéhez kapcsolt Linux-shell) az npm-registry nem volt elérhető (HTTP 403 / connect_rejected). A jóváhagyott stack (Vite, MapLibre GL JS, vite-plugin-pwa, tesztfuttató) ezért nem volt telepíthető. A tulajdonos a csomagkezelők engedélyezését választotta; a stacket nem módosítottuk.
-- Adatok: a pipeline lefutott, a csomag elkészült (`public/data/ukraine-administration/2026.11.05.1/`). 27 ID, mindkét névmező, érvényes geometria, a 27 egység élről élre lefedi az országot. GDAL/GEOS-os keresztellenőrzés még nincs.
-- Adatforrás: tulajdonosi közlés szerint nyílt források alapján, oktatási célra vektorizált adatok. Konkrét forrás és licenc nincs megadva, független ellenőrzés nem történt (`provenance.status = unverified`). Nyilvános kiadás előtt külön ellenőrizendő.
-- Publikálás: nem történt; Cloudflare-fiók/projekt és távoli Git-szolgáltató nincs kijelölve.
+- **Implementáció: a helyi MVP működik.** Gyakorlás, számonkérés, térkép két betéttel, felfedezés, hu/uk felület, világos/sötét/rendszer téma, offline működés és biztonságos frissítés. A plan.md P01–P09 szakaszai a helyi határig készek, a P10-ből a helyi átadás kész. Részletes bizonyítékok: [átvételi jelentés](../../reports/acceptance.md).
+- **Nyilvános kiadás: nem történt, és nem is kiadásra kész.** Feltételei: igazolt adatforrás és licenc, fizikai Android- és iPhone-próba, Cloudflare-hozzáférés, távoli repó és CI.
+- Adatforrás: a tulajdonos közlése szerint nyílt források alapján, oktatási célra vektorizált adatok. Konkrét forrás és licenc nincs megadva, független ellenőrzés nem történt (`provenance.status = unverified`). Ezt a Névjegy oldal is közli.
+- Környezet: a csomagokat a tulajdonos telepítette Windowson (Node 24.18.0, npm 11.16.0); a build és a tesztek Linuxon futnak, Node 22.23.4-gyel (OPERATIONS „Megvalósított helyi környezet”).
 - Helyi Git: külön repó a Topo gyökerében, `main` ág; remote nincs.
 
-## Ténylegesen elvégzett ellenőrzések (2026-11-05)
+## Ténylegesen elvégzett ellenőrzések
 
-| Ellenőrzés | Parancs | Eredmény |
-|---|---|---|
-| Adatpipeline, validáció | `npm run data:build` | PASS, 13/13 ellenőrzés; `reports/data-validation.md` |
-| Reprodukálhatóság | `npm run data:validate` | PASS, bájtra azonos újragenerálás |
-| Forráshash előtte/utána | pipeline beépített ellenőrzése | PASS, a források változatlanok |
-| Egységtesztek (szabályok, óra, jegy, adatbetöltő, hibás bemenet, szótár, beállítások) | `npm test` | 29/29 PASS (Node 22.23.4, `node:test`) |
-| Típusellenőrzés (strict) | `tsc -p .` (TypeScript 6.0.3) | PASS, a domain, data, i18n, preferences, scripts és tests forrásokra |
+| Ellenőrzés | Eredmény |
+|---|---|
+| `npm run lint`, `npm run typecheck` | PASS |
+| `npm test` (szabályok, óra, jegy, adat, szótár, beállítások, találat) | 31/31 PASS |
+| `npm run data:build` / `data:validate` | 13/13 PASS / bájtra azonos |
+| `npm run build` (precache- és tiltottfájl-kapuval) | PASS |
+| `npm run test:e2e` (Chromium, mobil nézet, CSP-vel) | 21/21 PASS (2026-11-09, `reports/e2e-results.txt`) |
+| Teljesítmény (4× CPU, 1,6 Mbit/s, 150 ms) | főoldal 2,5 s, térkép 1,1 s, p95 kattintás ≤ 113 ms, főoldali átvitel 384 KiB |
 
 ## Nem elvégzett / nyitott
 
-- P01 projektalap a jóváhagyott stackkel (Vite, React, MapLibre, PWA plugin, lint, lockfile): npm-hozzáférés kell hozzá.
-- P04 felület, P05 térkép és betétek, P06–P07 végigjátszható körök, P08 offline/frissítés, P09 böngészős E2E és képernyőképek: nem kezdődtek el.
-- GDAL-os keresztellenőrzés: parancs a `scripts/data/README.md`-ben.
-- Nyelvi lektorálás: nem történt; az ukrán szöveget a megvalósító írta.
-- Fizikai Android/iPhone próba: nem történt.
+- Fizikai Android Chrome és iPhone Safari próba (telepítés, pinch, képernyőzár, repülő üzemmód).
+- WebKit és Firefox automatikus futtatás (a környezetben csak Chromium volt).
+- GDAL-keresztellenőrzés (parancs: `scripts/data/README.md`).
+- Anyanyelvi lektorálás (hu, uk).
+- B→A recovery-kiadás próbája, Cloudflare-kiadás, kiadott HTTPS-cím fejlécei.
+- Ismert korlát: a térképi kitöltőszínek önmagukban 3:1 alatti kontrasztúak; az állapotot körvonal és szöveg jelzi (`reports/contrast.md`).
 
-Következő lépés: npm-hozzáféréssel rendelkező munkamenetben P01, majd a plan.md sorrendje szerint P04–P09.
+Következő lépés: a tulajdonosi átvételi próba a TEST_PLAN „Tanári átvételi próba” szerint, valódi telefonon; utána az adatlicenc tisztázása a kiadás előtt.

@@ -2,7 +2,7 @@
 
 ## Állapot és kockázati szint
 
-Full tervezési szint. A tulajdonos 2026-11-05-én utasítást adott a helyi megvalósításra; a szakaszos implementáció folyamatban van, az állapotot a [terv naplója](plan.md#végrehajtási-napló) és a [STATUS](../../STATUS.md) rögzíti. Az MVP nem kész: adatcsomag és játékszabályok vannak, futtatható alkalmazás még nincs.
+Full tervezési szint. A tulajdonos 2026-11-05-én utasítást adott a helyi megvalósításra. A helyi MVP 2026-11-08-ra elkészült, a bizonyítékokat a [terv naplója](plan.md#végrehajtási-napló), a [STATUS](../../STATUS.md) és a [`reports/acceptance.md`](../../../../reports/acceptance.md) rögzíti. A „Késznek tekintés” feltételeiből nyitott: a tulajdonosi átvétel, a valódi eszközös próbák, valamint a kiadáshoz szükséges licenc és hozzáférés.
 
 ## Elvárt eredmény
 

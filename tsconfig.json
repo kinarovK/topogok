@@ -19,7 +19,7 @@
     "noUnusedParameters": true,
     "skipLibCheck": true,
     "jsx": "react-jsx",
-    "types": ["node"]
+    "types": ["node", "vite/client", "vite-plugin-pwa/vanillajs"]
   },
-  "include": ["src", "scripts", "tests"]
+  "include": ["src", "scripts", "tests", "vite.config.ts"]
 }

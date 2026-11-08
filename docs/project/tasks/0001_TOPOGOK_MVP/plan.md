@@ -1,6 +1,6 @@
 # TopoGok – megvalósítási terv
 
-**A végrehajtás 2026-11-05-én a tulajdonos utasítására elkezdődött; az állapotot a lenti napló mutatja.** Ez végrehajtási terv, nem készre jelentés. Minden szakasz után a tényleges parancsot, kimeneti összefoglalót, commitot (ha van), eltérést és hátralévő hibát rögzíteni kell.
+**A helyi megvalósítás 2026-11-08-ra elkészült; a kiadás feltételei nyitottak. Az állapotot a lenti napló mutatja.** Ez végrehajtási terv, nem készre jelentés. Minden szakasz után a tényleges parancsot, kimeneti összefoglalót, commitot (ha van), eltérést és hátralévő hibát rögzíteni kell.
 
 ## Sorrend
 
@@ -96,10 +96,15 @@ CI-szolgáltató a későbbi távoli repótól függ; most ne hozz létre küls�
 
 | Szakasz | Állapot | Bizonyíték, eltérés, hátralévő munka |
 |---|---|---|
-| P01 | Blokkolt, részben előkészítve | `package.json` (függőség nélküli szkriptek), `.nvmrc` (Node 22.23.4), strict `tsconfig.json`. A Vite/React/MapLibre/PWA/lint függőségek és a lockfile hiányoznak: a környezetben az npm-registry 403-at adott. Hátra: függőségek kiválasztása a hivatalos dokumentáció alapján, `npm install`, lockfile, Vite shell, lint. |
-| P02 | Kész, egy nyitott ellenőrzéssel | `npm run data:build`: 13/13 PASS; `npm run data:validate`: bájtra azonos; 4 hibásbemenet-teszt (hiányzó `.prj`, üres `name_uk`, NaN koordináta, hibás geometria), mind elutasítva. Eltérés: GDAL/GEOS helyett függőség nélküli validátor (DATA_CONTRACT „Megvalósított pipeline”). Hátra: GDAL-keresztellenőrzés a tulajdonos gépén; a teljes ország és a kis városok vizuális ellenőrzése a térképes szakaszban. |
-| P03 | Kész | `src/domain/*`, `tests/unit/domain.test.ts`: T01–T10 esetek, köztük 100/60/30/0, egyszeri ismétlés, 360/500, 26/27→12, határidőn beadás → timeout, dupla confirm, végső válasz és timeout versenye, órafelállítás. `npm test` 29/29 PASS. |
-| P04 | Részben | Kész: `src/i18n/{hu,uk}.json` (azonos kulcs- és paraméterhalmaz, teszt), `translator.ts` (fallback, locale-detektálás, számformázás), `preferencesStore.ts` (sérült/tiltott tároló, egy kulcs). Hátra: komponensek, képernyők, témák, reszponzív elrendezés (npm-függő). |
-| P05–P10 | Nincs megkezdve | npm-hozzáférésre vár (MapLibre, Vite, PWA plugin, Playwright projektfüggőség). Futásidejű adatbetöltő és -validátor már kész (`src/data/validation.ts`, T12/T24 tesztek). |
+| P01 | Kész | `package.json` + `package-lock.json` (Vite 8.3.6, React 19.3.1, MapLibre 6.16.0, vite-plugin-pwa 2.0.0, TypeScript 6.0.3, ESLint 10.14.0, Playwright 1.63.0), `.nvmrc`, strict `tsconfig.json`, `eslint.config.js`, `vite.config.ts`. `npm run lint`, `typecheck`, `build` hiba nélkül. 2026-11-05: blokkolt (nincs npm-registry); 2026-11-08: a csomagokat a tulajdonos telepítette Windowson, a Linux natív csomagokat a `setup:linux-binaries` szkript töltötte le (OPERATIONS „Megvalósított helyi környezet”). Eltérés: egységtesztekhez `node:test`, nem Vitest (a TEST_PLAN megengedi). |
+| P02 | Kész, egy nyitott ellenőrzéssel | `npm run data:build` 13/13 PASS; `data:validate` bájtra azonos; 4 hibásbemenet-teszt. A 27 kontrollpont mindegyike csak a saját régiójába esik (egységteszt). Eltérés: GDAL/GEOS helyett saját validátor. Hátra: GDAL-keresztellenőrzés a tulajdonos gépén. |
+| P03 | Kész | `src/domain/*`, 18 domain-egységteszt (T01–T10). |
+| P04 | Kész | Fejléc nyelv-/témaválasztóval, főoldal, beállítás, súgó, névjegy, megerősítő dialógus fókuszcsapdával; hu/uk szótár azonos kulcsokkal; világos/sötét/rendszer téma; reszponzív elrendezés. Képernyőképek: `reports/screenshots/`. |
+| P05 | Kész | Saját MapLibre-stílus külső URL nélkül, hit-test (város előnyben, stabil ID), zoom/pan/alapnézet, Kijev és Szevasztopol betét, felfedező nézet ütközéskezelt címkékkel. E2E: 27/27 régió kiválasztható a produkciós buildben (címkepontok) és játék közben is (betétekkel). |
+| P06 | Kész | E2E: vegyes 5 kérdéses kör, 360/500, 3/5, 60%, egyszeri ismétlés; 27 kérdéses kör 2700/2700. |
+| P07 | Kész | E2E: 12 kérdés, 9/12 → 75%, 9-es jegy, jó és rossz válasz után azonos UI; 26/27 → 96,3% → 12; 5 perces lejárat háttérből visszatérve, nem véglegesített kijelöléssel → 2/5, 05:00. |
+| P08 | Kész | vite-plugin-pwa prompt mód, teljes precache (build-kapu), valós cache-találaton alapuló „offline is használható” jelzés, BroadcastChannel-koordináció. E2E: offline teljes kör mindkét nyelvvel/témával; hibás telepítésnél nincs hamis offline-kész jelzés; A→B kiadás aktív körrel és második lappal. |
+| P09 | Kész a helyi határig | 21 Playwright-teszt (Chromium, mobil nézet, SwiftShader WebGL, CSP-fejlécekkel); hálózati audit minden tesztben; teljesítménymérés (`reports/performance.json`); kontraszt (`reports/contrast.md`); átvételi jelentés (`reports/acceptance.md`). Nem futott: WebKit, Firefox, fizikai Android/iPhone, CI-szolgáltató (nincs távoli repó). Integrációs (RTL) réteg helyett a felhasználói folyamatokat E2E fedi. |
+| P10 | Helyi átadás kész, kiadás nem | README-parancsok, OPERATIONS, STATUS, acceptance. Nyilvános kiadás nem történt és nem is volt feladat: hiányzik az igazolt adatlicenc, a Cloudflare-hozzáférés és a valódi eszközös próba. |
 
 A dokumentáció készítésekor elvégzett forrásattribútum-olvasás nem helyettesíti P02 geometriavalidációját. A puszta repóinicializálás nem jelenti P01 teljesülését.

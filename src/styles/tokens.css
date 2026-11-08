@@ -1,0 +1,66 @@
+/* Design tokens (docs/STYLE_GUIDE.md). The resolved theme is set on <html data-theme="light|dark">. */
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --background: #f5f7fa;
+  --surface: #ffffff;
+  --text: #17253a;
+  --text-muted: #526176;
+  --primary: #1855b6;
+  --on-primary: #ffffff;
+  --accent: #ebc84b;
+  --map-background: #edf2f6;
+  --region-fill: #e5dfd2;
+  --region-border: #66717f;
+  --selected-fill: #9fc5ff;
+  --wrong-fill: #f4b3ae;
+  --wrong-text: #a32222;
+  --correct-fill: #a9ddb7;
+  --correct-text: #176238;
+  --border: #d3d9e2;
+  --shadow: 0 1px 2px rgb(23 37 58 / 8%), 0 2px 8px rgb(23 37 58 / 6%);
+  --focus: #1855b6;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #101827;
+  --surface: #1b2738;
+  --text: #f2f5fa;
+  --text-muted: #bac5d4;
+  --primary: #8fb8ff;
+  --on-primary: #101827;
+  --accent: #ebc84b;
+  --map-background: #111e2b;
+  --region-fill: #414b59;
+  --region-border: #a5b0bd;
+  --selected-fill: #315c91;
+  --wrong-fill: #703c42;
+  --wrong-text: #ffb4ab;
+  --correct-fill: #285c45;
+  --correct-text: #a0e7b5;
+  --border: #33445b;
+  --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 2px 8px rgb(0 0 0 / 25%);
+  --focus: #8fb8ff;
+}
+
+:root {
+  --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --control-height: 48px;
+  --content-max: 1280px;
+  --transition: 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: 0ms;
+  }
+}

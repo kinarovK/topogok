@@ -36,7 +36,7 @@ export function createPreferencesStore(getStorage: () => StorageLike | null) {
   return {
     load(): Preferences {
       if (memory) return memory;
-      let raw: string | null = null;
+      let raw: string | null;
       try { raw = storage()?.getItem(STORAGE_KEY) ?? null; } catch { raw = null; }
       memory = parsePreferences(raw);
       return memory;

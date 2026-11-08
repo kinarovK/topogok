@@ -1,0 +1,26 @@
+
+Running 21 tests using 1 worker
+
+  ✓   1 [mobile-chromium] › tests/e2e/explore.spec.ts:3:1 › T13/T14 production build: every region is hit at its label point; names in both languages; no labels or reveal inside a round (5.4s)
+  ✓   2 [mobile-chromium] › tests/e2e/explore.spec.ts:32:1 › T24 data failure: corrupted package shows a localized error and never starts a round (498ms)
+  ✓   3 [mobile-chromium] › tests/e2e/game.spec.ts:4:3 › practice › T02–T05 mixed 5-question round: feedback, hidden answer, reveal, single review, 360/500 (7.4s)
+  ✓   4 [mobile-chromium] › tests/e2e/game.spec.ts:77:3 › practice › double-clicking "confirm" does not skip the feedback (1.6s)
+  ✓   5 [mobile-chromium] › tests/e2e/game.spec.ts:86:3 › practice › T13 all 27 regions selectable in a round; Kyiv and Sevastopol through the insets; 2700/2700 (21.3s)
+  ✓   6 [mobile-chromium] › tests/e2e/game.spec.ts:104:3 › assessment › T06/T07 12 questions: changeable selection, neutral UI for right and wrong, no way back, 9/12 → 75%, grade 9 (6.0s)
+  ✓   7 [mobile-chromium] › tests/e2e/game.spec.ts:133:3 › assessment › T07 26/27 → 96,3%, grade 12 (7.0s)
+  ✓   8 [mobile-chromium] › tests/e2e/game.spec.ts:145:3 › assessment › T08/T10 5-minute limit with a selected but unconfirmed answer: timeout after background, N stays 5 (1.9s)
+  ✓   9 [mobile-chromium] › tests/e2e/game.spec.ts:169:3 › round controls › T11/T16 restart and exit dialogs; language and theme switch keep the round; reload returns home with nothing stored (4.5s)
+  ✓  10 [mobile-chromium] › tests/e2e/pwa.spec.ts:6:1 › T19 after the first full load everything works offline: both languages, both themes, a round (3.0s)
+  ✓  11 [mobile-chromium] › tests/e2e/pwa.spec.ts:29:1 › T20 failed install: no false offline-ready when the package cannot be cached (4.3s)
+  ✓  12 [mobile-chromium] › tests/e2e/pwa.spec.ts:48:3 › updates › T21 A→B release: an active round is never reloaded; other tab waits; explicit update after the round loads B (6.9s)
+  ✓  13 [mobile-chromium] › tests/e2e/visual.spec.ts:40:5 › screens hu-light 390×844 (6.3s)
+  ✓  14 [mobile-chromium] › tests/e2e/visual.spec.ts:40:5 › screens hu-dark 390×844 (7.0s)
+  ✓  15 [mobile-chromium] › tests/e2e/visual.spec.ts:40:5 › screens uk-light 390×844 (6.5s)
+  ✓  16 [mobile-chromium] › tests/e2e/visual.spec.ts:40:5 › screens uk-dark 390×844 (6.5s)
+  ✓  17 [mobile-chromium] › tests/e2e/visual.spec.ts:94:3 › layout 320x568 (2.4s)
+  ✓  18 [mobile-chromium] › tests/e2e/visual.spec.ts:94:3 › layout 844x390-landscape (2.6s)
+  ✓  19 [mobile-chromium] › tests/e2e/visual.spec.ts:94:3 › layout 768x1024-tablet (3.3s)
+  ✓  20 [mobile-chromium] › tests/e2e/visual.spec.ts:94:3 › layout 1366x768-desktop (3.9s)
+  ✓  21 [mobile-chromium] › tests/e2e/visual.spec.ts:113:1 › explore + about screenshots (2.5s)
+
+  21 passed (1.9m)

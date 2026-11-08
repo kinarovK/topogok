@@ -1,6 +1,6 @@
 # Ellenőrzési és átvételi terv
 
-Minden itt felsorolt alkalmazásteszt **tervezett**, még nem futott le. A tesztelés a szabályokat és a valós felhasználói folyamatot ellenőrzi; ne készüljenek pusztán a komponens belső felépítését lemásoló tesztek.
+Állapot (2026-11-09): a T01–T25 esetek többsége automatikus teszttel lefutott (Chromium). A ténylegesen futtatott teszteket, a kimaradt próbákat és az eltéréseket a [`reports/acceptance.md`](../reports/acceptance.md) rögzíti. Eltérés a rétegektől: az egységtesztek `node:test`-tel futnak, az integrációs (RTL) réteg nem készült el, a felhasználói folyamatokat Playwright E2E fedi le. Fizikai eszközös és WebKit/Firefox-próba nem történt. A tesztelés a szabályokat és a valós felhasználói folyamatot ellenőrzi; ne készüljenek pusztán a komponens belső felépítését lemásoló tesztek.
 
 ## Tesztrétegek
 

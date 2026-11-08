@@ -6,6 +6,14 @@ Projektgyökér: `D:\Work\Suli\Topo`, külön helyi Git-repó. A tágabb `D:\Wor
 
 A runtime-verziót és csomagverziókat implementációkor rögzíteni kell. Egyetlen npm lockfile; CI-ben tiszta `npm ci`. A frontend futtatásához a már validált GeoJSON elegendő. Új SHP feldolgozásához dokumentált GDAL/GEOS környezet kell; a jelenlegi Windows QGIS útvonal nem lehet CI-be égetett feltétel.
 
+## Megvalósított helyi környezet (2026-11-08)
+
+- Runtime: Node.js ≥ 22.18 (`.nvmrc`: 22.23.4). Az egységtesztek és az adatpipeline a beépített TypeScript type strippinget használják, futtatásukhoz nem kell csomag.
+- Csomagok: `package-lock.json`, telepítés `npm ci`. Rögzített fő verziók: Vite 8.3.6, React 19.3.1, MapLibre GL JS 6.16.0, vite-plugin-pwa 2.0.0 (Workbox 7.4), TypeScript 6.0.3, ESLint 10.14.0, Playwright 1.63.0. A TypeScript 7.x-et a typescript-eslint 8.72 még nem támogatja.
+- A megvalósítás idején a build- és tesztkörnyezet nem érte el az npm-registryt. Ezért az `npm install` a tulajdonos Windows-gépén futott (Node 24.18.0, npm 11.16.0), a Linuxos natív csomagokat (Rolldown, LightningCSS, Rollup) pedig a `npm run setup:linux-binaries` töltötte le a lockfile verzióival. Normál, hálózattal rendelkező környezetben elég az `npm ci`.
+- A MapLibre worker saját originről, hash-elt `assets/maplibre-gl-worker-*.mjs` fájlként töltődik (`setWorkerUrl`). Ezért elég a `worker-src 'self'`: nincs szükség blob-workerre, `unsafe-eval`-ra vagy inline stílusra. A `public/_headers` CSP-jét a `scripts/dev/serve.mjs` minden E2E-teszt alatt alkalmazza, és a tesztek konzolhibára is elbuknak.
+- `npm run build` után a `scripts/build/verify-dist.mjs` ellenőrzi, hogy minden kiszolgált fájl benne van a precache-ben (a service worker és a `_headers` kivételével). Azt is ellenőrzi, hogy nem került a buildbe SHP-, backup-, docs-, src-, sourcemap- vagy `.env`-fájl.
+
 ## Tartalomfrissítés
 
 1. Új inputot először külön ideiglenes helyen ellenőrizz; a korábbi fájlcsoportot mentsd el.

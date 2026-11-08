@@ -1,6 +1,6 @@
 # ADR-0001 – Statikus, előfeldolgozott adatokkal működő PWA
 
-Dátum: 2026-11-05. Állapot: a termékirány jóváhagyott; a dokumentált technikai megvalósítás tervezett.
+Dátum: 2026-11-05. Állapot: a termékirány jóváhagyott; a technikai megvalósítás 2026-11-08-án elkészült a helyi MVP-ben (Vite 8, React 19, MapLibre 6, vite-plugin-pwa 2). A Cloudflare-kiadás még nem történt meg.
 
 ## Kontextus
 

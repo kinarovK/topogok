@@ -1,6 +1,6 @@
 # TopoGok – műszaki design
 
-Állapot: megvalósítás előtti terv a tulajdonos által elfogadott termékdöntésekhez. Nincs alkalmazáskód. Az itt választott modulhatárok és interfészek a követelmények végrehajtható kibontásai.
+Állapot (2026-11-09): megvalósítva a helyi MVP-ben, a modulhatárok szerint (`src/domain`, `src/map`, `src/data`, `src/i18n`, `src/preferences`, `src/pwa`, `src/features`). Eltérések: a gyakorlási pont/megjelenítés a `GameScreen`-ben van, külön `QuestionPanel`/`Feedback` fájl nélkül; a MapLibre worker a `setWorkerUrl` hívással, hash-elt saját fájlból töltődik. Az itt választott modulhatárok és interfészek a követelmények végrehajtható kibontásai.
 
 ## Architektúra
 

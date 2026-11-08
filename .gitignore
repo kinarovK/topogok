@@ -4,6 +4,9 @@
 # Future frontend build/development artifacts.
 node_modules/
 dist/
+dist-e2e/
+dist-b/
+.e2e-serve
 coverage/
 test-results/
 playwright-report/
@@ -13,3 +16,6 @@ playwright-report/
 *.log
 .DS_Store
 Thumbs.db
+
+# Linux native optional packages for the split Windows-install / Linux-build setup
+/.linux-binaries/

@@ -1,0 +1,93 @@
+import { readFileSync } from 'node:fs';
+import { expect, test as base, type Page } from '@playwright/test';
+import { labelPoint } from '../../src/map/labelPoint.ts';
+import type { RegionFeature } from '../../src/data/validation.ts';
+
+export const PROD = 'http://127.0.0.1:4173/';
+export const E2E = 'http://127.0.0.1:4174/';
+
+const regions = (JSON.parse(readFileSync('public/data/ukraine-administration/2026.11.05.1/regions.geojson', 'utf8')) as { features: RegionFeature[] }).features;
+export const REGIONS = regions;
+export const NAME_TO_ID = new Map<string, string>();
+for (const r of regions) { NAME_TO_ID.set(r.properties.names.hu, r.id); NAME_TO_ID.set(r.properties.names.uk, r.id); }
+export const POINT = new Map(regions.map((r) => [r.id, labelPoint(r.geometry)]));
+export const NAME = new Map(regions.map((r) => [r.id, r.properties.names]));
+
+/** Every test fails if the page requests anything outside the local origin or logs an error. */
+export const test = base.extend<{ audit: { external: string[]; errors: string[] } }>({
+  audit: [async ({ page }, use) => {
+    const audit = { external: [] as string[], errors: [] as string[] };
+    page.on('request', (r) => {
+      const u = r.url();
+      if (!u.startsWith('http://127.0.0.1:') && !u.startsWith('data:') && !u.startsWith('blob:')) audit.external.push(u);
+    });
+    page.on('pageerror', (e) => audit.errors.push(e.message));
+    page.on('console', (m) => { if (m.type() === 'error') audit.errors.push(m.text()); });
+    await use(audit);
+    expect(audit.external, 'external requests').toEqual([]);
+    expect(audit.errors.filter((e) => !/Failed to load resource/.test(e)), 'page errors').toEqual([]);
+  }, { auto: true }],
+});
+export { expect };
+
+export async function mapReady(page: Page, name = 'main') {
+  await expect(page.locator(`[data-map="${name}"]`)).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
+}
+
+/** Clicks the interior label point of a region on the named map (e2e build only). */
+export async function clickRegion(page: Page, id: string, map = 'main') {
+  const p = POINT.get(id)!;
+  const xy = await page.evaluate(([m, lng, lat]) => {
+    const h = window.__topogokE2E!.maps[m as string]!;
+    h.container.scrollIntoView({ block: 'center' });
+    const r = h.container.getBoundingClientRect();
+    const q = h.project([lng as number, lat as number]);
+    return { x: r.left + q.x, y: r.top + q.y, w: r.width, h: r.height, qx: q.x, qy: q.y };
+  }, [map, p[0], p[1]] as const);
+  expect(xy.qx >= 0 && xy.qy >= 0 && xy.qx <= xy.w && xy.qy <= xy.h, `${id} visible on ${map}`).toBe(true);
+  await page.mouse.click(xy.x, xy.y);
+}
+
+export async function currentTargetId(page: Page): Promise<string> {
+  const text = (await page.locator('#question').innerText()).trim();
+  const name = text.replace(/^(Keresd meg|Знайди):\s*/, '');
+  const id = NAME_TO_ID.get(name);
+  expect(id, `unknown question "${text}"`).toBeTruthy();
+  return id!;
+}
+
+export function otherId(id: string, avoid: string[] = []): string {
+  return regions.map((r) => r.id).find((x) => x !== id && !avoid.includes(x) && x !== 'UA-30' && x !== 'UA-40')!;
+}
+
+/** Answers on the main map, or via the inset for the two small cities. */
+export async function selectRegion(page: Page, id: string) {
+  if (id === 'UA-30' || id === 'UA-40') {
+    const inset = id === 'UA-30' ? 'kyiv' : 'sevastopol';
+    const btn = page.locator(`[data-inset="${inset}"]`);
+    if ((await btn.getAttribute('aria-pressed')) !== 'true') await btn.click();
+    await mapReady(page, `inset-${inset}`);
+    await clickRegion(page, id, `inset-${inset}`);
+  } else {
+    await clickRegion(page, id);
+  }
+}
+
+export async function start(page: Page, base: string, mode: 'practice' | 'assessment', count: '5' | '12' | 'all', limit?: string) {
+  await page.goto(base);
+  await page.locator('button', { hasText: mode === 'practice' ? /^Gyakorlás|^Практика/ : /^Számonkérés|^Перевірка знань/ }).first().click();
+  await page.locator('label', { hasText: count === 'all' ? /Mindegyik|Усі/ : new RegExp(`^${count}$`) }).click();
+  if (limit) await page.locator('label', { hasText: new RegExp(`^${limit}$`) }).click();
+  await page.getByRole('button', { name: /Indítás|Почати/ }).click();
+  await mapReady(page);
+  await expect(page.locator('#question')).toContainText(/Keresd meg|Знайди/);
+}
+
+export const confirmBtn = (page: Page) => page.getByRole('button', { name: /Válasz véglegesítése|Підтвердити відповідь/ });
+export const nextBtn = (page: Page) => page.getByRole('button', { name: /^(Következő|Eredmény|Далі|Результат)$/ });
+
+/** "Next" ignores clicks within 400 ms of the feedback (double-click guard), as a user would pause. */
+export async function clickNext(page: Page) {
+  await page.waitForTimeout(450);
+  await nextBtn(page).click();
+}
