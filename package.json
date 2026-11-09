@@ -20,7 +20,8 @@
     "serve:dist": "node scripts/dev/serve.mjs dist 4173",
     "lint": "eslint .",
     "test:e2e": "playwright test",
-    "check": "npm run lint && npm run typecheck && npm test && npm run data:validate && npm run build"
+    "check": "npm run lint && npm run typecheck && npm test && npm run data:validate && npm run build",
+    "data:tectonics": "python3 scripts/data/tectonics/vectorize.py && node scripts/data/tectonics/build.ts"
   },
   "dependencies": {
     "maplibre-gl": "6.16.0",

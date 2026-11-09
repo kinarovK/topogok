@@ -19,3 +19,6 @@ Thumbs.db
 
 # Linux native optional packages for the split Windows-install / Linux-build setup
 /.linux-binaries/
+
+# Intermediate data builds
+/build/

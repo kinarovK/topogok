@@ -1,0 +1,167 @@
+{
+  "topicId": "ukraine-tectonics",
+  "dataVersion": "2026.11.09.1",
+  "node": "v22.23.4",
+  "source": {
+    "file": "sources/tectonics/ukraine-tectonics-source.png",
+    "sha256": "9db343fc5e3f3f0b790b16c41c1a5f7f0d100f963e8776b407d7e2c83627bfff",
+    "bytes": 498594
+  },
+  "vectorize": {
+    "source": "sources/tectonics/ukraine-tectonics-source.png",
+    "image_size": [
+      1310,
+      835
+    ],
+    "georeference": {
+      "model": "spherical LCC (45N/52N, 31E) + 2nd-order polynomial, ICP on the outline",
+      "iou_affine": 0.97,
+      "outline_residual_px": {
+        "median": 1.61,
+        "p90": 6.34,
+        "max": 64.03
+      },
+      "km_per_px_approx": 1.138,
+      "inverse_max_error_px": 0.3278
+    },
+    "units": [
+      {
+        "id": "TU-01",
+        "parts": 1,
+        "vertices": 5749,
+        "pixels": 166661
+      },
+      {
+        "id": "TU-02",
+        "parts": 3,
+        "vertices": 3638,
+        "pixels": 23434
+      },
+      {
+        "id": "TU-03",
+        "parts": 1,
+        "vertices": 2812,
+        "pixels": 36788
+      },
+      {
+        "id": "TU-04",
+        "parts": 1,
+        "vertices": 2259,
+        "pixels": 21817
+      },
+      {
+        "id": "TU-05",
+        "parts": 1,
+        "vertices": 4389,
+        "pixels": 86969
+      },
+      {
+        "id": "TU-06",
+        "parts": 1,
+        "vertices": 2055,
+        "pixels": 22300
+      },
+      {
+        "id": "TU-07",
+        "parts": 1,
+        "vertices": 5930,
+        "pixels": 47912
+      },
+      {
+        "id": "TU-08",
+        "parts": 1,
+        "vertices": 1645,
+        "pixels": 10631
+      },
+      {
+        "id": "TU-09",
+        "parts": 1,
+        "vertices": 1581,
+        "pixels": 12139
+      },
+      {
+        "id": "TU-10",
+        "parts": 1,
+        "vertices": 1092,
+        "pixels": 4836
+      },
+      {
+        "id": "TU-11",
+        "parts": 1,
+        "vertices": 1239,
+        "pixels": 5109
+      }
+    ],
+    "params": {
+      "color_tolerance": 20,
+      "min_component_px": 250,
+      "upsample": 2,
+      "sigma_px": 1
+    }
+  },
+  "checks": [
+    {
+      "id": "unit-ids",
+      "status": "pass",
+      "detail": "11 units: TU-01, TU-02, TU-03, TU-04, TU-05, TU-06, TU-07, TU-08, TU-09, TU-10, TU-11"
+    },
+    {
+      "id": "unit-names",
+      "status": "pass",
+      "detail": "hu/uk names match the owner-provided list"
+    },
+    {
+      "id": "geometry-validity",
+      "status": "pass",
+      "detail": "all rings closed, finite, no self-intersections, holes inside shells"
+    },
+    {
+      "id": "no-overlap",
+      "status": "pass",
+      "detail": "0 of 177453 sample points (0.02° grid) fall in more than one unit"
+    },
+    {
+      "id": "inside-country",
+      "status": "pass",
+      "detail": "220 of 177453 unit sample points outside the country outline (0.12%)"
+    }
+  ],
+  "issues": [],
+  "metrics": {
+    "countryKm2": 599095,
+    "unitsKm2": 576090,
+    "unitShareOfCountry": 0.962,
+    "areasKm2": {
+      "TU-01": 217522,
+      "TU-02": 31720,
+      "TU-03": 48420,
+      "TU-04": 28689,
+      "TU-05": 113300,
+      "TU-06": 29276,
+      "TU-07": 63751,
+      "TU-08": 14007,
+      "TU-09": 16128,
+      "TU-10": 6611,
+      "TU-11": 6666
+    },
+    "overlapSamples": 0,
+    "outsideSamples": 220,
+    "coveredSamples": 177233,
+    "countrySamples": 184086
+  },
+  "outputs": [
+    {
+      "file": "public/data/ukraine-tectonics/2026.11.09.1/manifest.json",
+      "sha256": "29c089024b60edfff16590695787e0c3b22ae07e37e8603e0027aa7263bdf6a2"
+    },
+    {
+      "file": "public/data/ukraine-tectonics/2026.11.09.1/regions.geojson",
+      "sha256": "22c0e79c4394946506ced47ae83657573468cde6c6e47ce7a28d9a0ba80337bd",
+      "bytes": 643003
+    },
+    {
+      "file": "public/data/ukraine-tectonics/2026.11.09.1/country.geojson",
+      "sha256": "dc5222c5fdba633379983a3747bf9af94f9483c9edb2b7de32685ad37fefbac2"
+    }
+  ]
+}
