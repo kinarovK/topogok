@@ -1,6 +1,8 @@
 # Projektállapot
 
-Frissítve: 2026-11-09.
+Frissítve: 2026-11-10.
+
+- **Második téma:** Ukrajna tektonikai szerkezete (11 egység), témaválasztó főoldallal; részletek: [0002](tasks/0002_TECTONICS_TOPIC/task.md).
 
 - **Implementáció: a helyi MVP működik.** Gyakorlás, számonkérés, térkép (Kijev és Szevasztopol nagyítással; a betéttérképek 2026-11-09-én tulajdonosi döntéssel kikerültek), felfedezés, hu/uk felület, világos/sötét/rendszer téma, offline működés és biztonságos frissítés. A plan.md P01–P09 szakaszai a helyi határig készek, a P10-ből a helyi átadás kész. Részletes bizonyítékok: [átvételi jelentés](../../reports/acceptance.md).
 - **Nyilvános kiadás: nem történt, és nem is kiadásra kész.** Feltételei: igazolt adatforrás és licenc, fizikai Android- és iPhone-próba, Cloudflare-hozzáférés, távoli repó és CI.
@@ -13,10 +15,10 @@ Frissítve: 2026-11-09.
 | Ellenőrzés | Eredmény |
 |---|---|
 | `npm run lint`, `npm run typecheck` | PASS |
-| `npm test` (szabályok, óra, jegy, adat, szótár, beállítások, találat) | 31/31 PASS |
+| `npm test` (szabályok, óra, jegy, adat, szótár, beállítások, találat) | 32/32 PASS |
 | `npm run data:build` / `data:validate` | 13/13 PASS / bájtra azonos |
 | `npm run build` (precache- és tiltottfájl-kapuval) | PASS |
-| `npm run test:e2e` (Chromium, mobil nézet, CSP-vel) | 21/21 PASS (2026-11-09, `reports/e2e-results.txt`) |
+| `npm run test:e2e` (Chromium, mobil nézet, CSP-vel) | 24/24 PASS (2026-11-10, `reports/e2e-results.txt`) |
 | Teljesítmény (4× CPU, 1,6 Mbit/s, 150 ms) | főoldal 2,5 s, térkép 1,1 s, p95 kattintás ≤ 113 ms, főoldali átvitel 384 KiB |
 
 ## Nem elvégzett / nyitott

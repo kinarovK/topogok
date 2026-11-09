@@ -3,7 +3,7 @@ export type LocalizedText = { hu: string; uk: string; en?: string };
 export type Bounds = [number, number, number, number];
 export type Position = [number, number];
 export type PolygonGeometry = { type: 'Polygon'; coordinates: Position[][] } | { type: 'MultiPolygon'; coordinates: Position[][][] };
-export type RegionKind = 'oblast' | 'autonomous-republic' | 'city';
+export type RegionKind = 'oblast' | 'autonomous-republic' | 'city' | 'tectonic-unit';
 export type RegionFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText; kind: RegionKind }; geometry: PolygonGeometry };
 export type CountryFeature = { type: 'Feature'; id: 'UA'; properties: { id: 'UA'; names: LocalizedText }; geometry: PolygonGeometry };
 
@@ -76,7 +76,7 @@ export function validateRegions(v: unknown, manifest: TopicManifest): RegionFeat
     if (ids.has(f['id'])) throw bad(`duplicate id ${f['id']}`);
     ids.add(f['id']);
     if (!isText(props['names'])) throw bad(`names for ${f['id']}`);
-    if (!['oblast', 'autonomous-republic', 'city'].includes(props['kind'] as string)) throw bad(`kind for ${f['id']}`);
+    if (!['oblast', 'autonomous-republic', 'city', 'tectonic-unit'].includes(props['kind'] as string)) throw bad(`kind for ${f['id']}`);
     if (!validGeometry(f['geometry'])) throw bad(`geometry for ${f['id']}`);
   }
   for (const ins of manifest.insets) if (!ids.has(ins.anchorFeatureId)) throw bad(`inset anchor ${ins.anchorFeatureId} missing`);

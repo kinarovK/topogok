@@ -8,11 +8,11 @@ export const MAP_COLORS: Record<ResolvedTheme, {
   selected: string; selectedLine: string; wrong: string; wrongLine: string; correct: string; correctLine: string;
 }> = {
   light: {
-    background: '#EDF2F6', country: '#E5DFD2', countryLine: '#3D4756', region: '#E5DFD2', regionLine: '#66717F',
+    background: '#EDF2F6', country: '#D3D7DD', countryLine: '#3D4756', region: '#E5DFD2', regionLine: '#66717F',
     selected: '#9FC5FF', selectedLine: '#1855B6', wrong: '#F4B3AE', wrongLine: '#A32222', correct: '#A9DDB7', correctLine: '#176238',
   },
   dark: {
-    background: '#111E2B', country: '#414B59', countryLine: '#D5DCE5', region: '#414B59', regionLine: '#A5B0BD',
+    background: '#111E2B', country: '#2B3543', countryLine: '#D5DCE5', region: '#414B59', regionLine: '#A5B0BD',
     selected: '#315C91', selectedLine: '#8FB8FF', wrong: '#703C42', wrongLine: '#FFB4AB', correct: '#285C45', correctLine: '#A0E7B5',
   },
 };

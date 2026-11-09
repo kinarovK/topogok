@@ -26,7 +26,11 @@
     "explore": "Térkép felfedezése",
     "help": "Súgó",
     "about": "Névjegy és források",
-    "topic": "Téma: {topic}"
+    "chooseTopic": "Válassz témát",
+    "topicCount": "{count} kérdezhető egység",
+    "topicAdminDesc": "24 terület, a Krími Autonóm Köztársaság, Kijev és Szevasztopol.",
+    "topicTectonicsDesc": "Ukrajna 11 tektonikai szerkezeti egysége.",
+    "chooseMode": "Mit szeretnél csinálni?"
   },
   "setup": {
     "titlePractice": "Gyakorlás beállítása",
@@ -66,7 +70,8 @@
     "confirmExitBody": "A mostani kör elvész. Az idő a döntésig tovább telik.",
     "restartAnyway": "Új kör",
     "exitAnyway": "Kilépés",
-    "loadingMap": "Térkép betöltése…"
+    "loadingMap": "Térkép betöltése…",
+    "greyHint": "A szürke területek nem tartoznak a kérdezett egységekhez."
   },
   "practice": {
     "correct": "Helyes!",
@@ -124,7 +129,9 @@
     "installTitle": "Telepítés",
     "installText": "A telepítés nem kötelező. Androidon és számítógépen Chrome-ban vagy Edge-ben: böngészőmenü → „Alkalmazás telepítése” vagy „Hozzáadás a kezdőképernyőhöz”. iPhone-on és iPaden Safariban: Megosztás gomb → „Főképernyőhöz adás”.",
     "troubleTitle": "Ha valami nem működik",
-    "troubleText": "Nyisd meg az oldalt internetkapcsolattal, és frissítsd. Ha ez sem segít, töröld az oldal helyi adatait a böngésző beállításaiban, majd töltsd be újra; ez a nyelv- és megjelenésbeállítást is törli."
+    "troubleText": "Nyisd meg az oldalt internetkapcsolattal, és frissítsd. Ha ez sem segít, töröld az oldal helyi adatait a böngésző beállításaiban, majd töltsd be újra; ez a nyelv- és megjelenésbeállítást is törli.",
+    "greyTitle": "Szürke területek",
+    "greyText": "A tektonikai térképen a szürke területek nem tartoznak a kérdezett egységekhez. Ha oda koppintasz, nem jelölsz ki választ, és nem veszítesz próbálkozást."
   },
   "about": {
     "title": "Névjegy és források",
@@ -136,7 +143,8 @@
     "notProvided": "nincs megadva",
     "unverified": "Az adatforrás és a felhasználási feltételek még nincsenek ellenőrizve.",
     "verified": "Ellenőrzött forrás.",
-    "ownerStatementLabel": "A tulajdonos közlése"
+    "ownerStatementLabel": "A tulajdonos közlése",
+    "topicsTitle": "Témák és adatforrások"
   },
   "pwa": {
     "ready": "Az alkalmazás offline is használható.",

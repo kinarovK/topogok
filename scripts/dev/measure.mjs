@@ -23,10 +23,11 @@ for (let i = 0; i < RUNS; i++) {
 
   const t0 = Date.now();
   await page.goto(URL_);
-  await page.getByRole('button', { name: /^Gyakorlás/ }).waitFor();
+  await page.locator('[data-topic="ukraine-administration"]').waitFor();
   const homeMs = Date.now() - t0;
   const homeBytes = bytes;
 
+  await page.locator('[data-topic="ukraine-administration"]').click();
   await page.getByRole('button', { name: /^Gyakorlás/ }).click();
   await page.getByRole('button', { name: 'Indítás' }).waitFor();
   const t1 = Date.now();

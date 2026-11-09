@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { getTopic } from '../data/topicRegistry.ts';
+import { getTopic, topicEntry, type TopicId } from '../data/topicRegistry.ts';
 import { DataError, type Topic } from '../data/validation.ts';
 import type { AssessmentConfiguration, GameConfiguration, GameResult, Mode, PracticeConfiguration } from '../domain/types.ts';
 import { GameScreen } from '../features/game/GameScreen.tsx';
-import { HomeScreen } from '../features/home/HomeScreen.tsx';
+import { HomeScreen, TopicScreen } from '../features/home/HomeScreen.tsx';
 import { SetupScreen } from '../features/setup/SetupScreen.tsx';
 import { ResultScreen } from '../features/results/ResultScreen.tsx';
 import { ExploreScreen } from '../features/explore/ExploreScreen.tsx';
@@ -16,10 +16,11 @@ import s from './app.module.css';
 
 type View =
   | { name: 'home' }
-  | { name: 'setup'; mode: Mode }
-  | { name: 'game'; config: GameConfiguration; round: number }
-  | { name: 'results'; config: GameConfiguration; result: GameResult }
-  | { name: 'explore' }
+  | { name: 'topic'; topicId: TopicId }
+  | { name: 'setup'; topicId: TopicId; mode: Mode }
+  | { name: 'game'; topicId: TopicId; config: GameConfiguration; round: number }
+  | { name: 'results'; topicId: TopicId; config: GameConfiguration; result: GameResult }
+  | { name: 'explore'; topicId: TopicId }
   | { name: 'help' }
   | { name: 'about' };
 
@@ -28,24 +29,26 @@ type TopicState = { status: 'loading' } | { status: 'ready'; topic: Topic } | { 
 export function App() {
   const { t } = useSettings();
   const [view, setView] = useState<View>({ name: 'home' });
-  const [topicState, setTopicState] = useState<TopicState>({ status: 'loading' });
-  const [lastSetup, setLastSetup] = useState<{ practice?: PracticeConfiguration; assessment?: AssessmentConfiguration }>({});
+  const [topics, setTopics] = useState<Partial<Record<TopicId, TopicState>>>({});
+  const [lastSetup, setLastSetup] = useState<Record<string, PracticeConfiguration | AssessmentConfiguration>>({});
   const [renderErrorView, setRenderErrorView] = useState<string | null>(null);
   const renderError = renderErrorView === view.name;
   const setRenderError = (v: boolean) => setRenderErrorView(v ? view.name : null);
   const pwa = useSyncExternalStore(pwaStore.subscribe, pwaStore.get);
 
-  const fetchTopic = useCallback(() => {
-    getTopic().then(
-      (topic) => setTopicState({ status: 'ready', topic }),
+  const currentTopicId = 'topicId' in view ? view.topicId : null;
+  const fetchTopic = useCallback((id: TopicId) => {
+    getTopic(id).then(
+      (topic) => setTopics((m) => ({ ...m, [id]: { status: 'ready', topic } })),
       (e: unknown) => {
         if (!(e instanceof DataError)) console.error(e);
-        setTopicState({ status: 'error', kind: e instanceof DataError ? e.kind : 'load' });
+        setTopics((m) => ({ ...m, [id]: { status: 'error', kind: e instanceof DataError ? e.kind : 'load' } }));
       },
     );
   }, []);
-  useEffect(fetchTopic, [fetchTopic]);
-  const load = () => { setTopicState({ status: 'loading' }); fetchTopic(); };
+  useEffect(() => { if (currentTopicId && !topics[currentTopicId]) fetchTopic(currentTopicId); }, [currentTopicId, topics, fetchTopic]);
+  const topicState: TopicState = currentTopicId ? topics[currentTopicId] ?? { status: 'loading' } : { status: 'loading' };
+  const load = () => { if (currentTopicId) { setTopics((m) => ({ ...m, [currentTopicId]: { status: 'loading' } })); fetchTopic(currentTopicId); } };
 
   const active = view.name === 'game';
   useEffect(() => { setActivity(view.name === 'game' ? 'round' : view.name === 'results' ? 'result' : 'idle'); }, [view.name]);
@@ -60,9 +63,9 @@ export function App() {
 
   useEffect(() => { window.scrollTo(0, 0); }, [view.name]);
 
-  const startGame = (config: GameConfiguration) => {
-    setLastSetup((p) => (config.mode === 'practice' ? { ...p, practice: config } : { ...p, assessment: config }));
-    setView({ name: 'game', config, round: Date.now() });
+  const startGame = (topicId: TopicId, config: GameConfiguration) => {
+    setLastSetup((p) => ({ ...p, [`${topicId}:${config.mode}`]: config }));
+    setView({ name: 'game', topicId, config, round: Date.now() });
   };
 
   const needsTopic = view.name === 'game' || view.name === 'explore' || view.name === 'setup';
@@ -95,31 +98,35 @@ export function App() {
     const topic = topicState.status === 'ready' ? topicState.topic : null;
     switch (view.name) {
       case 'home':
-        content = <HomeScreen topicTitle={topic?.manifest.title ?? null} onMode={(mode) => setView({ name: 'setup', mode })} onExplore={() => setView({ name: 'explore' })} onHelp={() => setView({ name: 'help' })} onAbout={() => setView({ name: 'about' })} />;
+        content = <HomeScreen onTopic={(topicId) => setView({ name: 'topic', topicId })} onHelp={() => setView({ name: 'help' })} onAbout={() => setView({ name: 'about' })} />;
+        break;
+      case 'topic':
+        content = <TopicScreen topic={topicEntry(view.topicId)} onMode={(mode) => setView({ name: 'setup', topicId: view.topicId, mode })} onExplore={() => setView({ name: 'explore', topicId: view.topicId })} onBack={() => setView({ name: 'home' })} />;
         break;
       case 'setup':
-        content = <SetupScreen key={view.mode} mode={view.mode} topic={topic!} initial={view.mode === 'practice' ? lastSetup.practice : lastSetup.assessment} onStart={startGame} onBack={() => setView({ name: 'home' })} />;
+        content = <SetupScreen key={`${view.topicId}:${view.mode}`} mode={view.mode} topic={topic!} entry={topicEntry(view.topicId)} initial={lastSetup[`${view.topicId}:${view.mode}`]}
+          onStart={(c) => startGame(view.topicId, c)} onBack={() => setView({ name: 'topic', topicId: view.topicId })} />;
         break;
       case 'game':
         content = (
           <GameScreen key={view.round} topic={topic!} config={view.config}
-            onFinish={(result) => setView({ name: 'results', config: view.config, result })}
-            onRestart={() => setView({ name: 'game', config: view.config, round: Date.now() })}
-            onExit={() => setView({ name: 'home' })}
+            onFinish={(result) => setView({ name: 'results', topicId: view.topicId, config: view.config, result })}
+            onRestart={() => setView({ name: 'game', topicId: view.topicId, config: view.config, round: Date.now() })}
+            onExit={() => setView({ name: 'topic', topicId: view.topicId })}
             onRenderError={() => setRenderError(true)} />
         );
         break;
       case 'results':
-        content = <ResultScreen result={view.result} onNewRound={() => startGame(view.config)} onHome={() => setView({ name: 'home' })} />;
+        content = <ResultScreen result={view.result} onNewRound={() => startGame(view.topicId, view.config)} onHome={() => setView({ name: 'home' })} />;
         break;
       case 'explore':
-        content = <ExploreScreen topic={topic!} onBack={() => setView({ name: 'home' })} onRenderError={() => setRenderError(true)} />;
+        content = <ExploreScreen topic={topic!} onBack={() => setView({ name: 'topic', topicId: view.topicId })} onRenderError={() => setRenderError(true)} />;
         break;
       case 'help':
         content = <HelpScreen onBack={() => setView({ name: 'home' })} />;
         break;
       case 'about':
-        content = <AboutScreen manifest={topic?.manifest ?? null} onBack={() => setView({ name: 'home' })} />;
+        content = <AboutScreen onBack={() => setView({ name: 'home' })} />;
         break;
     }
   }

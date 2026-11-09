@@ -9,6 +9,7 @@ import { assessmentResult, MAX_PRACTICE_ATTEMPTS, practiceResult } from '../../d
 import type { GameConfiguration, GameEvent, GameResult, GameState } from '../../domain/types.ts';
 import { padBounds, type Feedback } from '../../map/mapAdapter.ts';
 import { MapView } from '../../map/MapView.tsx';
+import { topicEntry } from '../../data/topicRegistry.ts';
 import s from '../../app/app.module.css';
 
 const NO_FEEDBACK: Feedback = { wrongIds: [], correctId: null };
@@ -172,6 +173,7 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
           </div>
         )}
         {config.mode === 'assessment' && <p className="visually-hidden" aria-live="polite">{announcement}</p>}
+        {topicEntry(topic.manifest.id).partialCoverage && <p className={s.note}>{t('game.greyHint')}</p>}
         <div className={s.stickyActions}>
           {inFeedback ? (
             <Button variant="primary" block onClick={() => {

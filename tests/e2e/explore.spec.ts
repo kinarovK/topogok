@@ -1,7 +1,7 @@
-import { expect, mapReady, NAME, PROD, test } from './helpers.ts';
+import { expect, mapReady, NAME, openTopic, PROD, test } from './helpers.ts';
 
 test('T13/T14 production build: every region is hit at its label point; names in both languages; no labels or reveal inside a round', async ({ page }) => {
-  await page.goto(PROD);
+  await openTopic(page, PROD, 'admin');
   await page.getByRole('button', { name: 'Térkép felfedezése' }).click();
   await mapReady(page, 'explore');
   const labels = page.locator('[data-label-id]');
@@ -31,7 +31,7 @@ test('T13/T14 production build: every region is hit at its label point; names in
 
 test('T24 data failure: corrupted package shows a localized error and never starts a round', async ({ page }) => {
   await page.route('**/regions.geojson', (r) => r.fulfill({ status: 200, contentType: 'application/geo+json', body: '{"type":"FeatureCollection","features":[]}' }));
-  await page.goto(PROD);
+  await openTopic(page, PROD, 'admin');
   await page.getByRole('button', { name: /^Gyakorlás/ }).click();
   await expect(page.getByRole('alert')).toContainText('A térképadatok hiányosak vagy sérültek');
   await expect(page.getByRole('button', { name: 'Újrapróbálás' })).toBeVisible();

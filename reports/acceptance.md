@@ -15,10 +15,10 @@ Környezet:
 |---|---|---|
 | Lint | `npm run lint` | PASS, 0 hiba |
 | Strict típusellenőrzés | `npm run typecheck` | PASS |
-| Egységtesztek | `npm test` | PASS, 31/31 |
+| Egységtesztek | `npm test` | PASS, 32/32 |
 | Adatpipeline + reprodukálhatóság | `npm run data:build`, `npm run data:validate` | PASS, 13/13 ellenőrzés; bájtra azonos |
 | Produkciós build + precache-kapu | `npm run build` | PASS; 18 fájl, mind precache-ben (az SW-fájlok és a `_headers` kivételével), nincs tiltott fájl |
-| E2E (Playwright) | `npm run test:e2e` | 21/21 PASS (2026-11-09, `reports/e2e-results.txt`) |
+| E2E (Playwright) | `npm run test:e2e` | 24/24 PASS (2026-11-10, `reports/e2e-results.txt`) |
 | Teljesítmény | `node scripts/dev/measure.mjs 5` | PASS, ld. lent |
 | Kontraszt | számítás, `reports/contrast.md` | szöveg ≥ 5,88:1; állapot-körvonal ≥ 4,41:1; kitöltések önmagukban < 3:1 (körvonal és szöveg kompenzál) |
 
@@ -82,6 +82,17 @@ Két javaslatát is beépítettük: dupla kattintással nem lehet átugrani a vi
 
 - A Kijev/Szevasztopol betéttérképek a tulajdonos döntésére kikerültek. A két kis egység nagyítással választható; az E2E-teszt egérgörgős nagyítás után jelöli ki őket.
 - Az E2E-tesztek közben előkerült egy valódi hiba: mobilon, ukrán nyelven a térkép alján lévő „Початковий вигляд” gomb éppen Szevasztopolt takarta, így ott se nagyítani, se kijelölni nem lehetett. A vezérlők a térkép jobb szélére, egymás alá kerültek, ikonos formában, szöveges címkével. Az alapnézet kihagyja a sávjukat. Mind az 5 vizsgált képernyőméreten teszt ellenőrzi, hogy a vezérlők nem takarnak országrészt.
+
+## Második téma (2026-11-10)
+
+Tektonikai téma 11 egységgel, témaválasztó főoldallal. Új E2E-tesztek:
+- gyakorlás mind a 11 egységgel;
+- a szürke háttérterület nem válasz;
+- csak az 5 és a Mindegyik (11) kérdésszám jelenik meg;
+- ukrán nyelvű számonkérés;
+- offline kör.
+
+Képernyőképek: `reports/screenshots/tectonics-*.png`, `hu-light-00-topics.png`. Az adatok validációja: `reports/tectonics-validation.json`.
 
 ## Nem elvégzett próbák
 

@@ -8,7 +8,8 @@ test('T19 after the first full load everything works offline: both languages, bo
   await expect(page.getByText('Az alkalmazás offline is használható.')).toBeVisible({ timeout: 30_000 });
   await context.setOffline(true);
   await page.reload();
-  await expect(page.getByRole('button', { name: /^Gyakorlás/ })).toBeVisible();
+  await expect(page.locator('[data-topic="ukraine-tectonics"]')).toBeVisible();
+  await page.locator('[data-topic="ukraine-tectonics"]').click();
   await page.getByLabel('Nyelv', { exact: true }).selectOption('uk');
   await page.getByLabel('Вигляд', { exact: true }).selectOption('dark');
   await page.getByRole('button', { name: /^Практика/ }).click();
@@ -49,6 +50,7 @@ test.describe('updates', () => {
     await playing.goto(base);
     await expect(playing.getByText('Az alkalmazás offline is használható.')).toBeVisible({ timeout: 30_000 });
     await playing.reload(); // now controlled by SW A
+    await playing.locator('[data-topic="ukraine-administration"]').click();
     await playing.getByRole('button', { name: /^Gyakorlás/ }).click();
     await playing.getByRole('button', { name: 'Indítás' }).click();
     await mapReady(playing);

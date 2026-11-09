@@ -2,7 +2,7 @@
 // Rules (docs/OPERATIONS.md): never reload an active round; update only on explicit action while this
 // tab is idle and no other tab reports an active round; unknown peer state defers the update.
 import { registerSW } from 'virtual:pwa-register';
-import { topicBaseUrl } from '../data/topicRegistry.ts';
+import { TOPICS, topicBaseUrl } from '../data/topicRegistry.ts';
 
 export type PwaState = {
   offlineReady: boolean;
@@ -82,7 +82,7 @@ export function dismissOfflineReady() { set({ offlineJustReady: false }); }
 /** Offline readiness is reported only from a real cache hit of the app shell and the data package. */
 async function cacheHasPackage(): Promise<boolean> {
   if (!('caches' in window)) return false;
-  const urls = [`${import.meta.env.BASE_URL}index.html`, `${topicBaseUrl}manifest.json`, `${topicBaseUrl}regions.geojson`, `${topicBaseUrl}country.geojson`];
+  const urls = [`${import.meta.env.BASE_URL}index.html`, ...TOPICS.flatMap((t) => ['manifest.json', 'regions.geojson', 'country.geojson'].map((f) => `${topicBaseUrl(t)}${f}`))];
   const hits = await Promise.all(urls.map((u) => caches.match(new URL(u, location.href).href, { ignoreSearch: true })));
   return hits.every(Boolean);
 }

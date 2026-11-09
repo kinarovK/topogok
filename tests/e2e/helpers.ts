@@ -6,12 +6,23 @@ import type { RegionFeature } from '../../src/data/validation.ts';
 export const PROD = 'http://127.0.0.1:4173/';
 export const E2E = 'http://127.0.0.1:4174/';
 
-const regions = (JSON.parse(readFileSync('public/data/ukraine-administration/2026.11.05.1/regions.geojson', 'utf8')) as { features: RegionFeature[] }).features;
+const read = (p: string) => (JSON.parse(readFileSync(p, 'utf8')) as { features: RegionFeature[] }).features;
+const regions = read('public/data/ukraine-administration/2026.11.05.1/regions.geojson');
+export const TECTONICS = read('public/data/ukraine-tectonics/2026.11.09.1/regions.geojson');
 export const REGIONS = regions;
 export const NAME_TO_ID = new Map<string, string>();
-for (const r of regions) { NAME_TO_ID.set(r.properties.names.hu, r.id); NAME_TO_ID.set(r.properties.names.uk, r.id); }
-export const POINT = new Map(regions.map((r) => [r.id, labelPoint(r.geometry)]));
-export const NAME = new Map(regions.map((r) => [r.id, r.properties.names]));
+for (const r of [...regions, ...TECTONICS]) { NAME_TO_ID.set(r.properties.names.hu, r.id); NAME_TO_ID.set(r.properties.names.uk, r.id); }
+export const POINT = new Map([...regions, ...TECTONICS].map((r) => [r.id, labelPoint(r.geometry)]));
+export const NAME = new Map([...regions, ...TECTONICS].map((r) => [r.id, r.properties.names]));
+
+export type TopicKey = 'admin' | 'tectonics';
+const TOPIC_ATTR: Record<TopicKey, string> = { admin: 'ukraine-administration', tectonics: 'ukraine-tectonics' };
+
+/** Home → topic page. */
+export async function openTopic(page: Page, base: string, topic: TopicKey = 'admin') {
+  await page.goto(base);
+  await page.locator(`[data-topic="${TOPIC_ATTR[topic]}"]`).click();
+}
 
 /** Every test fails if the page requests anything outside the local origin or logs an error. */
 export const test = base.extend<{ audit: { external: string[]; errors: string[] } }>({
@@ -73,7 +84,8 @@ export async function currentTargetId(page: Page): Promise<string> {
 }
 
 export function otherId(id: string, avoid: string[] = []): string {
-  return regions.map((r) => r.id).find((x) => x !== id && !avoid.includes(x) && x !== 'UA-30' && x !== 'UA-40')!;
+  const pool = id.startsWith('TU-') ? TECTONICS : regions;
+  return pool.map((r) => r.id).find((x) => x !== id && !avoid.includes(x) && x !== 'UA-30' && x !== 'UA-40')!;
 }
 
 /** Answers on the main map. The two small cities are zoomed in first (mouse wheel at the city), as a user would. */
@@ -93,8 +105,8 @@ export async function selectRegion(page: Page, id: string) {
   await clickRegion(page, id);
 }
 
-export async function start(page: Page, base: string, mode: 'practice' | 'assessment', count: '5' | '12' | 'all', limit?: string) {
-  await page.goto(base);
+export async function start(page: Page, base: string, mode: 'practice' | 'assessment', count: '5' | '12' | 'all', limit?: string, topic: TopicKey = 'admin') {
+  await openTopic(page, base, topic);
   await page.locator('button', { hasText: mode === 'practice' ? /^Gyakorlás|^Практика/ : /^Számonkérés|^Перевірка знань/ }).first().click();
   await page.locator('label', { hasText: count === 'all' ? /Mindegyik|Усі/ : new RegExp(`^${count}$`) }).click();
   if (limit) await page.locator('label', { hasText: new RegExp(`^${limit}$`) }).click();

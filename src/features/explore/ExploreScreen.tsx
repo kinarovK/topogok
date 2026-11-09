@@ -5,6 +5,7 @@ import type { Topic } from '../../data/validation.ts';
 import { labelPoint } from '../../map/labelPoint.ts';
 import { padBounds, type Feedback } from '../../map/mapAdapter.ts';
 import { MapView, type MapLabel } from '../../map/MapView.tsx';
+import { topicEntry } from '../../data/topicRegistry.ts';
 import s from '../../app/app.module.css';
 
 const NO_FEEDBACK: Feedback = { wrongIds: [], correctId: null };
@@ -34,7 +35,8 @@ export function ExploreScreen({ topic, onBack, onRenderError }: { topic: Topic; 
   return (
     <div className={s.exploreLayout}>
       <h1>{t('explore.title')}</h1>
-      <p className={s.note}>{t('explore.hint')}</p>
+      <p className={s.topicLine}>{topic.manifest.title[locale]}</p>
+      <p className={s.note}>{t('explore.hint')}{topicEntry(topic.manifest.id).partialCoverage ? ` ${t('game.greyHint')}` : ''}</p>
       <label className={s.toggle}>
         <input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} />
         <span>{t('explore.labels')}</span>

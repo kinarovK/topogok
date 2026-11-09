@@ -1,4 +1,4 @@
-import { clickNext, confirmBtn, currentTargetId, E2E, expect, mapReady, nextBtn, otherId, selectRegion, start, test } from './helpers.ts';
+import { clickNext, confirmBtn, openTopic, currentTargetId, E2E, expect, mapReady, nextBtn, otherId, selectRegion, start, test } from './helpers.ts';
 
 test.describe('practice', () => {
   test('T02–T05 mixed 5-question round: feedback, hidden answer, reveal, single review, 360/500', async ({ page }) => {
@@ -203,7 +203,7 @@ test.describe('round controls', () => {
     // Reload: home, only the preference key in storage
     await page.reload();
     await expect(page.locator('#question')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /Практика/ }).first()).toBeVisible();
+    await expect(page.locator('[data-topic="ukraine-tectonics"]')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     const storage = await page.evaluate(async () => ({
       local: Object.keys(localStorage),
@@ -219,5 +219,58 @@ test.describe('round controls', () => {
     await page.getByRole('button', { name: 'Вийти' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Вийти' }).click();
     await expect(page.locator('#question')).toHaveCount(0);
+  });
+});
+
+test.describe('tectonics topic', () => {
+  test('practice: only 5/all offered, grey background land is not an answer, all 11 units selectable (1100/1100)', async ({ page }) => {
+    await openTopic(page, E2E, 'tectonics');
+    await expect(page.locator('h1')).toHaveText('Ukrajna tektonikai szerkezete');
+    await page.getByRole('button', { name: /^Gyakorlás/ }).click();
+    await expect(page.locator('label', { hasText: /^12$/ })).toHaveCount(0);
+    await expect(page.locator('label', { hasText: 'Mindegyik (11)' })).toBeVisible();
+    await page.locator('label', { hasText: 'Mindegyik (11)' }).click();
+    await page.getByRole('button', { name: 'Indítás' }).click();
+    await mapReady(page);
+    await expect(page.locator('main')).toContainText('A szürke területek nem tartoznak a kérdezett egységekhez.');
+
+    // Kerch peninsula is background land: tapping it selects nothing.
+    const xy = await page.evaluate(() => {
+      const h = window.__topogokE2E!.maps['main']!;
+      h.container.scrollIntoView({ block: 'center' });
+      const r = h.container.getBoundingClientRect();
+      const q = h.project([35.95, 45.35]);
+      return { x: r.left + q.x, y: r.top + q.y };
+    });
+    await page.mouse.click(xy.x, xy.y);
+    await page.waitForTimeout(300);
+    await expect(page.getByTestId('status')).toContainText('Válassz egy területet a térképen.');
+    await expect(confirmBtn(page)).toBeDisabled();
+
+    const seen = new Set<string>();
+    for (let i = 0; i < 11; i++) {
+      const id = await currentTargetId(page);
+      expect(id.startsWith('TU-')).toBe(true);
+      seen.add(id);
+      await selectRegion(page, id);
+      await confirmBtn(page).click();
+      await expect(page.getByTestId('status')).toContainText('Helyes!');
+      await clickNext(page);
+    }
+    expect(seen.size).toBe(11);
+    await expect(page.getByTestId('points')).toHaveText('1100 / 1100');
+  });
+
+  test('assessment: 4/5 → 80%, grade 10, in Ukrainian', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('topogok.preferences.v1', JSON.stringify({ locale: 'uk', theme: 'light' })));
+    await start(page, E2E, 'assessment', '5', undefined, 'tectonics');
+    for (let i = 0; i < 5; i++) {
+      const id = await currentTargetId(page);
+      await selectRegion(page, i === 0 ? otherId(id) : id);
+      await confirmBtn(page).click();
+    }
+    await expect(page.getByTestId('correct')).toHaveText('4 / 5');
+    await expect(page.getByTestId('percent')).toHaveText('80%');
+    await expect(page.getByTestId('grade')).toHaveText('10 з 12');
   });
 });

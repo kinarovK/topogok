@@ -12,7 +12,7 @@ Statikusan hosztolható, telepíthető, magyar és ukrán PWA, amelyben Ukrajna 
 
 | ID | Követelmény és ellenőrizhető elfogadási feltétel |
 |---|---|
-| AC-01 | A név minden felületen TopoGok. A főoldalról mindkét játékmód elindítható regisztráció és szerepválasztás nélkül. |
+| AC-01 | A név minden felületen TopoGok. A főoldalon témát választva mindkét játékmód elindítható regisztráció és szerepválasztás nélkül. (2026-11-10: a főoldal témaválasztó lett, ld. 0002.) |
 | AC-02 | Pontosan egy elérhető téma van: Ukrajna közigazgatása. A háttér a megadott országhatár, a kérdésréteg mind a 27 megadott egység. Mindegyik stabil ID-val és hu/uk névvel rendelkezik. |
 | AC-03 | Kérdésszám: 5, 12 vagy mindegyik (most 27). A rendszer ismétlés nélkül mintáz és kever; újrakezdés új sorsolás. A gyakorlás célzott ismétlése külön szakasz. |
 | AC-04 | A feladat megnevezés alapján poligonválasztás. Minden nagyítási szinten ugyanaz a feature ID érvényes. A poligonon kívüli érintés nem válasz és nem fogyaszt próbálkozást. |

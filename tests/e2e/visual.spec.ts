@@ -123,16 +123,39 @@ for (const sz of sizes) {
 test('explore + about screenshots', async ({ page }) => {
   await prefs(page, 'hu', 'light');
   await page.goto(E2E);
+  await page.locator('[data-topic="ukraine-administration"]').click();
   await page.getByRole('button', { name: 'Térkép felfedezése' }).click();
   await mapReady(page, 'explore');
   await page.waitForTimeout(300);
   await shot(page, 'hu-light-07-explore');
-  await page.getByRole('button', { name: 'Vissza' }).click();
+  await page.getByRole('button', { name: 'Vissza', exact: true }).click();
+  await page.getByRole('button', { name: 'Vissza', exact: true }).click();
+  await shot(page, 'hu-light-00-topics');
   await page.getByRole('button', { name: 'Névjegy és források' }).click();
   await expect(page.locator('main')).toContainText('Az adatforrás és a felhasználási feltételek még nincsenek ellenőrizve.');
   await shot(page, 'hu-light-08-about');
-  await page.getByRole('button', { name: 'Vissza' }).click();
+  await page.getByRole('button', { name: 'Vissza', exact: true }).click();
   await page.getByRole('button', { name: 'Súgó' }).click();
   await expect(page.locator('main')).toContainText('26/27 → 12');
   await shot(page, 'hu-light-09-help');
+});
+
+test('tectonics screenshots hu-light and uk-dark', async ({ page }) => {
+  for (const [locale, theme] of [['hu', 'light'], ['uk', 'dark']] as const) {
+    await prefs(page, locale, theme);
+    await start(page, E2E, 'practice', '5', undefined, 'tectonics');
+    await dismissBanner(page);
+    const id = await currentTargetId(page);
+    await selectRegion(page, otherId(id));
+    await confirmBtn(page).click();
+    await checkLayout(page);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await shot(page, `tectonics-${locale}-${theme}-practice-wrong`);
+    await page.goto(E2E);
+    await page.locator('[data-topic="ukraine-tectonics"]').click();
+    await page.getByRole('button', { name: /Térkép felfedezése|Ознайомлення з картою/ }).click();
+    await mapReady(page, 'explore');
+    await page.waitForTimeout(300);
+    await shot(page, `tectonics-${locale}-${theme}-explore`);
+  }
 });

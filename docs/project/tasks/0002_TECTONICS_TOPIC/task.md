@@ -3,7 +3,11 @@
 ## Állapot (2026-11-09)
 
 - **Adatcsomag: kész, validált** (`public/data/ukraine-tectonics/2026.11.09.1/`, `reports/tectonics-validation.json`, előnézet: `reports/tectonics-preview.png`).
-- **Alkalmazásba építés: nem kezdődött el.** A v1 felület egyetlen témát kezel. A második témához témaválasztó, a futásidejű validátor bővítése (`kind: 'tectonic-unit'`, nem kötelező teljes lefedés), új E2E-tesztek és a dokumentáció frissítése kell.
+- **Alkalmazásba építés: kész (2026-11-10).**
+  - A főoldal témaválasztó (tulajdonosi döntés). Folyamat: téma → Gyakorlás / Számonkérés / Térkép felfedezése → beállítás.
+  - Kérdésszám tektonikánál: 5 vagy Mindegyik (11), a 12-es lehetőség nem jelenik meg (tulajdonosi döntés).
+  - A 11 egységen kívüli szárazföld (Nyugat-európai tábla, Duna mente, Krími-síkság, Kercsi-félsziget) semleges szürke háttér. Rákoppintva nem jelöl ki választ, és nem fogyaszt próbálkozást. Ezt a súgó, a játék és a felfedezés is közli.
+  - E2E: tektonikai gyakorlás mind a 11 egységgel (1100/1100), szürke terület nem válasz, ukrán számonkérés 4/5 → 80%, 10-es jegy; offline kör tektonikával. Teljes futás: 24/24 PASS.
 
 ## Tulajdonosi döntések
 

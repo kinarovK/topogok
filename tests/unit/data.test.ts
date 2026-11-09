@@ -135,3 +135,20 @@ test('T24 loader rejects hash mismatch, missing name, wrong data version, missin
   await reject({ 'manifest.json': manifestText, 'country.geojson': countryText }, 'load', /regions.geojson/);
   await reject({ ...good, 'manifest.json': '{not json' }, 'invalid', /invalid JSON/);
 });
+
+test('tectonics package: 11 units with hu/uk names, kind tectonic-unit, provenance unverified, valid via the runtime loader', async () => {
+  const dir = join(root, 'public/data/ukraine-tectonics/2026.11.09.1');
+  const files = Object.fromEntries(['manifest.json', 'regions.geojson', 'country.geojson'].map((f) => [f, readFileSync(join(dir, f), 'utf8')]));
+  const topic = await loadTopic('/t/', { id: 'ukraine-tectonics', dataVersion: '2026.11.09.1' }, fetchFrom(files));
+  assert.equal(topic.regions.length, 11);
+  assert.deepEqual(topic.regions.map((r) => r.id), ['TU-01', 'TU-02', 'TU-03', 'TU-04', 'TU-05', 'TU-06', 'TU-07', 'TU-08', 'TU-09', 'TU-10', 'TU-11']);
+  for (const r of topic.regions) {
+    assert.equal(r.properties.kind, 'tectonic-unit');
+    assert.ok(r.properties.names.hu && r.properties.names.uk);
+  }
+  assert.equal(topic.regions.find((r) => r.id === 'TU-01')!.properties.names.uk, 'Український щит');
+  assert.equal(topic.manifest.provenance.status, 'unverified');
+  assert.deepEqual(topic.manifest.insets, []);
+  // Same country background as the administration topic.
+  assert.equal(files['country.geojson'], countryText);
+});
