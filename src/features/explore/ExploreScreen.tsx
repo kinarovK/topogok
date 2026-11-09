@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { useSettings } from '../../app/settings.tsx';
 import { Button } from '../../components/ui.tsx';
 import type { Topic } from '../../data/validation.ts';
-import { InsetSection } from '../../map/InsetSection.tsx';
 import { labelPoint } from '../../map/labelPoint.ts';
 import { padBounds, type Feedback } from '../../map/mapAdapter.ts';
 import { MapView, type MapLabel } from '../../map/MapView.tsx';
@@ -15,7 +14,6 @@ export function ExploreScreen({ topic, onBack, onRenderError }: { topic: Topic; 
   const { t, locale } = useSettings();
   const [selected, setSelected] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(true);
-  const [inset, setInset] = useState<string | null>(null);
   const points = useMemo(() => new Map(topic.regions.map((r) => [r.id, labelPoint(r.geometry)])), [topic]);
   // Priority: the two cities first, then larger units (bbox size) before smaller ones.
   const order = useMemo(() => {
@@ -48,7 +46,6 @@ export function ExploreScreen({ topic, onBack, onRenderError }: { topic: Topic; 
       <p className={s.feedback} aria-live="polite" data-testid="explore-selected">
         {selectedName ? t('explore.selectedName', { name: selectedName }) : t('explore.hint')}
       </p>
-      <InsetSection topic={topic} open={inset} onOpen={setInset} selection={selected} feedback={NO_FEEDBACK} onSelect={setSelected} onError={onRenderError} labels={labels} />
       <div className={s.actions}>
         <Button onClick={onBack}>{t('common.back')}</Button>
       </div>

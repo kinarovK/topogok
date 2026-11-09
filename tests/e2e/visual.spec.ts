@@ -33,6 +33,18 @@ async function dismissBanner(page: Page) {
   if (await b.count()) await b.first().click();
 }
 
+/** The map controls must not cover any part of the country at the reset view. */
+async function controlsClear(page: Page) {
+  const r = await page.evaluate(() => {
+    const h = window.__topogokE2E!.maps['main']!;
+    const c = h.container.getBoundingClientRect();
+    const ctl = h.container.parentElement!.querySelector('button')!.parentElement!.getBoundingClientRect();
+    const east = h.project([40.16, 48.5]).x + c.left;
+    return { east, controlsLeft: ctl.left };
+  });
+  expect(r.controlsLeft, 'controls left edge vs country east edge').toBeGreaterThan(r.east);
+}
+
 const shot = (page: Page, name: string) => page.screenshot({ path: `${OUT}/${name}.png` });
 
 for (const locale of ['hu', 'uk'] as const) {
@@ -46,7 +58,7 @@ for (const locale of ['hu', 'uk'] as const) {
       await checkLayout(page);
       await shot(page, `${tag}-01-home`);
 
-      // practice: wrong answer feedback, then inset open
+      // practice: wrong answer feedback, then the right answer
       await start(page, E2E, 'practice', '5');
       await dismissBanner(page);
       const id = await currentTargetId(page);
@@ -60,10 +72,9 @@ for (const locale of ['hu', 'uk'] as const) {
       await expect(page.getByTestId('status')).toContainText(/Helyes!|Правильно!/);
       await shot(page, `${tag}-03-practice-correct`);
       await clickNext(page);
-      await page.locator('[data-inset="kyiv"]').click();
-      await mapReady(page, 'inset-kyiv');
-      await page.locator('[data-map="inset-kyiv"]').scrollIntoViewIfNeeded();
-      await shot(page, `${tag}-04-inset-kyiv`);
+      // Small city: zoom in on Kyiv and select it (no answer is confirmed here).
+      await selectRegion(page, 'UA-30');
+      await shot(page, `${tag}-04-kyiv-zoomed`);
 
       // assessment with timer, a neutral selection, then results
       await start(page, E2E, 'assessment', '5', locale === 'hu' ? '10 perc' : '10 хв');
@@ -99,11 +110,10 @@ for (const sz of sizes) {
     await shot(page, `${sz.name}-01-home`);
     await start(page, E2E, 'practice', '12');
     await dismissBanner(page);
+    await controlsClear(page);
     const id = await currentTargetId(page);
     await selectRegion(page, otherId(id));
     await confirmBtn(page).click();
-    await page.locator('[data-inset="sevastopol"]').click();
-    await mapReady(page, 'inset-sevastopol');
     await checkLayout(page);
     await page.evaluate(() => window.scrollTo(0, 0));
     await shot(page, `${sz.name}-02-game`);

@@ -9,7 +9,7 @@ A v1 célja egy teljes, gyorsan indítható közigazgatási téma. A tartalom ne
 ## Használati történetek
 
 1. Otthoni gyakorlóként kiválasztok 5, 12 vagy minden területet, majd a térképen válaszolok. A hibáimból azonnali visszajelzéssel tanulok, a kör végén újra próbálom őket.
-2. Tanórai használóként telefonon, táblagépen vagy számítógépen gyorsan elindítom ugyanazt a témát. A kis területeket nagyított betéttérképen is kiválaszthatom.
+2. Tanórai használóként telefonon, táblagépen vagy számítógépen gyorsan elindítom ugyanazt a témát. A kis területeket (Kijev, Szevasztopol) ránagyítva választom ki.
 3. Tanárként szóban megadom a kérdésszámot és az időkorlátot. A tanuló ugyanazt a közös felületet használja, a végén megmutatja a százalékot és az 1–12-es jegyet.
 4. Ukrán nyelvű használóként minden utasítást és területnevet ukránul kapok, és bármikor válthatok magyarra.
 5. Korábbi sikeres letöltés után internet nélkül is lejátszom a teljes témát. A frissítés nem szakítja félbe a futó számonkérést.

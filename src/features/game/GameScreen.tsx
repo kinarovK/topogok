@@ -7,7 +7,6 @@ import { canConfirm, currentFeatureId, currentTask, progress, reduce, startGame 
 import { randomSeed } from '../../domain/random.ts';
 import { assessmentResult, MAX_PRACTICE_ATTEMPTS, practiceResult } from '../../domain/scoring.ts';
 import type { GameConfiguration, GameEvent, GameResult, GameState } from '../../domain/types.ts';
-import { InsetSection } from '../../map/InsetSection.tsx';
 import { padBounds, type Feedback } from '../../map/mapAdapter.ts';
 import { MapView } from '../../map/MapView.tsx';
 import s from '../../app/app.module.css';
@@ -23,7 +22,6 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
   const [game, setGame] = useState<GameState | null>(null);
   const clockRef = useRef<Clock | null>(null);
   const [elapsed, setElapsed] = useState(0);
-  const [inset, setInset] = useState<string | null>(null);
   const [dialog, setDialog] = useState<'restart' | 'exit' | null>(null);
   const [announcement, setAnnouncement] = useState('');
   const finished = useRef(false);
@@ -80,7 +78,7 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
     onFinish(game.mode === 'practice' ? practiceResult(game) : assessmentResult(game));
   }, [game, onFinish]);
 
-  // Same reset for every question: country view, insets closed.
+  // Same reset for every question: country view.
   const questionKey = questionKeyFor(game);
   const [resetKey, setResetKey] = useState(0);
   const lastKey = useRef(questionKey);
@@ -88,8 +86,7 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
     if (lastKey.current === questionKey) return;
     lastKey.current = questionKey;
     setResetKey((k) => k + 1);
-    setInset(null);
-    // After answering in an inset the question may be scrolled out of view on small screens.
+    // On small screens the question may be scrolled out of view after answering.
     const bar = document.getElementById('question');
     if (bar && bar.getBoundingClientRect().top < 0) bar.scrollIntoView({ block: 'start' });
   }, [questionKey]);
@@ -165,7 +162,6 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
       </div>
 
       <div className={s.panel}>
-        <InsetSection topic={topic} open={inset} onOpen={setInset} selection={game?.selection ?? null} feedback={feedbackMemo} onSelect={onSelect} onError={onRenderError} />
         {game && (
           <div className={[s.feedback, statusClass].join(' ')} data-testid="status" aria-live={config.mode === 'practice' ? 'polite' : 'off'}>
             {icon && <span className={s.icon} aria-hidden="true">{icon}</span>}

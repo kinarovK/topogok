@@ -14,7 +14,7 @@ test('T13/T14 production build: every region is hit at its label point; names in
     await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
     await expect(page.getByTestId('explore-selected')).toHaveText(`Kiválasztva: ${NAME.get(id)!.hu}`);
   }
-  await page.getByLabel('Nyelv').selectOption('uk');
+  await page.getByLabel('Nyelv', { exact: true }).selectOption('uk');
   await expect(page.locator('[data-label-id="UA-21"]')).toHaveText('Закарпатська область');
   await page.getByText('Показувати назви').click();
   await expect(page.locator('[data-label-id]')).toHaveCount(0);

@@ -214,31 +214,10 @@
   min-width: 0;
 }
 
-.insetToggles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
 
-.insetToggles > button {
-  flex: 1 1 130px;
-  padding: 0 var(--space-2);
-  font-size: 15px;
-}
 
-.insetToggles button[aria-pressed='true'] {
-  border-color: var(--primary);
-  box-shadow: inset 0 0 0 2px var(--primary);
-}
 
-.inset {
-  height: clamp(220px, 40dvh, 320px);
-}
 
-.insetTitle {
-  font-size: 15px;
-  font-weight: 600;
-}
 
 .feedback {
   min-height: 48px;

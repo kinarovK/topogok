@@ -33,7 +33,7 @@ src/
   features/explore/    ExploreScreen
   features/help/       HelpScreen, AboutScreen, InstallHelp
   domain/              types, config, shuffle, scoring, reducer, clock
-  map/                 MapView, InsetMap, mapAdapter, mapStyle, hitTest
+  map/                 MapView, mapAdapter, mapStyle, hitTest
   data/                topicRegistry, loadTopic, validation
   i18n/                hu.json, uk.json, translator
   preferences/         preferencesStore
@@ -107,9 +107,9 @@ Dupla események ellen a reducer állapota a védelem; a disabled gomb önmagáb
 
 Saját üres MapLibre style: háttér, country fill/outline, question fill/outline, kijelölési és gyakorló feedback rétegek. Nincs külső tile/style/glyph URL. A feature ID a GeoJSON `id`; a kiválasztás és feedback feature-state vagy szűrt réteg alapján készül. Témaváltásnál a kiválasztás nem veszhet el.
 
-A kitöltött kérdésrétegen fut a hit-test, nem az ország háttérrétegén. Csak a 27 ID engedett. Drag/pinch utáni esemény ne váljon válasszá. Nem növelünk láthatatlan találati területet: a két kis egységre betét és normál zoom szolgál. Több renderelt találat esetén deduplikált ID-lista, majd stabil geometriai/rajzolási sorrend dönt (városi poligon a környező fölött; egyéb egyezésnél stabil ID). A keresett válasz soha nem prioritási szempont. Üres találat nem törli és nem adja be a kijelölést.
+A kitöltött kérdésrétegen fut a hit-test, nem az ország háttérrétegén. Csak a 27 ID engedett. Drag/pinch utáni esemény ne váljon válasszá. Nem növelünk láthatatlan találati területet: a két kis egységre a normál zoom szolgál (a betéteket a tulajdonos 2026-11-09-én törölte). Több renderelt találat esetén deduplikált ID-lista, majd stabil geometriai/rajzolási sorrend dönt (városi poligon a környező fölött; egyéb egyezésnél stabil ID). A keresett válasz soha nem prioritási szempont. Üres találat nem törli és nem adja be a kijelölést.
 
-Nincs körbeforgó világismétlés, 3D pitch vagy rotáció. A maximális térképhatár az ország bboxa dokumentált paddinggel; reset teljes országot mutat, a vezérlők és mobil panel figyelembevételével. ResizeObserver és map.resize kezeli az elrendezés/orientáció változását. Betétek ugyanazt a GeoJSON-t használják és ugyanarra a kijelölésre reagálnak, egyszerre legfeljebb egy extra MapLibre példánnyal.
+Nincs körbeforgó világismétlés, 3D pitch vagy rotáció. A maximális térképhatár az ország bboxa dokumentált paddinggel; reset teljes országot mutat, a vezérlők és mobil panel figyelembevételével. ResizeObserver és map.resize kezeli az elrendezés/orientáció változását. A betéttérképek 2026-11-09-én tulajdonosi döntéssel kikerültek; egyetlen MapLibre-példány fut nézetenként.
 
 A felfedező nézet címkéihez helyi HTML/SVG overlay vagy a csomaggal szállított helyi glyph-megoldás használható. V1 javaslat: térképpozícióhoz kötött DOM feliratok, mert 27 névhez nincs szükség külső fontszolgáltatásra. A poligon belső pontját kell használni, nem a bbox közepét, ha az kívül eshet. Az ütköző címkéket zoomfüggően kezeljük, kattintásra a teljes név mindig olvasható.
 
@@ -141,7 +141,7 @@ A jegyek kliensoldaliak és nem hitelesek távoli ellenőrzéshez. Nincs „bizt
 |---|---|
 | 01, 03 | Home/Setup, config validator, shuffle |
 | 02, 22 | adatpipeline, manifest, runtime loader |
-| 04, 13, 14 | MapView, InsetMap, hitTest, saját style |
+| 04, 13, 14 | MapView (nagyítás), hitTest, saját style |
 | 05–07 | practice reducer, pontozás, Explore elkülönítés |
 | 08–11 | assessment reducer, Clock, ResultScreen |
 | 12 | navigáció, reset, memóriabeli session |

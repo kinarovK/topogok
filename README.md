@@ -2,7 +2,7 @@
 
 Magyar és ukrán nyelvű, mobilon és számítógépen használható térképes gyakorló és számonkérő webalkalmazás terve. Első tartalma Ukrajna 27 első szintű közigazgatási egysége.
 
-**Állapot (2026-11-08): működő helyi MVP.** A gyakorlás, a számonkérés, a térkép a két betéttel, a felfedező nézet, a két nyelv, a két téma, az offline működés és a biztonságos frissítés elkészült, és automatikus tesztek ellenőrzik. Nyilvános kiadás nem történt; az adatforrás és a licenc ellenőrzése, valamint a valódi telefonos próba még hátravan. Részletek: [STATUS](docs/project/STATUS.md), [átvételi jelentés](reports/acceptance.md).
+**Állapot (2026-11-08): működő helyi MVP.** A gyakorlás, a számonkérés, a térkép, a felfedező nézet, a két nyelv, a két téma, az offline működés és a biztonságos frissítés elkészült, és automatikus tesztek ellenőrzik. Nyilvános kiadás nem történt; az adatforrás és a licenc ellenőrzése, valamint a valódi telefonos próba még hátravan. Részletek: [STATUS](docs/project/STATUS.md), [átvételi jelentés](reports/acceptance.md).
 
 ## Belépési pont a megvalósító agentnek
 
@@ -47,5 +47,14 @@ Előfeltétel: Node.js ≥ 22.18 (fejlesztve: 22.23.4 Linuxon, a csomagtelepít�
 | `npm run check` | lint, típus, egységteszt, adatellenőrzés és build egyben |
 
 Helyi indítás Windowson: `npm run build`, majd `npm run serve:dist`, és nyisd meg a http://127.0.0.1:4173/ címet. Ha a telefonról is el akarod érni ugyanazon a hálózaton: PowerShellben `$env:HOST="0.0.0.0"; npm run serve:dist`, majd a gép IP-címével. A service worker és az offline mód csak `localhost`/`127.0.0.1` vagy HTTPS alatt működik, LAN-IP-n nem.
+
+### Ideiglenes megosztás tesztelőknek (tunnel)
+
+A gépeden futó `npm run serve:dist` (http://127.0.0.1:4173) ideiglenes HTTPS-címen is elérhetővé tehető. HTTPS miatt a telepítés és az offline mód is kipróbálható. A cím csak addig él, amíg a gép és a parancs fut.
+
+- Microsoft Dev Tunnels: `winget install Microsoft.devtunnel`, `devtunnel user login`, majd `devtunnel host -p 4173 --allow-anonymous`. Az `--allow-anonymous` nélkül csak te nyithatod meg.
+- Cloudflare Quick Tunnel (fiók nélkül): `cloudflared tunnel --url http://127.0.0.1:4173`. A kiírt `trycloudflare.com` cím minden indításkor más.
+
+Ez nem kiadás. A link bárkinek működik, akihez eljut, a térképadatok licence pedig még nincs igazolva (DATA_CONTRACT „Licenc”). Csak szűk tesztelői körnek add ki, és a teszt után állítsd le.
 
 Megosztott környezet (Windows-telepítés, Linux-build): ha a Linux-oldalon nincs npm-registry, a `npm run setup:linux-binaries` a lockfile alapján letölti a Linux x64 natív csomagokat a `.linux-binaries/` mappába. Ez fejlesztői segédlet, a futtatáshoz nem kell.

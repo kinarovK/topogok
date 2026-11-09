@@ -26,8 +26,8 @@
 | T10 | Háttérben eltelt idő után visszatéréskor lejár; falióra visszaállítása nem csökkenti elapsed értékét; előreállás kezelése dokumentált. | 10 |
 | T11 | Újrakezdés megerősítés elutasítása megőrzi a kört; elfogadás új kör; frissítés főoldal, nincs visszaállított session. | 12 |
 | T12 | Country/regions ID, darabszám, nevek, CRS, érvényes geometria és összevont terület ellenőrizve. Forráshash változatlan. | 02,22 |
-| T13 | Minden terület belső kontrollpontja helyes ID-t választ; Kijev és Szevasztopol betétből is; holes/kívülkattintás nem találat. | 04,13 |
-| T14 | Betét és főtérkép szinkron; egymás melletti határokon stabil döntés, target ID-tól függetlenül. Drag/pinch nem válasz. | 04,13 |
+| T13 | Minden terület belső kontrollpontja helyes ID-t választ; Kijev és Szevasztopol ránagyítva is; holes/kívülkattintás nem találat. | 04,13 |
+| T14 | Egymás melletti határokon stabil döntés, target ID-tól függetlenül. Drag/pinch nem válasz. | 04,13 |
 | T15 | uk-UA→uk, hu-HU→hu, en-US→hu; kézi override prioritás; két teljes kulcshalmaz és paraméteregyezés. | 15 |
 | T16 | Nyelv/téma váltás egy félbehagyott kérdésnél változatlan sor/ID/kísérlet/óra. Két téma rendszerbeállítás-változásra helyesen reagál. | 15–16 |
 | T17 | Sérült localStorage vagy tiltott tárolás mellett játék működik; csak preferences kulcs tárolódik, session/result nem. | 16,21 |
@@ -67,10 +67,10 @@ A hideg főoldal és a teljes 5 MiB csomag letöltési ideje külön mérés: a 
 4. Indíts 12 kérdéses számonkérést, először határidő nélkül. Módosíts kijelölést beadás előtt; beadás után ne tudj visszamenni. Ne láss helyességet.
 5. Fejezd be és számold ellen a százalékot/jegyet. Név vagy osztály nem kérhető.
 6. Egy 5 perces tesztet hagyj lejárni részben kitöltve, egyszer háttérből visszatérve is. Az összes eredeti kérdés maradjon a nevező.
-7. Válaszd ki mindkét kis várost a betéten; ne takarják a gombok.
+7. Válaszd ki mindkét kis várost ránagyítva; ne takarják a gombok.
 8. Az offline-ready után kapcsold ki a hálózatot és nyisd újra. Nyelvváltás és egy teljes kör is működjön.
 9. Frissítsd az oldalt aktív körben: nincs folytatás vagy tárolt eredmény. Nyelv és téma megmaradhat.
 
 ## Bizonyíték és lezárás
 
-`reports/acceptance.md`: AC és T ID → parancs/kézi próba → környezet → pass/fail/not-run → fájl/link. Képernyőképek legalább főoldal, setup, gyakorlóhiba, vizsga, eredmény, betét, offline állapot; mindkét nyelv és téma lefedve. Külön data-validation, build méret és teljesítménymérés. Forráslicenc, valós eszközök és telepítési próba nem helyettesíthető unit teszttel.
+`reports/acceptance.md`: AC és T ID → parancs/kézi próba → környezet → pass/fail/not-run → fájl/link. Képernyőképek legalább főoldal, setup, gyakorlóhiba, vizsga, eredmény, nagyított kis város, offline állapot; mindkét nyelv és téma lefedve. Külön data-validation, build méret és teljesítménymérés. Forráslicenc, valós eszközök és telepítési próba nem helyettesíthető unit teszttel.

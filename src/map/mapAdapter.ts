@@ -31,6 +31,7 @@ export type MapAdapter = {
   setTheme: (t: ResolvedTheme) => void;
   resize: () => void;
   project: (lngLat: [number, number]) => { x: number; y: number };
+  isMoving: () => boolean;
   onMove: (fn: () => void) => () => void;
   destroy: () => void;
 };
@@ -40,6 +41,9 @@ export type MapAdapter = {
  * viewport can still zoom out far enough to show the whole view (MapLibre keeps the viewport
  * inside maxBounds, which would otherwise force a zoom-in on narrow screens).
  */
+/** Fit padding: the zoom/reset controls sit in a column on the right edge and must never cover the country. */
+export const VIEW_PADDING = { top: 12, bottom: 12, left: 12, right: 64 };
+
 export function padBounds([w, s, e, n]: Bounds, ratio: number): Bounds {
   const d = Math.max(e - w, n - s) * ratio;
   return [w - d, Math.max(-85, s - d), e + d, Math.min(85, n + d)];
@@ -54,7 +58,7 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
       container: o.container,
       style: buildStyle(o.theme, o.country, o.regions),
       bounds: o.viewBounds as LngLatBoundsLike,
-      fitBoundsOptions: { padding: 12 },
+      fitBoundsOptions: { padding: VIEW_PADDING },
       maxBounds: o.maxBounds as LngLatBoundsLike,
       renderWorldCopies: false,
       dragRotate: false,
@@ -114,7 +118,7 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
   return {
     setSelection(id) { selection = id; apply(); },
     setFeedback(f) { feedback = { wrongIds: [...f.wrongIds], correctId: f.correctId }; apply(); },
-    resetView() { map.fitBounds(o.viewBounds as LngLatBoundsLike, { padding: 12, animate: false }); },
+    resetView() { map.fitBounds(o.viewBounds as LngLatBoundsLike, { padding: VIEW_PADDING, animate: false }); },
     zoomBy(delta) { map.easeTo({ zoom: map.getZoom() + delta, duration: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : 200 }); },
     setTheme(t) {
       if (t === theme) return;
@@ -123,6 +127,7 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
     },
     resize() { map.resize(); },
     project(lngLat) { const p = map.project(lngLat); return { x: p.x, y: p.y }; },
+    isMoving() { return map.isMoving() || map.isZooming(); },
     onMove(fn) { map.on('move', fn); map.on('resize', fn); return () => { map.off('move', fn); map.off('resize', fn); }; },
     destroy() { ro.disconnect(); map.remove(); },
   };
@@ -130,5 +135,5 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
 
 function inertAdapter(): MapAdapter {
   const noop = () => {};
-  return { setSelection: noop, setFeedback: noop, resetView: noop, zoomBy: noop, setTheme: noop, resize: noop, project: () => ({ x: 0, y: 0 }), onMove: () => noop, destroy: noop };
+  return { setSelection: noop, setFeedback: noop, resetView: noop, zoomBy: noop, setTheme: noop, resize: noop, project: () => ({ x: 0, y: 0 }), isMoving: () => false, onMove: () => noop, destroy: noop };
 }

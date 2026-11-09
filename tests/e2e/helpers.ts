@@ -34,8 +34,24 @@ export async function mapReady(page: Page, name = 'main') {
   await expect(page.locator(`[data-map="${name}"]`)).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
 }
 
+/** Waits until the map is not moving and its projection is stable for 200 ms (wheel zoom starts with a delay). */
+async function waitStill(page: Page, map: string) {
+  let last = '';
+  for (let i = 0; i < 40; i++) {
+    const now = await page.evaluate((m) => {
+      const h = window.__topogokE2E!.maps[m]!;
+      const q = h.project([31, 48]);
+      return h.isMoving() ? 'moving' : `${q.x.toFixed(2)},${q.y.toFixed(2)}`;
+    }, map);
+    if (now !== 'moving' && now === last) return;
+    last = now;
+    await page.waitForTimeout(200);
+  }
+}
+
 /** Clicks the interior label point of a region on the named map (e2e build only). */
 export async function clickRegion(page: Page, id: string, map = 'main') {
+  await waitStill(page, map);
   const p = POINT.get(id)!;
   const xy = await page.evaluate(([m, lng, lat]) => {
     const h = window.__topogokE2E!.maps[m as string]!;
@@ -60,17 +76,21 @@ export function otherId(id: string, avoid: string[] = []): string {
   return regions.map((r) => r.id).find((x) => x !== id && !avoid.includes(x) && x !== 'UA-30' && x !== 'UA-40')!;
 }
 
-/** Answers on the main map, or via the inset for the two small cities. */
+/** Answers on the main map. The two small cities are zoomed in first (mouse wheel at the city), as a user would. */
 export async function selectRegion(page: Page, id: string) {
   if (id === 'UA-30' || id === 'UA-40') {
-    const inset = id === 'UA-30' ? 'kyiv' : 'sevastopol';
-    const btn = page.locator(`[data-inset="${inset}"]`);
-    if ((await btn.getAttribute('aria-pressed')) !== 'true') await btn.click();
-    await mapReady(page, `inset-${inset}`);
-    await clickRegion(page, id, `inset-${inset}`);
-  } else {
-    await clickRegion(page, id);
+    const p = POINT.get(id)!;
+    const xy = await page.evaluate(([lng, lat]) => {
+      const h = window.__topogokE2E!.maps['main']!;
+      h.container.scrollIntoView({ block: 'center' });
+      const r = h.container.getBoundingClientRect();
+      const q = h.project([lng as number, lat as number]);
+      return { x: r.left + q.x, y: r.top + q.y };
+    }, [p[0], p[1]] as const);
+    await page.mouse.move(xy.x, xy.y);
+    for (let i = 0; i < 4; i++) { await page.mouse.wheel(0, -400); await page.waitForTimeout(150); }
   }
+  await clickRegion(page, id);
 }
 
 export async function start(page: Page, base: string, mode: 'practice' | 'assessment', count: '5' | '12' | 'all', limit?: string) {

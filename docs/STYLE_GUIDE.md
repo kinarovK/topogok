@@ -48,24 +48,22 @@ Gyakorlás · 3 / 12            [Idő]
 Keresd meg: Rivnei terület
 ┌─────────────────────────────────┐
 │                                 │
-│            TÉRKÉP               │
-│                                 │
-│ [+] [−] [Alapnézet]             │
+│            TÉRKÉP           [+] │
+│                             [−] │
+│                             [⤢] │
 └─────────────────────────────────┘
-[Kijev környéke] [Szevasztopol környéke]
-[megnyitott nagyított betéttérkép]
 Visszajelzés / próbálkozások
 [Válasz véglegesítése]
 [Mutasd meg]   [Újrakezdés] [Kilépés]
 ```
 
-A rajz szerkezeti, nem pixelpontos. A két területnév itt állandó betéttérkép-vezérlő, nem keresett-válasz kijelölés. A vizsgában a segítség és helyességi visszajelzés helye nem jelenik meg. Kérdésenként nincs teljes oldalugrás. A következő kérdésre lépéskor az ország alapnézetét visszaállítjuk, a betétválasztás lezárul; ez mindig ugyanúgy történik, a helyes választól függetlenül.
+A rajz szerkezeti, nem pixelpontos. A nagyítás és az alapnézet ikonos gombjai (szöveges címkével) a térkép jobb szélén, egymás alatt vannak. Az alapnézet a gombok sávját kihagyja, így a vezérlők nem takarnak országrészt (2026-11-09; korábban a hosszú ukrán felirat Szevasztopolt takarta). A vizsgában a segítség és helyességi visszajelzés helye nem jelenik meg. Kérdésenként nincs teljes oldalugrás. A következő kérdésre lépéskor az ország alapnézetét visszaállítjuk; ez mindig ugyanúgy történik, a helyes választól függetlenül.
 
 Desktopon a térkép domináns bal oldalon, a kérdés és vezérlők 300–360px széles jobb panelen. Legfeljebb 1280px széles tartalom. Mobilon egy oszlop, minimum támogatott szélesség 320 CSS px. `dvh` és safe-area kezelés; a Safari alsó sávja ne takarja a véglegesítő gombot. Kis vagy fekvő képernyőn megengedett függőleges görgetés, a térképen kívüli normál oldalgörgetés maradjon működőképes.
 
-### Betéttérképek
+### Kis területek
 
-Mindkét kis egységhez állandóan elérhető nagyított nézet. A betét az adott város és szomszédos egységek valódi geometriáját mutatja, azonos színekkel és azonos kiválasztási szabállyal. Nem egyszerű, önmagában helyes választ beadó „Kijev” gomb. A környezet semleges, a helyes választ nem előre kiemelő kerettel. A látható cím „Kijev környéke” / „Szevasztopol környéke”; ezek minden kérdésben azonosak. Mobilon egyszerre egy betét nyitva, desktopon is elég egy. A betétben kiválasztott szomszédos poligon is valós válasz.
+**Tulajdonosi döntés (2026-11-09):** a Kijev és Szevasztopol betéttérkép kikerült a játékból és a felfedező nézetből; a két kis egység nagyítással (+ gomb, egérgörgő, csípő mozdulat) választható ki. A betétgombok minden kérdésnél nagy helyet foglaltak, miközben csak 2 kérdésnél volt rájuk szükség. A súgó elmagyarázza a nagyítást. A dokumentumtörténetben megmaradt az eredeti betétleírás (Git).
 
 ### Eredmény
 
@@ -83,7 +81,7 @@ Rövid szabályok, jegyképlet közérthetően, nincs eredménymentés, offline/
 
 - Betöltés: rövid szöveges állapot; nem indul el az óra, amíg a térkép nem választható.
 - Hiba: közérthető üzenet és újrapróbálás; hibás adatból nem indul csökkentett kérdéssor.
-- Kijelölés: kék kitöltés és erős körvonal, egységes mindkét módban. A főtérkép és betét egyszerre szinkronizált.
+- Kijelölés: kék kitöltés és erős körvonal, egységes mindkét módban. 
 - Gyakorló visszajelzés: ikon és szöveg a szín mellett. Nincs automatikus következő feladat néhány másodperc után.
 - Modális megerősítés: fókuszcsapda, kezdeti fókusz a biztonságos „Folytatom” gombon, Escape ezt választja; visszatéréskor fókusz helyreáll.
 - 150–250ms áttűnés megengedett, térképre repülés nem szükséges. Reduced motion esetén azonnali váltás.

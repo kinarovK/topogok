@@ -15,7 +15,7 @@ Statikusan hosztolható, telepíthető, magyar és ukrán PWA, amelyben Ukrajna 
 | AC-01 | A név minden felületen TopoGok. A főoldalról mindkét játékmód elindítható regisztráció és szerepválasztás nélkül. |
 | AC-02 | Pontosan egy elérhető téma van: Ukrajna közigazgatása. A háttér a megadott országhatár, a kérdésréteg mind a 27 megadott egység. Mindegyik stabil ID-val és hu/uk névvel rendelkezik. |
 | AC-03 | Kérdésszám: 5, 12 vagy mindegyik (most 27). A rendszer ismétlés nélkül mintáz és kever; újrakezdés új sorsolás. A gyakorlás célzott ismétlése külön szakasz. |
-| AC-04 | A feladat megnevezés alapján poligonválasztás. A térképen és a betéteken ugyanaz a feature ID érvényes. A poligonon kívüli érintés nem válasz és nem fogyaszt próbálkozást. |
+| AC-04 | A feladat megnevezés alapján poligonválasztás. Minden nagyítási szinten ugyanaz a feature ID érvényes. A poligonon kívüli érintés nem válasz és nem fogyaszt próbálkozást. |
 | AC-05 | Gyakorlásban legfeljebb 3 véglegesített kísérlet van. Pontok: 100/60/30, sikertelen vagy megmutatott megoldás: 0. Az első két hiba nem fedi fel a helyes területet. |
 | AC-06 | Gyakorló hibajelzés piros terület és piros „Helytelen” felirat; helyes megoldás zöld. A „Mutasd meg” felfedi a megoldást és lezárja a feladatot 0 ponttal. A hibázott/segített feladatok egyszer újra szerepelnek; ez nem változtatja az eredeti pontszámot. |
 | AC-07 | Külön, pontozatlan térképfelfedező nézetben a nevek megjeleníthetők. Számonkérésben sem tanuló címkék, sem segítség, sem előző válasz helyessége nem érhető el. |
@@ -24,19 +24,21 @@ Statikusan hosztolható, telepíthető, magyar és ukrán PWA, amelyben Ukrajna 
 | AC-10 | Az idő háttérben és képernyőzárnál is telik. Lejáratkor/visszatéréskor idempotens lezárás történik. Az idő sem a százalékba, sem a jegybe nem számít bele. |
 | AC-11 | Vizsgaeredmény: időtartam, helyes/összes, százalék, max(1, ceil(12×helyes/összes)) jegy. Gyakorlóeredmény: időtartam, elsőre helyes/összes, találati arány és pont/maximum, jegy nélkül. Nincs részletes hibajegyzék, export vagy eredményarchívum. |
 | AC-12 | Aktív körből újrakezdés vagy kilépés megerősítést kér. Újrakezdés bármikor engedett; régi kör elvész. Frissítés után nem áll vissza a kör. |
-| AC-13 | Zoom, pan és alapnézet gomb használható érintéssel/egérrel. Kijev és Szevasztopol nagyított betéttérképe elérhető, és nem függ attól, melyik a keresett válasz. |
+| AC-13 | Zoom, pan és alapnézet gomb használható érintéssel/egérrel. Kijev és Szevasztopol nagyítással kényelmesen kiválasztható; a nagyítási lehetőség nem függ attól, melyik a keresett válasz. (2026-11-09: a korábbi betéttérkép-követelményt a tulajdonos törölte.) |
 | AC-14 | Az egész ország megjelenik. Nincsenek politikai szövegek, külső térképcsempék, reklámok vagy analitikai hívások. |
 | AC-15 | A teljes felület és minden kérdésnév hu/uk nyelvű. Első indulásnál elsődleges böngészőnyelv uk esetén ukrán, egyébként magyar. Kézi váltás azonnali, kör közben sem módosítja a feladatsort/pontozást. |
 | AC-16 | Világos és sötét téma, alapértelmezett rendszerkövetés. Csak a nyelv- és témaválasztás menthető tartósan. Tárolási hiba nem akadályozza a játékot. |
 | AC-17 | Mobil álló/fekvő, tablet és desktop nézetben működik; nincs vízszintes oldalgörgetés vagy egymást takaró alapvezérlő. Hang és rezgés nincs. Rövid animációk tiszteletben tartják a reduced-motion beállítást. |
 | AC-18 | A hagyományos vezérlők billentyűzettel elérhetők, fókuszuk látható, visszajelzésük szöveges is. Teljes nem vizuális térképfeladat és teljes WCAG AA megfelelőségi állítás nem v1 vállalás. |
-| AC-19 | Teljes első letöltés után minden v1 képernyő, nyelv, téma, játékadat és betéttérkép hálózat nélkül használható. Az offline kész állapotot valós cache-teljesülés jelzi. Első letöltés nélkül nincs offline ígéret. |
+| AC-19 | Teljes első letöltés után minden v1 képernyő, nyelv, téma, és játékadat hálózat nélkül használható. Az offline kész állapotot valós cache-teljesülés jelzi. Első letöltés nélkül nincs offline ígéret. |
 | AC-20 | Frissítés nem tölti újra az aktív kört. App és adatok együtt verziózott csomagot alkotnak. Új kiadás csak biztonságos állapotban, felhasználói művelettel aktiválódik. |
 | AC-21 | Nincs backend, tanulói adat, eredménytárolás, történet, auth, ranglista, közös kérdéssorlink vagy QR. A megoldások böngészőben hozzáférhetők; felügyelt használatot feltételezünk. |
 | AC-22 | Az SHP előfeldolgozás reprodukálható, az eredeti fájlokat nem írja felül. GeoJSON, manifest, hash, név/ID és geometriai validáció készül. Hiányos adatokkal nem indul játék. |
 | AC-23 | Külön helyi Git-repó, lockfile, dokumentált runtime és parancsok. A CI ellenőrzi a lintet, típusokat, szabályokat, adatszerződést, buildet és E2E smoke-ot publikálás előtt. |
 | AC-24 | Statikus HTTPS kiadás Cloudflare Pages szolgáltatói aldomainen; dokumentált fejlécszabályok, telepítés, visszaállítás és PWA frissítés. Nyilvános kiadás előtt az adatlicenc igazolt. |
 | AC-25 | Az ellenőrzési terv mérési eredményei és a valóban tesztelt böngészők/eszközök rögzítve vannak. A sikertelen vagy el nem végzett ellenőrzést nem lehet sikeresként jelenteni. |
+
+**Tulajdonosi döntés (2026-11-09):** a Kijev és Szevasztopol betéttérkép kikerült a játékból és a felfedező nézetből; a két kis egység nagyítással (+ gomb, egérgörgő, csípő mozdulat) választható ki.
 
 ## Alapértékek – tervezői döntések
 

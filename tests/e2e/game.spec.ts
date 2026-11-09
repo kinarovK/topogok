@@ -83,7 +83,7 @@ test.describe('practice', () => {
     await expect(page.locator('main')).toContainText('Gyakorlás · 1 / 5');
   });
 
-  test('T13 all 27 regions selectable in a round; Kyiv and Sevastopol through the insets; 2700/2700', async ({ page }) => {
+  test('T13 all 27 regions selectable in a round; Kyiv and Sevastopol after zooming in; 2700/2700', async ({ page }) => {
     await start(page, E2E, 'practice', 'all');
     const seen = new Set<string>();
     for (let i = 0; i < 27; i++) {
@@ -175,9 +175,9 @@ test.describe('round controls', () => {
     await expect(page.getByTestId('status')).toContainText('Hátralévő próbálkozás: 2');
 
     // Language + theme switch mid-question
-    await page.getByLabel('Nyelv').selectOption('uk');
+    await page.getByLabel('Nyelv', { exact: true }).selectOption('uk');
     await expect(page.locator('#question')).toContainText('Знайди:');
-    await page.getByLabel('Вигляд').selectOption('dark');
+    await page.getByLabel('Вигляд', { exact: true }).selectOption('dark');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     expect(await currentTargetId(page)).toBe(q1);
     await expect(page.locator('main')).toContainText('Практика · 1 / 12');

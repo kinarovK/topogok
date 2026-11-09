@@ -9,8 +9,8 @@ test('T19 after the first full load everything works offline: both languages, bo
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole('button', { name: /^Gyakorlás/ })).toBeVisible();
-  await page.getByLabel('Nyelv').selectOption('uk');
-  await page.getByLabel('Вигляд').selectOption('dark');
+  await page.getByLabel('Nyelv', { exact: true }).selectOption('uk');
+  await page.getByLabel('Вигляд', { exact: true }).selectOption('dark');
   await page.getByRole('button', { name: /^Практика/ }).click();
   await page.locator('label', { hasText: /^5$/ }).click();
   await page.getByRole('button', { name: 'Почати' }).click();
@@ -20,9 +20,6 @@ test('T19 after the first full load everything works offline: both languages, bo
   await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.45);
   await page.getByRole('button', { name: 'Підтвердити відповідь' }).click();
   await expect(page.getByTestId('status')).toContainText(/Правильно!|Неправильно/);
-  // Insets work offline too.
-  await page.getByRole('button', { name: 'Київ і околиці' }).click();
-  await mapReady(page, 'inset-kyiv');
   await context.setOffline(false);
 });
 

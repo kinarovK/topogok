@@ -29,14 +29,14 @@ Környezet:
 | 01 | Főoldalról mindkét mód indul regisztráció nélkül (E2E: minden játékteszt) | PASS |
 | 02 | 27 ID, hu/uk név, országháttér (pipeline, T12 egységteszt, explore E2E) | PASS |
 | 03 | 5/12/27 kérdés, ismétlés nélküli sorsolás (T01; E2E 5/12/27 kör) | PASS |
-| 04 | Poligonválasztás, a betét ugyanazt az ID-t adja, a kívülkattintás nem válasz (T13/T14, E2E 27/27 + betét) | PASS |
+| 04 | Poligonválasztás, minden nagyításon ugyanaz az ID, a kívülkattintás nem válasz (T13/T14, E2E 27/27, a két város ránagyítva) | PASS |
 | 05–06 | 100/60/30/0, rejtett megoldás az első két hibánál, ugyanaz a hibás ID nem adható be újra, megmutatás, egyszeri ismétlés (T02–T05, E2E vegyes kör) | PASS |
 | 07 | Felfedezés címkékkel; vizsgában nincs címke és megmutatás (explore E2E) | PASS |
 | 08 | Módosítható kijelölés, külön véglegesítés, nincs visszalépés és kihagyás, azonos UI jó és rossz válasz után (T06, E2E) | PASS |
 | 09–10 | Időkorlát; határidőn beadás = lejárat; kettős lezárás kizárva; háttérből visszatérés; időtartam = limit (T08–T10, E2E 5 perces lejárat) | PASS |
 | 11 | Eredménymutatók, jegyképlet, 26/27 → 12 (T07, E2E) | PASS |
 | 12 | Újrakezdés/kilépés megerősítéssel, Escape = folytatás, frissítés után főoldal (E2E) | PASS |
-| 13 | Zoom, pan, alapnézet, Kijev és Szevasztopol betét (E2E) | PASS |
+| 13 | Zoom, pan, alapnézet; Kijev és Szevasztopol ránagyítva (E2E). A betéttérkép-követelményt a tulajdonos 2026-11-09-én törölte. | PASS |
 | 14 | Egész ország, nincs külső kérés (minden E2E hálózati auditja) | PASS |
 | 15 | Teljes hu/uk felület, böngészőnyelv-felismerés, kör közbeni váltás (T15, T16 E2E) | PASS; anyanyelvi lektorálás nem történt |
 | 16 | Világos/sötét/rendszer téma, csak a beállítás tárolódik, tárolási hiba nem akadályoz (T17, E2E tárolóellenőrzés) | PASS |
@@ -67,7 +67,7 @@ A mérés szoftveres WebGL-lel, konténerben futott; valódi telefonon más lehe
 
 ## Képernyőképek
 
-`reports/screenshots/`: 4 kombináció (hu/uk × világos/sötét) × főoldal, gyakorló hiba, gyakorló helyes válasz, Kijev-betét, számonkérés, számonkérés eredménye. Emellett 320×568, 844×390 (fekvő), 768×1024 és 1366×768 nézet, valamint felfedezés, névjegy és súgó.
+`reports/screenshots/`: 4 kombináció (hu/uk × világos/sötét) × főoldal, gyakorló hiba, gyakorló helyes válasz, számonkérés, számonkérés eredménye. Emellett 320×568, 844×390 (fekvő), 768×1024 és 1366×768 nézet, valamint felfedezés, névjegy és súgó.
 
 ## Független kódátnézés
 
@@ -77,6 +77,11 @@ Egy külön agent a specifikáció alapján átnézte a megvalósítást, a fejl
 3. Az eredményoldalról kért frissítésnél egy elavult állapot tévesen foglaltnak hagyhatta a lapot. Most az aktivitás (`idle`/`round`/`result`) és az eredmény eldobása külön paraméter.
 
 Két javaslatát is beépítettük: dupla kattintással nem lehet átugrani a visszajelzést (E2E-teszt is van rá), és az időzítő képernyőolvasós címkéje nem takarja el az időt. Nem módosítottuk, csak dokumentáljuk: ha egy kör közben a térkép renderelése hibára fut, a kör megszakad, és az újrapróbálás új sorsolással indul.
+
+## Javítások a tulajdonosi visszajelzés után (2026-11-09)
+
+- A Kijev/Szevasztopol betéttérképek a tulajdonos döntésére kikerültek. A két kis egység nagyítással választható; az E2E-teszt egérgörgős nagyítás után jelöli ki őket.
+- Az E2E-tesztek közben előkerült egy valódi hiba: mobilon, ukrán nyelven a térkép alján lévő „Початковий вигляд” gomb éppen Szevasztopolt takarta, így ott se nagyítani, se kijelölni nem lehetett. A vezérlők a térkép jobb szélére, egymás alá kerültek, ikonos formában, szöveges címkével. Az alapnézet kihagyja a sávjukat. Mind az 5 vizsgált képernyőméreten teszt ellenőrzi, hogy a vezérlők nem takarnak országrészt.
 
 ## Nem elvégzett próbák
 

@@ -106,7 +106,7 @@ A feldolgozó előfeltételeit és GDAL-verzióját rögzíteni kell. Node appbu
 
 A 2. és 4. lépés GDAL/OGR és GEOS használatát írja elő. A megvalósítási környezetben ezek nem voltak elérhetők, ezért függőség nélküli SHP/DBF-olvasó és OGC-szabályokat követő validátor készült (`scripts/data/`). Az 5. lépés rés/átfedés-mérése helyett élhalmaz-egyezést vizsgál: a régióélek nem metszik egymást, minden él legfeljebb két régióé, a csak egyszer használt élek halmaza pontosan egyezik az országhatár éleivel. Emellett ellipszoidi területtartó vetületben területkülönbséget is mér. Az eredmény 0 metszés, 0 eltérő él és 0,003 m² területkülönbség. Az ismételt futás bájtra azonos kimenetet ad (`npm run data:validate`). A tulajdonos gépén futtatható GDAL-os keresztellenőrzés parancsa a `scripts/data/README.md`-ben van; **lefuttatása nyitott feladat**.
 
-Betétnézetek: a város bboxa minden oldalon a hosszabbik oldal 60%-ával bővítve (`INSET_PADDING_RATIO = 0.6`). A vizuális ellenőrzés a térképes szakasz feladata.
+Betétnézetek: a város bboxa minden oldalon a hosszabbik oldal 60%-ával bővítve (`INSET_PADDING_RATIO = 0.6`). 2026-11-09 óta a felület nem használja őket (tulajdonosi döntés). A manifest `insets` mezője az adatverzió változatlansága érdekében megmaradt; egy új adatverzióban elhagyható.
 
 Megfigyelés, nem forrásigazolás: a DBF mezőnevei (`featurecla`, `adm1_code`, `ne_id`, `wikidataid`, `name_*`) a Natural Earth Admin-1 adatkészlet sémájához hasonlítanak. Ebből nem következik sem a forrás, sem a licenc.
 

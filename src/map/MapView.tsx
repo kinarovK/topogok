@@ -24,7 +24,7 @@ type Props = {
 };
 
 declare global {
-  interface Window { __topogokE2E?: { maps: Record<string, { project: (p: [number, number]) => { x: number; y: number }; container: HTMLElement }> } }
+  interface Window { __topogokE2E?: { maps: Record<string, { project: (p: [number, number]) => { x: number; y: number }; isMoving: () => boolean; container: HTMLElement }> } }
 }
 
 export function MapView(p: Props) {
@@ -48,7 +48,7 @@ export function MapView(p: Props) {
     adapterRef.current = adapter;
     if (import.meta.env.MODE === 'e2e') {
       window.__topogokE2E ??= { maps: {} };
-      window.__topogokE2E.maps[p.name] = { project: adapter.project, container };
+      window.__topogokE2E.maps[p.name] = { project: adapter.project, isMoving: adapter.isMoving, container };
     }
     const off = adapter.onMove(() => setMoveTick((n) => n + 1));
     return () => {
@@ -96,7 +96,11 @@ export function MapView(p: Props) {
         <div className={s.controls}>
           <button type="button" className={s.control} onClick={() => adapterRef.current?.zoomBy(1)} aria-label={t('game.zoomIn')} title={t('game.zoomIn')}>+</button>
           <button type="button" className={s.control} onClick={() => adapterRef.current?.zoomBy(-1)} aria-label={t('game.zoomOut')} title={t('game.zoomOut')}>−</button>
-          <button type="button" className={[s.control, s.reset].join(' ')} onClick={() => adapterRef.current?.resetView()}>{t('game.resetView')}</button>
+          <button type="button" className={s.control} onClick={() => adapterRef.current?.resetView()} aria-label={t('game.resetView')} title={t('game.resetView')}>
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         </div>
       )}
       {!ready && <p className={s.loading}>{t('game.loadingMap')}</p>}
