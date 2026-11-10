@@ -1,5 +1,7 @@
 # TopoGok – átadás a megvalósító agentnek
 
+> Aktuális tervezési irány (2026-11-10): [0003 online és tanári platform](project/tasks/0003_ONLINE_PLATFORM/task.md). A helyi MVP és a második téma már működik. Az alábbi átadás az eredeti vendég-MVP történeti alapja; a benne szereplő backend/fiók/mentés tiltások nem vonatkoznak a 0003 később jóváhagyott fiókos fázisaira. A 0003 most specifikációtervezet, nem implementációs utasítás; a design és plan még nincs kész. A következő agent először az aktuális [CURRENT_TASK](project/CURRENT_TASK.md) fájlt olvassa.
+
 ## Feladat és munkakörnyezet
 
 A projekt gyökere `D:\Work\Suli\Topo`. Készítsd el a dokumentált TopoGok MVP-t, amikor a tulajdonos megadja a megvalósítási utasítást. A jelenlegi csomag tervezési átadás: önmagában nem utasítás publikálásra vagy külső fiók létrehozására.

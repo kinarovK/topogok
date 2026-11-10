@@ -6,6 +6,8 @@ Magyar és ukrán nyelvű, mobilon és számítógépen használható térképes
 
 ## Belépési pont a megvalósító agentnek
 
+**Új tervezési csomag (2026-11-10):** [online kiadás és tanári platform specifikáció](docs/project/tasks/0003_ONLINE_PLATFORM/task.md), [döntési napló](docs/project/tasks/0003_ONLINE_PLATFORM/DECISIONS.md). Hat fázis: hosting, fiókok/osztályok, eredménymentés, tanári elemkészletek, teljes térképes toplista, oldalelhagyási jelzések. Ez egyelőre jóváhagyandó specifikáció; design és részletes végrehajtási terv később készül. Az alábbi dokumentumlista a meglévő vendég-MVP alapdokumentációja.
+
 Először olvasd el az [AGENT_HANDOFF.md](docs/AGENT_HANDOFF.md) fájlt. A teljes dokumentáció olvasási sorrendje:
 
 1. [Termékleírás](docs/PRODUCT.md): cél, célközönség, első kiadás határai.
