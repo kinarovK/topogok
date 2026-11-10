@@ -2,7 +2,7 @@
 
 ## Repo és környezet
 
-Projektgyökér: `D:\Work\Suli\Topo`, külön Git-repó. A tágabb `D:\Work\Suli` más iskolai anyagai nem részei. Távoli repó: a tulajdonos privát GitHub-repója, `kinarovK/topogok`. CI: GitHub Actions (`.github/workflows/ci.yml`). Hosting: Cloudflare Pages, Direct Upload. A Cloudflare-fiók és -projekt a tulajdonosi lépésekig még nem létezik ([F1_RELEASE](project/tasks/0003_ONLINE_PLATFORM/phases/F1_RELEASE.md)).
+Projektgyökér: `D:\Work\Suli\Topo`, külön Git-repó. A tágabb `D:\Work\Suli` más iskolai anyagai nem részei. Távoli repó: a tulajdonos privát GitHub-repója, `kinarovK/topogok`. CI: GitHub Actions (`.github/workflows/ci.yml`). Hosting: Cloudflare Pages, Direct Upload. Pages-projekt: `topogok` a tulajdonos fiókjában. Éles: https://topogok.pages.dev, preview: `<ág>.topogok.pages.dev` ([F1_RELEASE](project/tasks/0003_ONLINE_PLATFORM/phases/F1_RELEASE.md)).
 
 A runtime-verziót és csomagverziókat implementációkor rögzíteni kell. Egyetlen npm lockfile; CI-ben tiszta `npm ci`. A frontend futtatásához a már validált GeoJSON elegendő. Új SHP feldolgozásához dokumentált GDAL/GEOS környezet kell; a jelenlegi Windows QGIS útvonal nem lehet CI-be égetett feltétel.
 
