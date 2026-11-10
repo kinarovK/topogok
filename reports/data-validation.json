@@ -159,8 +159,8 @@
   "outputs": [
     {
       "file": "public/data/ukraine-administration/2026.11.05.1/manifest.json",
-      "sha256": "4b46789665acfbfef73719b72b1a7e38fdb77427798a44cd401ea4be4a0511d5",
-      "bytes": 1509
+      "sha256": "282710903fcee4561bd4613b9d23691e841e0b58274f191d50ae1ae8f355efbd",
+      "bytes": 2092
     },
     {
       "file": "public/data/ukraine-administration/2026.11.05.1/country.geojson",

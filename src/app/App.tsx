@@ -7,7 +7,7 @@ import { HomeScreen, TopicScreen } from '../features/home/HomeScreen.tsx';
 import { SetupScreen } from '../features/setup/SetupScreen.tsx';
 import { ResultScreen } from '../features/results/ResultScreen.tsx';
 import { ExploreScreen } from '../features/explore/ExploreScreen.tsx';
-import { AboutScreen, HelpScreen } from '../features/help/HelpScreens.tsx';
+import { HelpScreen } from '../features/help/HelpScreens.tsx';
 import { dismissOfflineReady, dismissUpdate, pwaStore, requestUpdate, setActivity } from '../pwa/updateCoordinator.ts';
 import { Header } from './Header.tsx';
 import { useSettings } from './settings.tsx';
@@ -21,8 +21,7 @@ type View =
   | { name: 'game'; topicId: TopicId; config: GameConfiguration; round: number }
   | { name: 'results'; topicId: TopicId; config: GameConfiguration; result: GameResult }
   | { name: 'explore'; topicId: TopicId }
-  | { name: 'help' }
-  | { name: 'about' };
+  | { name: 'help' };
 
 type TopicState = { status: 'loading' } | { status: 'ready'; topic: Topic } | { status: 'error'; kind: 'load' | 'invalid' };
 
@@ -98,7 +97,7 @@ export function App() {
     const topic = topicState.status === 'ready' ? topicState.topic : null;
     switch (view.name) {
       case 'home':
-        content = <HomeScreen onTopic={(topicId) => setView({ name: 'topic', topicId })} onHelp={() => setView({ name: 'help' })} onAbout={() => setView({ name: 'about' })} />;
+        content = <HomeScreen onTopic={(topicId) => setView({ name: 'topic', topicId })} onHelp={() => setView({ name: 'help' })} />;
         break;
       case 'topic':
         content = <TopicScreen topic={topicEntry(view.topicId)} onMode={(mode) => setView({ name: 'setup', topicId: view.topicId, mode })} onExplore={() => setView({ name: 'explore', topicId: view.topicId })} onBack={() => setView({ name: 'home' })} />;
@@ -124,9 +123,6 @@ export function App() {
         break;
       case 'help':
         content = <HelpScreen onBack={() => setView({ name: 'home' })} />;
-        break;
-      case 'about':
-        content = <AboutScreen onBack={() => setView({ name: 'home' })} />;
         break;
     }
   }

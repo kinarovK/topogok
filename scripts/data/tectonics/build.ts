@@ -90,10 +90,10 @@ const manifest = {
   layers: { background: { path: 'country.geojson', sha256: sha(countryText) }, questions: { path: 'regions.geojson', sha256: sha(regionsText) } },
   insets: [],
   provenance: {
-    source: null, sourceUrl: null, license: null, licenseUrl: null, status: 'unverified',
+    source: 'Гільберг Т. Г., Довгань А. І., Савчук І. Г. Географія : підруч. для 8-го кл. закл. заг. серед. освіти. — Київ : Генеза, 2025. — 256 с. ISBN 978-617-8468-07-1; мал. 14.2 «Тектонічна карта України» (§ 14, с. 58)', sourceUrl: null, license: null, licenseUrl: null, status: 'unverified',
     ownerStatement: {
-      hu: 'A tulajdonos közlése szerint a tankönyvi/tanmeneti tektonikai térkép szerzői jogi szempontból szabadon felhasználhatónak van jelölve. A pontos forrás (könyv, kiadó, oldal) még nincs rögzítve; független ellenőrzés nem történt. A poligonok a térképképről félautomatikusan vektorizált, egyszerűsített oktatási ábrázolások.',
-      uk: 'За повідомленням власника, тектонічна карта з підручника/навчальної програми позначена як вільна для використання. Точне джерело (книга, видавець, сторінка) ще не зафіксоване; незалежної перевірки не проводилося. Полігони — напівавтоматично векторизоване спрощене освітнє зображення карти.',
+      hu: 'A tulajdonos közlése szerint a poligonok a megjelölt tankönyvi térképről félautomatikusan vektorizált, egyszerűsített oktatási ábrázolások. A tankönyv szerzői jogi védelem alatt áll (© a szerzők, © Geneza); külön felhasználási engedély vagy nyílt licenc nincs rögzítve.',
+      uk: 'За повідомленням власника, полігони напівавтоматично векторизовано зі вказаної карти підручника; це спрощене освітнє зображення. Підручник захищений авторським правом (© автори, © «Генеза»); окремого дозволу чи відкритої ліцензії не зафіксовано.',
     },
   },
 };

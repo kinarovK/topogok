@@ -43,11 +43,11 @@ Környezet:
 | 17 | 320×568, 390×844, 844×390, 768×1024, 1366×768: nincs vízszintes görgetés, a fő gomb nincs letakarva (visual E2E) | PASS emulációban; valódi eszköz NOT RUN |
 | 18 | Billentyűzetes vezérlők, látható fókusz, dialógus fókuszcsapda, szöveges visszajelzés | PASS részben (dialógus E2E); teljes billentyűzetes bejárás és képernyőolvasós próba NOT RUN |
 | 19 | Offline teljes kör mindkét nyelven és témában, valós cache-találat alapú jelzés (T19, T20) | PASS (Chromium) |
-| 20 | A→B frissítés aktív körrel és második lappal (T21) | PASS (Chromium); B→A recovery-próba NOT RUN |
+| 20 | A→B frissítés aktív körrel és második lappal, majd A-tartalmú recovery build és offline indulás (T21) | PASS (Chromium) |
 | 21 | Nincs backend, auth, tárolt eredmény (tárolóellenőrzés, kódáttekintés) | PASS |
 | 22 | Reprodukálható pipeline, a források változatlanok, hibás bemenet elutasítva | PASS; GDAL-keresztellenőrzés NOT RUN |
-| 23 | Helyi Git, lockfile, runtime, parancsok | PASS; CI-szolgáltató nincs (nincs távoli repó) |
-| 24 | Cloudflare-kiadás, fejlécek, telepítés | `_headers` kész és helyben CSP-vel tesztelve; Cloudflare-kiadás NOT RUN (nem volt feladat); adatlicenc nem igazolt |
+| 23 | Git, lockfile, runtime, parancsok, CI | PASS; CI: GitHub Actions (F1), első távoli futás eredménye a PR-ban |
+| 24 | Cloudflare-kiadás, fejlécek, telepítés | `_headers` kész és helyben CSP-vel tesztelve; deploy-folyamat kész (F1), Cloudflare-kiadás NOT RUN (fiók még nincs); adatlicenc nem igazolt |
 | 25 | Ez a jelentés | PASS |
 
 ## Teljesítmény (TEST_PLAN szerinti körülmények, 5 futás mediánja)
@@ -67,7 +67,7 @@ A mérés szoftveres WebGL-lel, konténerben futott; valódi telefonon más lehe
 
 ## Képernyőképek
 
-`reports/screenshots/`: 4 kombináció (hu/uk × világos/sötét) × főoldal, gyakorló hiba, gyakorló helyes válasz, számonkérés, számonkérés eredménye. Emellett 320×568, 844×390 (fekvő), 768×1024 és 1366×768 nézet, valamint felfedezés, névjegy és súgó.
+`reports/screenshots/`: 4 kombináció (hu/uk × világos/sötét) × főoldal, gyakorló hiba, gyakorló helyes válasz, számonkérés, számonkérés eredménye. Emellett 320×568, 844×390 (fekvő), 768×1024 és 1366×768 nézet, valamint felfedezés és súgó (a Névjegy oldal 2026-11-10-én kikerült).
 
 ## Független kódátnézés
 
@@ -98,7 +98,8 @@ Képernyőképek: `reports/screenshots/tectonics-*.png`, `hu-light-00-topics.png
 
 - Fizikai Android Chrome és iPhone Safari: telepítés, pinch, képernyőzár, repülő üzemmód, Safe Area. Ezeket nem végeztük el, és emulációval nem helyettesíthetők.
 - WebKit és Firefox: a környezetben csak Chromium volt telepítve.
-- B→A recovery-kiadás, Cloudflare-kiadás és a kiadott HTTPS-cím fejléceinek ellenőrzése.
+- Cloudflare-kiadás és a kiadott HTTPS-cím fejléceinek ellenőrzése (a recovery-próba 2026-11-10 óta PASS).
 - GDAL/GEOS-os geometria-keresztellenőrzés.
 - Anyanyelvi lektorálás.
-- Adatforrás és licenc: a tulajdonos közlése szerint nyílt forrásokból, oktatási célra vektorizált adatok; ez nincs ellenőrizve.
+- Adatforrás: 2026-11-10 óta rögzítve (Гільберг–Довгань–Савчук: Географія 8, Генеза, 2025; DATA_CONTRACT). Licenc vagy engedély nincs.
+- Telefonos próba: a tulajdonos közlése szerint 2026-11-10-én rendben volt. Nem általunk végzett, dokumentált eszközös próba.

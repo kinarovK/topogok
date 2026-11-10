@@ -37,11 +37,14 @@ test.describe('updates', () => {
   const point = (dir: string) => { if (existsSync(root)) rmSync(root); symlinkSync(resolve(dir), root); };
 
   test.beforeAll(() => {
-    execFileSync(process.execPath, ['node_modules/vite/bin/vite.js', 'build', '--outDir', 'dist-b', '--logLevel', 'warn'], { env: { ...process.env, TOPOGOK_APP_VERSION: '0.1.0-update-b' }, stdio: 'inherit' });
+    const build = (outDir: string, version: string) => execFileSync(process.execPath, ['node_modules/vite/bin/vite.js', 'build', '--outDir', outDir, '--logLevel', 'warn'], { env: { ...process.env, TOPOGOK_APP_VERSION: version }, stdio: 'inherit' });
+    build('dist-b', '0.1.0-update-b');
+    // Recovery release: same content as A, new build identity, so clients notice a change (OPERATIONS "Visszaállítás").
+    build('dist-r', '0.1.0-recovery-a');
     point('dist');
     server = spawn(process.execPath, ['scripts/dev/serve.mjs', '.e2e-serve', '4175'], { stdio: 'ignore' });
   });
-  test.afterAll(() => { server?.kill(); if (existsSync(root)) rmSync(root); rmSync('dist-b', { recursive: true, force: true }); });
+  test.afterAll(() => { server?.kill(); if (existsSync(root)) rmSync(root); rmSync('dist-b', { recursive: true, force: true }); rmSync('dist-r', { recursive: true, force: true }); });
 
   test('T21 A→B release: an active round is never reloaded; other tab waits; explicit update after the round loads B', async ({ context }) => {
     const base = 'http://127.0.0.1:4175/';
@@ -80,9 +83,25 @@ test.describe('updates', () => {
     await playing.getByRole('dialog').getByRole('button', { name: 'Kilépés' }).click();
     await playing.getByTestId('update-banner').getByRole('button', { name: 'Frissítés most' }).click();
     await playing.waitForFunction(() => (window as unknown as { marker?: number }).marker === undefined, null, { timeout: 30_000 });
-    await playing.getByRole('button', { name: 'Névjegy és források' }).click();
-    await expect(playing.locator('main')).toContainText('0.1.0-update-b');
+    await playing.getByRole('button', { name: 'Súgó' }).click();
+    await expect(playing.getByTestId('version')).toContainText('0.1.0-update-b');
     // The other (idle) tab was not reloaded by someone else's update; it only shows the notice.
     expect(await other.evaluate(() => (window as unknown as { marker?: number }).marker)).toBe(7);
+    await other.close();
+
+    // F1-07 recovery: B → recovery build with A's content; clients update to it like to any release, and offline still works.
+    point('dist-r');
+    await playing.evaluate(async () => { await (await navigator.serviceWorker.getRegistration())?.update(); });
+    await expect(playing.getByTestId('update-banner')).toContainText('Új verzió érhető el.', { timeout: 30_000 });
+    await playing.evaluate(() => { (window as unknown as { marker: number }).marker = 99; });
+    await playing.getByTestId('update-banner').getByRole('button', { name: 'Frissítés most' }).click();
+    await playing.waitForFunction(() => (window as unknown as { marker?: number }).marker === undefined, null, { timeout: 30_000 });
+    await playing.getByRole('button', { name: 'Súgó' }).click();
+    await expect(playing.getByTestId('version')).toContainText('0.1.0-recovery-a');
+    await context.setOffline(true);
+    await playing.reload();
+    await playing.getByRole('button', { name: 'Súgó' }).click();
+    await expect(playing.getByTestId('version')).toContainText('0.1.0-recovery-a');
+    await context.setOffline(false);
   });
 });

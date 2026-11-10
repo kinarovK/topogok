@@ -483,3 +483,9 @@
     align-items: flex-start;
   }
 }
+
+.versionLine {
+  font-size: 13px;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}

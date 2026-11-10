@@ -152,7 +152,7 @@
   "outputs": [
     {
       "file": "public/data/ukraine-tectonics/2026.11.09.1/manifest.json",
-      "sha256": "29c089024b60edfff16590695787e0c3b22ae07e37e8603e0027aa7263bdf6a2"
+      "sha256": "e61eb267b407fcdeeb3745213fa95bfd11c231ebd7bfda6d2db61d4f0c0384b6"
     },
     {
       "file": "public/data/ukraine-tectonics/2026.11.09.1/regions.geojson",

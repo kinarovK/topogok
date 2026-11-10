@@ -7,9 +7,9 @@
 | Terhelés | körülbelül 3 tanár, max. 100 használó, max. 30 egyszerre |
 | Hosting | indulás ingyenesen, fizetős csak külön döntés; szolgáltatói URL megfelel |
 | Kiadás | jelenlegi vendégverzió előbb éles, új részek alaposan tesztelve, fokozatosan |
-| Tulajdonosi fiókok | privát GitHub-repó: `kinarovK/topogok` (2026-11-10 óta, teljes előzménnyel); Cloudflare még nincs |
+| Tulajdonosi fiókok | privát GitHub-repó: `kinarovK/topogok` (2026-11-10 óta, teljes előzménnyel); CI: GitHub Actions; Cloudflare-fiók a tulajdonos hozza létre (F1_RELEASE 4. pont) |
 | Munkafolyamat | fázisonként külön PR; a `main`-be csak tulajdonosi jóváhagyás után kerül változás |
-| Névjegy és források oldal | a felületről kikerül (tulajdonosi döntés, 2026-11-10); végrehajtás az F1-ben |
+| Névjegy és források oldal | a felületről kikerül (tulajdonosi döntés, 2026-11-10); végrehajtva az F1 PR-ban, a buildverzió a Súgóba került |
 | Szerepek | vendég, diák, tanár, szuperadmin; saját tanári kör szigorúan elkülönített |
 | Diák tulajdonosa | egy tanár, egy saját osztály; más tanárhoz áthelyezés most nincs |
 | Regisztráció | csak tanár/szuperadmin, egyenként; nincs e-mail vagy önregisztráció |

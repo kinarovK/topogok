@@ -6,6 +6,7 @@ node_modules/
 dist/
 dist-e2e/
 dist-b/
+dist-r/
 .e2e-serve
 coverage/
 test-results/

@@ -2,7 +2,7 @@
 
 ## Repo és környezet
 
-Projektgyökér: `D:\Work\Suli\Topo`, külön helyi Git-repó. A tágabb `D:\Work\Suli` más iskolai anyagai nem részei. A távoli Git-szolgáltató és Cloudflare-projekt még nincs kiválasztva/létrehozva. Az első helyi repó létrehozása nem jelenti nyilvános repó létrehozását.
+Projektgyökér: `D:\Work\Suli\Topo`, külön Git-repó. A tágabb `D:\Work\Suli` más iskolai anyagai nem részei. Távoli repó: a tulajdonos privát GitHub-repója, `kinarovK/topogok`. CI: GitHub Actions (`.github/workflows/ci.yml`). Hosting: Cloudflare Pages, Direct Upload. A Cloudflare-fiók és -projekt a tulajdonosi lépésekig még nem létezik ([F1_RELEASE](project/tasks/0003_ONLINE_PLATFORM/phases/F1_RELEASE.md)).
 
 A runtime-verziót és csomagverziókat implementációkor rögzíteni kell. Egyetlen npm lockfile; CI-ben tiszta `npm ci`. A frontend futtatásához a már validált GeoJSON elegendő. Új SHP feldolgozásához dokumentált GDAL/GEOS környezet kell; a jelenlegi Windows QGIS útvonal nem lehet CI-be égetett feltétel.
 
@@ -31,7 +31,9 @@ App semver: kezdeti prototípus 0.1.0, átvett stabil v1 1.0.0. Adatverzió kül
 
 A cél statikus `dist` artifact HTTPS-en, szolgáltatói `pages.dev` címmel; a konkrét foglalható aldomaint csak létrehozáskor lehet megadni. Nincs saját domain, Functions vagy adatbázis. A statikus hosztolási mód a [Cloudflare dokumentációja](https://developers.cloudflare.com/pages/framework-guides/deploy-anything/) szerint alakítandó.
 
-CI sorrend: install → lint/typecheck → unit/integration → adatvalidáció/regenerálási diff → build → E2E smoke → artifact → engedélyezett deploy. Production branch `main`; preview külön címen. A deploy nem kerülheti meg a teszteket automatikus, párhuzamos Git-integrációval. CI-provider nincs előírva addig, amíg a távoli repo helye nem ismert.
+CI sorrend: install → lint/typecheck → unit/integration → adatvalidáció/regenerálási diff → build → E2E smoke → artifact → engedélyezett deploy. Production branch `main`; preview külön címen. A deploy nem kerülheti meg a teszteket automatikus, párhuzamos Git-integrációval.
+
+Megvalósítás (F1): GitHub Actions `gates` job, majd `deploy` job. A deploy a tesztelt `dist/`-et a cache-ből veszi vissza, és `wrangler@4.160.0 pages deploy`-jal tölti fel. A `main` ág élesre megy, minden más ág preview-ba. Utána a `scripts/release/smoke.mjs` a HTTPS-címen ellenőrzi a fejléceket, a `version.json` buildazonosítóját, a precache-elt fájlok elérhetőségét és a tiltott útvonalak hiányát. Secretek nélkül a deploy kimarad. Részletek, ingyenes keretek és tulajdonosi lépések: [F1_RELEASE](project/tasks/0003_ONLINE_PLATFORM/phases/F1_RELEASE.md).
 
 Publikálás előfeltétele: dokumentált adatforrás és licenc, tulajdonosi hozzáférés/engedély, sikeres release gate. A licenc ismeretlensége miatt nyilvános preview sem kerülheti meg az adatkiadás ellenőrzését. A lokális implementáció folytatható.
 
@@ -53,7 +55,7 @@ Ha más tabon aktív kör van, a frissítés vár. A régi kliensek cache-ének 
 
 A Cloudflare [rollback funkciója](https://developers.cloudflare.com/pages/configuration/rollbacks/) a kiszolgált deploymentet állítja vissza. Ez nem jelenti, hogy a már telepített kliens SW/cache is azonnal visszaáll. Rögzített korábbi artifactot kell megtartani, majd a visszaállított kódot szükség esetén új recovery buildazonosítóval kiadni, hogy a kliens változást érzékeljen. Ne használjunk numerikus „csak nagyobb appverzió lehet frissítés” feltételt; a buildtartalom/hash és kompatibilitás számít.
 
-Próba: A működő build → B új build → visszaállított A-tartalmú recovery build. Online frissítés és offline indulás is működjön. Aktív kör nem veszhet el automatikus reload miatt. Hibás SW-csapda esetére a súgóban helyreállítási lépések: online oldal újranyitása, frissítés; végső esetben adott oldal helyi adatainak törlése és új letöltés. Ez a nyelv/téma beállítást törölheti, eredményarchívum nincs.
+Próba: A működő build → B új build → visszaállított A-tartalmú recovery build. Online frissítés és offline indulás is működjön. Ezt a T21 E2E-teszt minden CI-futásban ellenőrzi (`0.1.0-recovery-a` build). Aktív kör nem veszhet el automatikus reload miatt. Hibás SW-csapda esetére a súgóban helyreállítási lépések: online oldal újranyitása, frissítés; végső esetben adott oldal helyi adatainak törlése és új letöltés. Ez a nyelv/téma beállítást törölheti, eredményarchívum nincs.
 
 ## Adatvédelem és üzemeltetési határ
 

@@ -11,7 +11,7 @@ const DESC: Record<TopicId, MessageKey> = {
 };
 
 /** Home = topic choice. */
-export function HomeScreen({ onTopic, onHelp, onAbout }: { onTopic: (id: TopicId) => void; onHelp: () => void; onAbout: () => void }) {
+export function HomeScreen({ onTopic, onHelp }: { onTopic: (id: TopicId) => void; onHelp: () => void }) {
   const { t, locale } = useSettings();
   return (
     <div className={s.page}>
@@ -33,7 +33,6 @@ export function HomeScreen({ onTopic, onHelp, onAbout }: { onTopic: (id: TopicId
       </section>
       <nav className={s.secondaryLinks} aria-label={t('common.settings')}>
         <Button onClick={onHelp}>{t('home.help')}</Button>
-        <Button onClick={onAbout}>{t('home.about')}</Button>
       </nav>
     </div>
   );
