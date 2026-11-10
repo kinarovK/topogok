@@ -55,10 +55,10 @@ jobs:
           TOPOGOK_BUILD_ID: ${{ steps.id.outputs.build_id }}
       - name: HTTP smoke of the built package (headers, identity, precache, nothing forbidden)
         run: |
-          node scripts/dev/serve.mjs dist 4190 &
-          for i in $(seq 1 20); do curl -fsS -o /dev/null http://127.0.0.1:4190/ && break; sleep 0.5; done
-          curl -sSI http://127.0.0.1:4190/ | head -5
-          node scripts/release/smoke.mjs http://127.0.0.1:4190/ "${{ steps.id.outputs.build_id }}"
+          node scripts/dev/serve.mjs dist 4180 &
+          for i in $(seq 1 20); do curl -fsS -o /dev/null http://127.0.0.1:4180/ && break; sleep 0.5; done
+          curl -sSI http://127.0.0.1:4180/ | head -5
+          node scripts/release/smoke.mjs http://127.0.0.1:4180/ "${{ steps.id.outputs.build_id }}"
       - run: npx playwright install --with-deps chromium
       - name: Browser tests (Playwright, Chromium, mobile viewport, CSP)
         run: npm run test:e2e
