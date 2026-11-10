@@ -1,0 +1,122 @@
+# CI + release for TopoGok (F1, docs/project/tasks/0003_ONLINE_PLATFORM/phases/F1_HOSTING.md).
+#
+# Every push runs the gates. Only if ALL gates pass is the exact tested `dist/` uploaded to
+# Cloudflare Pages (Direct Upload, free plan):
+#   - push to main      → production deployment (https://topogok.pages.dev)
+#   - push to any other → preview deployment (https://<branch>.topogok.pages.dev); never touches production
+# The deploy job is skipped (not failed) while the repository has no CLOUDFLARE_* secrets.
+# No artifacts are uploaded to GitHub (the account's Actions storage quota is not used).
+
+name: ci
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22.23.4'
+  WRANGLER_VERSION: '4.160.0'
+  CF_PAGES_PROJECT: topogok
+
+jobs:
+  gates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      build_id: ${{ steps.id.outputs.build_id }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - id: id
+        run: echo "build_id=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run data:validate
+      - name: Production build (precache + forbidden-file gate)
+        run: npm run build
+        env:
+          TOPOGOK_BUILD_ID: ${{ steps.id.outputs.build_id }}
+      - name: E2E build
+        run: npm run build:e2e
+        env:
+          TOPOGOK_BUILD_ID: ${{ steps.id.outputs.build_id }}
+      - name: HTTP smoke of the built package (headers, identity, precache, nothing forbidden)
+        run: |
+          node scripts/dev/serve.mjs dist 4190 & sleep 1
+          node scripts/release/smoke.mjs http://127.0.0.1:4190/ "${{ steps.id.outputs.build_id }}"
+      - run: npx playwright install --with-deps chromium
+      - name: Browser tests (Playwright, Chromium, mobile viewport, CSP)
+        run: npm run test:e2e
+      - name: Keep the tested package for the deploy job (cache, not artifact storage)
+        uses: actions/cache/save@v5
+        with:
+          path: dist
+          key: dist-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+  deploy:
+    needs: gates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Skip when Cloudflare is not configured
+        id: cfg
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Cloudflare secrets are not set; nothing is deployed." >> "$GITHUB_STEP_SUMMARY"
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.cfg.outputs.enabled == 'true'
+        uses: actions/checkout@v7.0.1
+      - if: steps.cfg.outputs.enabled == 'true'
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - if: steps.cfg.outputs.enabled == 'true'
+        name: Restore the exact tested package
+        uses: actions/cache/restore@v5
+        with:
+          path: dist
+          key: dist-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          fail-on-cache-miss: true
+      - if: steps.cfg.outputs.enabled == 'true'
+        name: Verify the package again before upload
+        run: node scripts/build/verify-dist.mjs dist
+      - if: steps.cfg.outputs.enabled == 'true'
+        id: deploy
+        name: Upload to Cloudflare Pages
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          npx --yes "wrangler@${WRANGLER_VERSION}" pages deploy dist \
+            --project-name="${CF_PAGES_PROJECT}" --branch="${BRANCH}" \
+            --commit-hash="${GITHUB_SHA}" --commit-message="${{ needs.gates.outputs.build_id }} ${GITHUB_REF_NAME}" \
+            2>&1 | tee wrangler.log
+          URL=$(grep -oE 'https://[a-z0-9.-]+\.pages\.dev' wrangler.log | tail -1)
+          echo "url=${URL}" >> "$GITHUB_OUTPUT"
+          echo "Deployed ${{ needs.gates.outputs.build_id }} (${BRANCH}) to ${URL}" >> "$GITHUB_STEP_SUMMARY"
+      - if: steps.cfg.outputs.enabled == 'true'
+        name: Smoke test the deployment
+        run: node scripts/release/smoke.mjs "${{ steps.deploy.outputs.url }}/" "${{ needs.gates.outputs.build_id }}"
+      - if: steps.cfg.outputs.enabled == 'true' && github.ref == 'refs/heads/main'
+        name: Smoke test the production address
+        run: node scripts/release/smoke.mjs "https://${CF_PAGES_PROJECT}.pages.dev/" "${{ needs.gates.outputs.build_id }}"

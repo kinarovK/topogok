@@ -120,7 +120,7 @@ for (const sz of sizes) {
   });
 }
 
-test('explore + about screenshots', async ({ page }) => {
+test('explore + help screenshots; no About page', async ({ page }) => {
   await prefs(page, 'hu', 'light');
   await page.goto(E2E);
   await page.locator('[data-topic="ukraine-administration"]').click();
@@ -131,12 +131,10 @@ test('explore + about screenshots', async ({ page }) => {
   await page.getByRole('button', { name: 'Vissza', exact: true }).click();
   await page.getByRole('button', { name: 'Vissza', exact: true }).click();
   await shot(page, 'hu-light-00-topics');
-  await page.getByRole('button', { name: 'Névjegy és források' }).click();
-  await expect(page.locator('main')).toContainText('Az adatforrás és a felhasználási feltételek még nincsenek ellenőrizve.');
-  await shot(page, 'hu-light-08-about');
-  await page.getByRole('button', { name: 'Vissza', exact: true }).click();
+  await expect(page.getByRole('button', { name: /Névjegy|Про застосунок/ })).toHaveCount(0);
   await page.getByRole('button', { name: 'Súgó' }).click();
   await expect(page.locator('main')).toContainText('26/27 → 12');
+  await expect(page.getByTestId('version')).toContainText(/Verzió: \d+\.\d+\.\d+.* \(build: \w+\) · adatok: 2026\.11\.05\.1, 2026\.11\.09\.1/);
   await shot(page, 'hu-light-09-help');
 });
 
