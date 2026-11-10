@@ -85,7 +85,7 @@ Nincs.
 
 | Fájl | Bájt | SHA-256 |
 |---|---:|---|
-| `public/data/ukraine-administration/2026.11.05.1/manifest.json` | 1509 | `4b46789665acfbfef73719b72b1a7e38fdb77427798a44cd401ea4be4a0511d5` |
+| `public/data/ukraine-administration/2026.11.05.1/manifest.json` | 2092 | `282710903fcee4561bd4613b9d23691e841e0b58274f191d50ae1ae8f355efbd` |
 | `public/data/ukraine-administration/2026.11.05.1/country.geojson` | 116110 | `dc5222c5fdba633379983a3747bf9af94f9483c9edb2b7de32685ad37fefbac2` |
 | `public/data/ukraine-administration/2026.11.05.1/regions.geojson` | 783508 | `e7cab4637f583e9ddf454ee3b027dd710778077e249d3164e1aa479f995f05ce` |
 

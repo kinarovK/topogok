@@ -114,7 +114,7 @@ test('T12 committed package: 27 IDs, names in both languages, country, insets, p
   assert.equal(topic.regions.find((r) => r.id === 'UA-43')!.properties.kind, 'autonomous-republic');
   assert.deepEqual(topic.manifest.insets.map((i) => i.anchorFeatureId), ['UA-30', 'UA-40']);
   assert.equal(topic.manifest.provenance.status, 'unverified');
-  assert.equal(topic.manifest.provenance.source, null);
+  assert.match(topic.manifest.provenance.source ?? '', /Гільберг.*Генеза, 2025.*ISBN 978-617-8468-07-1/);
   assert.equal(topic.manifest.provenance.license, null);
   assert.equal(topic.country.id, 'UA');
   assert.equal(await sha256Hex(regionsText), topic.manifest.layers.questions.sha256);
@@ -148,6 +148,7 @@ test('tectonics package: 11 units with hu/uk names, kind tectonic-unit, provenan
   }
   assert.equal(topic.regions.find((r) => r.id === 'TU-01')!.properties.names.uk, 'Український щит');
   assert.equal(topic.manifest.provenance.status, 'unverified');
+  assert.match(topic.manifest.provenance.source ?? '', /Гільберг.*мал\. 14\.2/);
   assert.deepEqual(topic.manifest.insets, []);
   // Same country background as the administration topic.
   assert.equal(files['country.geojson'], countryText);

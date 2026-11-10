@@ -74,6 +74,6 @@ A secretek beállítása egyben azt is jelenti, hogy a tulajdonos vállalja: az 
 | F1-07 | PASS (Chromium) | T21: A→B aktív körrel, két lappal, recovery build, offline indulás |
 | F1-08 | PASS | 3. pont; nincs fizetős szolgáltatás a konfigurációban |
 | F1-09 | részben | a repó privát és a tulajdonosé; a secretek csak a GitHub Secretsben vannak. Cloudflare-fiók még nincs. |
-| F1-10 | **NYITOTT** | adatforrás és licenc nincs igazolva (`provenance.status = unverified`); valódi Android- és iPhone-próba NOT RUN |
+| F1-10 | **részben** | Forrás rögzítve: Гільберг–Довгань–Савчук: Географія 8 (Генеза, 2025), a `provenance.source` mezőben. A licenc nyitott: a tankönyv jogvédett, engedély nincs (`status = unverified`), a kiadás a tulajdonos kockázatvállalásával történik. Telefonos próba: a tulajdonos közlése szerint 2026-11-10-én rendben volt; az éles címen rövid ismétlés kell. |
 
 Az F1 akkor jelenthető teljesen kiadottnak, ha az F1-01 és az F1-10 lezárul. Ehhez kell: az első éles deploy, a smoke a valódi címen, a tulajdonos telefonos próbája a TEST_PLAN „Tanári átvételi próba” szerint, és az adatlicenc tisztázása vagy tulajdonosi kockázatvállalása.

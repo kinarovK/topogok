@@ -17,7 +17,8 @@ Frissítve: 2026-11-10.
 
 - **Implementáció: a helyi MVP működik.** Gyakorlás, számonkérés, térkép (Kijev és Szevasztopol nagyítással; a betéttérképek 2026-11-09-én tulajdonosi döntéssel kikerültek), felfedezés, hu/uk felület, világos/sötét/rendszer téma, offline működés és biztonságos frissítés. A plan.md P01–P09 szakaszai a helyi határig készek, a P10-ből a helyi átadás kész. Részletes bizonyítékok: [átvételi jelentés](../../reports/acceptance.md).
 - **Nyilvános kiadás: nem történt.** A repó és a CI kész (F1). Hiányzik: Cloudflare-hozzáférés, igazolt adatforrás és licenc, fizikai Android- és iPhone-próba.
-- Adatforrás: a tulajdonos közlése szerint nyílt források alapján, oktatási célra vektorizált adatok. Konkrét forrás és licenc nincs megadva, független ellenőrzés nem történt (`provenance.status = unverified`). A Névjegy oldal tulajdonosi döntéssel kikerült; az állapotot a dokumentáció és a csomag `manifest.json`-ja rögzíti.
+- Adatforrás (2026-11-10): mindkét téma a Гільберг–Довгань–Савчук: Географія 8 (Генеза, 2025) tankönyv térképeiről készült (DATA_CONTRACT, `provenance.source`). Licenc vagy felhasználási engedély nincs rögzítve, a tankönyv szerzői jogi védelem alatt áll (`provenance.status = unverified`).
+- Telefonos próba: a tulajdonos 2026-11-10-i közlése szerint telefonon minden rendben működött (a kiadás előtti buildön). A kiadott HTTPS-címen egy rövid ismétlés szükséges. A Névjegy oldal tulajdonosi döntéssel kikerült; az állapotot a dokumentáció és a csomag `manifest.json`-ja rögzíti.
 - Környezet: a csomagokat a tulajdonos telepítette Windowson (Node 24.18.0, npm 11.16.0); a build és a tesztek Linuxon futnak, Node 22.23.4-gyel (OPERATIONS „Megvalósított helyi környezet”).
 - Git: a helyi repó `origin` remote-ja a privát `kinarovK/topogok`.
 

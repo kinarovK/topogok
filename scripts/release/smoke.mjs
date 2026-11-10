@@ -16,7 +16,7 @@ async function get(path, tries = 6) {
       const res = await fetch(new URL(path, base), { redirect: 'follow', headers: { 'cache-control': 'no-cache' } });
       if (res.status < 500) return res;
       last = new Error(`HTTP ${res.status}`);
-    } catch (e) { last = e; }
+    } catch (e) { last = new Error(`${e.message}${e.cause ? ` (${e.cause.code ?? e.cause.message ?? e.cause})` : ''}`); }
     await sleep(5000);
   }
   throw new Error(`${path}: ${last?.message ?? last}`);

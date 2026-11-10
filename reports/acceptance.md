@@ -101,4 +101,5 @@ Képernyőképek: `reports/screenshots/tectonics-*.png`, `hu-light-00-topics.png
 - Cloudflare-kiadás és a kiadott HTTPS-cím fejléceinek ellenőrzése (a recovery-próba 2026-11-10 óta PASS).
 - GDAL/GEOS-os geometria-keresztellenőrzés.
 - Anyanyelvi lektorálás.
-- Adatforrás és licenc: a tulajdonos közlése szerint nyílt forrásokból, oktatási célra vektorizált adatok; ez nincs ellenőrizve.
+- Adatforrás: 2026-11-10 óta rögzítve (Гільберг–Довгань–Савчук: Географія 8, Генеза, 2025; DATA_CONTRACT). Licenc vagy engedély nincs.
+- Telefonos próba: a tulajdonos közlése szerint 2026-11-10-én rendben volt. Nem általunk végzett, dokumentált eszközös próba.

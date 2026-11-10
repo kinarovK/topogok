@@ -45,13 +45,13 @@ export const INSETS = [
  * No concrete source link or licence was given, so nothing here is verified.
  */
 export const PROVENANCE = {
-  source: null,
+  source: 'Гільберг Т. Г., Довгань А. І., Савчук І. Г. Географія : підруч. для 8-го кл. закл. заг. серед. освіти. — Київ : Генеза, 2025. — 256 с. ISBN 978-617-8468-07-1; форзац «Адміністративно-територіальний устрій України», М 1 : 4 500 000',
   sourceUrl: null,
   license: null,
   licenseUrl: null,
   status: 'unverified',
   ownerStatement: {
-    hu: 'A tulajdonos közlése szerint nyílt források alapján, oktatási célra vektorizált adatok. Konkrét forrás és licenc nincs megadva; független ellenőrzés nem történt.',
-    uk: 'За повідомленням власника, дані векторизовано на основі відкритих джерел для освітніх цілей. Конкретне джерело та ліцензію не вказано; незалежної перевірки не проводилося.',
+    hu: 'A tulajdonos közlése szerint a határok a megjelölt tankönyvi térképről, oktatási célra vektorizált, egyszerűsített ábrázolások. A tankönyv szerzői jogi védelem alatt áll (© a szerzők, © Geneza); külön felhasználási engedély vagy nyílt licenc nincs rögzítve.',
+    uk: 'За повідомленням власника, межі векторизовано зі вказаної карти підручника для освітніх цілей у спрощеному вигляді. Підручник захищений авторським правом (© автори, © «Генеза»); окремого дозволу чи відкритої ліцензії не зафіксовано.',
   },
 } as const;
