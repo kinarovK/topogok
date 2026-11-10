@@ -1,3 +1,4 @@
+/* global fetch, setTimeout */
 // HTTP smoke test of a deployed (or locally served) build. Checks what a browser test cannot see:
 // response headers, the release identity, that every precached file is reachable, and that no
 // source/backup file is published. Usage: node scripts/release/smoke.mjs <baseUrl> [expectedBuildId]
