@@ -26,5 +26,7 @@ export default defineConfig({
   webServer: [
     { command: 'node scripts/dev/serve.mjs dist 4173', port: 4173, reuseExistingServer: true },
     { command: 'node scripts/dev/serve.mjs dist-e2e 4174', port: 4174, reuseExistingServer: true },
+    // Production build + the real API code on an in-memory SQLite database (accounts E2E).
+    { command: 'node scripts/dev/serve.mjs dist 4176 --api', port: 4176, reuseExistingServer: false },
   ],
 });

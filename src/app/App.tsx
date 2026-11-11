@@ -8,6 +8,8 @@ import { SetupScreen } from '../features/setup/SetupScreen.tsx';
 import { ResultScreen } from '../features/results/ResultScreen.tsx';
 import { ExploreScreen } from '../features/explore/ExploreScreen.tsx';
 import { HelpScreen } from '../features/help/HelpScreens.tsx';
+import { LoginScreen, SetupScreen as AdminSetupScreen } from '../features/account/LoginScreen.tsx';
+import { ManageScreen } from '../features/account/ManageScreen.tsx';
 import { dismissOfflineReady, dismissUpdate, pwaStore, requestUpdate, setActivity } from '../pwa/updateCoordinator.ts';
 import { Header } from './Header.tsx';
 import { useSettings } from './settings.tsx';
@@ -21,13 +23,17 @@ type View =
   | { name: 'game'; topicId: TopicId; config: GameConfiguration; round: number }
   | { name: 'results'; topicId: TopicId; config: GameConfiguration; result: GameResult }
   | { name: 'explore'; topicId: TopicId }
-  | { name: 'help' };
+  | { name: 'help' }
+  | { name: 'login' }
+  | { name: 'manage' }
+  | { name: 'admin-setup' };
 
 type TopicState = { status: 'loading' } | { status: 'ready'; topic: Topic } | { status: 'error'; kind: 'load' | 'invalid' };
 
 export function App() {
   const { t } = useSettings();
-  const [view, setView] = useState<View>({ name: 'home' });
+  // #/setup opens the first-superadmin / recovery page (F2_DESIGN §8); everything else starts at home.
+  const [view, setView] = useState<View>(() => (typeof location !== 'undefined' && location.hash === '#/setup' ? { name: 'admin-setup' } : { name: 'home' }));
   const [topics, setTopics] = useState<Partial<Record<TopicId, TopicState>>>({});
   const [lastSetup, setLastSetup] = useState<Record<string, PracticeConfiguration | AssessmentConfiguration>>({});
   const [renderErrorView, setRenderErrorView] = useState<string | null>(null);
@@ -97,7 +103,7 @@ export function App() {
     const topic = topicState.status === 'ready' ? topicState.topic : null;
     switch (view.name) {
       case 'home':
-        content = <HomeScreen onTopic={(topicId) => setView({ name: 'topic', topicId })} onHelp={() => setView({ name: 'help' })} />;
+        content = <HomeScreen onTopic={(topicId) => setView({ name: 'topic', topicId })} onHelp={() => setView({ name: 'help' })} onLogin={() => setView({ name: 'login' })} onManage={() => setView({ name: 'manage' })} />;
         break;
       case 'topic':
         content = <TopicScreen topic={topicEntry(view.topicId)} onMode={(mode) => setView({ name: 'setup', topicId: view.topicId, mode })} onExplore={() => setView({ name: 'explore', topicId: view.topicId })} onBack={() => setView({ name: 'home' })} />;
@@ -123,6 +129,15 @@ export function App() {
         break;
       case 'help':
         content = <HelpScreen onBack={() => setView({ name: 'home' })} />;
+        break;
+      case 'login':
+        content = <LoginScreen onDone={() => setView({ name: 'home' })} onBack={() => setView({ name: 'home' })} />;
+        break;
+      case 'manage':
+        content = <ManageScreen onBack={() => setView({ name: 'home' })} />;
+        break;
+      case 'admin-setup':
+        content = <AdminSetupScreen onLogin={() => { history.replaceState(null, '', location.pathname); setView({ name: 'login' }); }} />;
         break;
     }
   }

@@ -1,5 +1,8 @@
+/* global Headers, Request, Buffer */
 // Minimal static server for the production build that applies dist/_headers (CSP etc.) the way
-// Cloudflare Pages would, with SPA fallback to index.html. Usage: node scripts/dev/serve.mjs [dir] [port]
+// Cloudflare Pages would, with SPA fallback to index.html. Usage: node scripts/dev/serve.mjs [dir] [port] [--api]
+// --api: also answers /api/* with the real API code (server/router.ts) on an in-memory SQLite database,
+// like the Pages Function does on Cloudflare (local development and E2E; secrets from env or test defaults).
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { extname, join, normalize, resolve } from 'node:path';
@@ -26,8 +29,37 @@ function parseHeaders() {
 const rules = parseHeaders();
 const match = (pattern, path) => (pattern.endsWith('*') ? path.startsWith(pattern.slice(0, -1)) : path === pattern);
 
+let api = null;
+if (process.argv.includes('--api')) {
+  const { handle } = await import('../../server/router.ts');
+  const { sqliteD1, migrate } = await import('../../tests/api/sqliteD1.ts');
+  const DB = sqliteD1();
+  migrate(DB.raw);
+  const env = {
+    DB,
+    PEPPER: process.env.TOPOGOK_PEPPER ?? 'local-dev-pepper-0123456789abcdef0123456789',
+    SETUP_CODE: process.env.TOPOGOK_SETUP_CODE ?? 'local-setup-code-0123456789',
+    APP_BUILD: 'local',
+  };
+  api = async (req, res) => {
+    const chunks = [];
+    for await (const c of req) chunks.push(c);
+    const headers = new Headers();
+    for (const [k, v] of Object.entries(req.headers)) if (typeof v === 'string') headers.set(k, v);
+    const r = await handle(new Request(`http://${req.headers.host}${req.url}`, { method: req.method, headers, ...(chunks.length ? { body: Buffer.concat(chunks) } : {}) }), env);
+    const out = {};
+    r.headers.forEach((v, k) => { if (k !== 'set-cookie') out[k] = v; });
+    const cookies = r.headers.getSetCookie();
+    // Browsers drop Secure cookies on plain http other than localhost; keep them usable on 127.0.0.1.
+    if (cookies.length) out['set-cookie'] = cookies;
+    res.writeHead(r.status, out);
+    res.end(Buffer.from(await r.arrayBuffer()));
+  };
+}
+
 createServer((req, res) => {
   const url = new URL(req.url ?? '/', 'http://x');
+  if (api && url.pathname.startsWith('/api/')) { api(req, res).catch((e) => { console.error(e); res.writeHead(500).end(); }); return; }
   let path = decodeURIComponent(url.pathname);
   let file = normalize(join(root, path));
   if (!file.startsWith(root)) { res.writeHead(403).end(); return; }

@@ -44,6 +44,8 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - name: API tests (accounts, sessions, cross-tenant isolation; node:sqlite)
+        run: npm run test:api
       - name: Python for the world data re-derivation (numpy only)
         run: python3 -m pip install --user --break-system-packages numpy==2.5.3
       - run: npm run data:validate
@@ -107,6 +109,15 @@ jobs:
         name: Verify the package again before upload
         run: node scripts/build/verify-dist.mjs dist
       - if: steps.cfg.outputs.enabled == 'true'
+        name: Apply database migrations (main -> topogok-prod, other branches -> topogok-preview)
+        # Migrations must stay backward compatible with the code that is live until the upload below.
+        run: |
+          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            npx --yes "wrangler@${WRANGLER_VERSION}" d1 migrations apply topogok-prod --remote
+          else
+            npx --yes "wrangler@${WRANGLER_VERSION}" d1 migrations apply topogok-preview --remote --env preview
+          fi
+      - if: steps.cfg.outputs.enabled == 'true'
         id: deploy
         name: Upload to Cloudflare Pages
         run: |
@@ -120,7 +131,7 @@ jobs:
           echo "Deployed ${{ needs.gates.outputs.build_id }} (${BRANCH}) to ${URL}" >> "$GITHUB_STEP_SUMMARY"
       - if: steps.cfg.outputs.enabled == 'true'
         name: Smoke test the deployment
-        run: node scripts/release/smoke.mjs "${{ steps.deploy.outputs.url }}/" "${{ needs.gates.outputs.build_id }}"
+        run: node scripts/release/smoke.mjs "${{ steps.deploy.outputs.url }}/" "${{ needs.gates.outputs.build_id }}" --api
       - if: steps.cfg.outputs.enabled == 'true' && github.ref == 'refs/heads/main'
         name: Smoke test the production address
-        run: node scripts/release/smoke.mjs "https://${CF_PAGES_PROJECT}.pages.dev/" "${{ needs.gates.outputs.build_id }}"
+        run: node scripts/release/smoke.mjs "https://${CF_PAGES_PROJECT}.pages.dev/" "${{ needs.gates.outputs.build_id }}" --api

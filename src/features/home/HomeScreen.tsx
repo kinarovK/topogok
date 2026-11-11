@@ -1,4 +1,6 @@
+import { useAccount } from '../../account/account.tsx';
 import { useSettings } from '../../app/settings.tsx';
+import acc from '../account/account.module.css';
 import { Button } from '../../components/ui.tsx';
 import { TOPICS, type TopicEntry, type TopicId } from '../../data/topicRegistry.ts';
 import type { MessageKey } from '../../i18n/translator.ts';
@@ -12,10 +14,11 @@ const DESC: Record<TopicId, MessageKey> = {
 };
 
 /** Home = topic choice. */
-export function HomeScreen({ onTopic, onHelp }: { onTopic: (id: TopicId) => void; onHelp: () => void }) {
+export function HomeScreen({ onTopic, onHelp, onLogin, onManage }: { onTopic: (id: TopicId) => void; onHelp: () => void; onLogin: () => void; onManage: () => void }) {
   const { t, locale } = useSettings();
   return (
     <div className={s.page}>
+      <AccountBar onLogin={onLogin} onManage={onManage} />
       <div>
         <h1>{t('common.appName')}</h1>
         <p className={s.lead}>{t('home.tagline')}</p>
@@ -63,6 +66,35 @@ export function TopicScreen({ topic, onMode, onExplore, onBack }: { topic: Topic
         <Button onClick={onExplore}>{t('home.explore')}</Button>
         <Button onClick={onBack}>{t('common.back')}</Button>
       </div>
+    </div>
+  );
+}
+
+/** Who is signed in (or a sign-in button). Personal data stays in memory only. */
+function AccountBar({ onLogin, onManage }: { onLogin: () => void; onManage: () => void }) {
+  const { t } = useSettings();
+  const { state, me, logout } = useAccount();
+  if (state.status === 'unknown') return null;
+  if (!me) {
+    return (
+      <div className={acc.accountBar}>
+        <span className={acc.meta}>{state.status === 'guest' && state.offline ? t('account.needsOnline') : ''}</span>
+        <Button onClick={onLogin}>{t('account.login')}</Button>
+      </div>
+    );
+  }
+  const role = me.role === 'superadmin' ? t('account.roleSuperadmin') : me.role === 'teacher' ? t('account.roleTeacher') : t('account.roleStudent');
+  return (
+    <div className={acc.accountBar} data-testid="account-bar">
+      <span className={acc.chip}>
+        <strong>{me.fullName}</strong>
+        <span className={acc.badge}>{role}</span>
+        {me.role === 'student' && <span className={acc.meta}>{t('account.studentInfo', { teacher: me.teacherName ?? '—', className: me.className ?? '—' })}</span>}
+      </span>
+      <span className={acc.itemActions}>
+        {me.role !== 'student' && <Button variant="primary" onClick={onManage}>{me.role === 'superadmin' ? t('account.admin') : t('account.manage')}</Button>}
+        <Button onClick={() => void logout()}>{t('account.logout')}</Button>
+      </span>
     </div>
   );
 }

@@ -5,7 +5,9 @@
 // Exit code 0 = pass. Retries for a short while because a fresh Pages deployment can take a moment.
 
 const base = new URL(process.argv[2] ?? 'http://127.0.0.1:4173/');
-const expectedBuild = process.argv[3] ?? null;
+const expectedBuild = process.argv[3] && !process.argv[3].startsWith('--') ? process.argv[3] : null;
+// --api: the deployment also runs the Pages Function API (Cloudflare); the local static server does not.
+const checkApi = process.argv.includes('--api');
 const errors = [];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -84,7 +86,19 @@ for (const p of ['/shp/', '/backups/', '/.git/config', '/.env', '/src/main.tsx',
   if (r.status === 200 && !body.includes('id="root"')) errors.push(`${p} is published`);
 }
 
-const summary = `${base.href} build=${version?.buildId ?? '?'} app=${version?.appVersion ?? '?'} precached=${urls.length}`;
+let api = 'not checked';
+if (checkApi) {
+  const r = await get('/api/health');
+  let h;
+  try { h = await r.json(); } catch { h = null; }
+  if (r.status !== 200 || !h || typeof h.db !== 'boolean') errors.push(`/api/health is not the API (status ${r.status})`);
+  else {
+    api = `db=${h.db} schema=${h.schema} pepper=${h.pepper} setupCode=${h.setupCode}`;
+    if (!h.ok) errors.push(`/api/health is not ready (${api})`);
+  }
+  if (!(r.headers.get('cache-control') ?? '').includes('no-store')) errors.push('/api answers must be no-store');
+}
+const summary = `api: ${api}; ${base.href} build=${version?.buildId ?? '?'} app=${version?.appVersion ?? '?'} precached=${urls.length}`;
 if (errors.length) {
   for (const e of errors) console.error(`smoke: FAIL ${e}`);
   console.error(`smoke: ${summary}`);

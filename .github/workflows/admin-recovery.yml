@@ -1,0 +1,46 @@
+# Issues a one-time recovery code (valid 1 hour) for the superadmin. Use it on https://topogok.pages.dev/#/setup
+# with the superadmin login and a new password. Only the code's SHA-256 is stored in the database; the code itself
+# is shown in this run's summary (private repository, visible to the owner only). See F2_DESIGN.md §8.
+name: admin-recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Database'
+        type: choice
+        options: [production, preview]
+        default: production
+
+permissions:
+  contents: read
+
+jobs:
+  recovery-code:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Store a new one-time code
+        run: |
+          CODE="$(openssl rand -base64 30 | tr '+/' '-_' | tr -d '=\n')"
+          HASH="$(printf %s "$CODE" | openssl dgst -sha256 -binary | base64)"
+          NOW=$(( $(date +%s) * 1000 ))
+          SQL="INSERT INTO recovery_codes (code_hash, created_at, expires_at) VALUES ('${HASH}', ${NOW}, $(( NOW + 3600000 )))"
+          if [ "${{ inputs.environment }}" = "production" ]; then
+            npx --yes wrangler@4.160.0 d1 execute topogok-prod --remote --command "$SQL"
+            URL="https://topogok.pages.dev/#/setup"
+          else
+            npx --yes wrangler@4.160.0 d1 execute topogok-preview --remote --env preview --command "$SQL"
+            URL="(a preview deployment)/#/setup"
+          fi
+          {
+            echo "### One-time recovery code (valid for 1 hour, single use)"
+            echo ""
+            echo "\`$CODE\`"
+            echo ""
+            echo "Open $URL, enter this code, the superadmin login and a new password."
+          } >> "$GITHUB_STEP_SUMMARY"

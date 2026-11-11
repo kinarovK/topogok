@@ -56,9 +56,12 @@ export default defineConfig(() => ({
       },
       workbox: {
         globPatterns: ['**/*.{html,js,mjs,css,svg,png,json,geojson,webmanifest}'],
+        // Cloudflare routing config, not an app file. /api/* answers are personal and never cached.
+        globIgnores: ['_routes.json'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api\//],
         clientsClaim: false,
         skipWaiting: false,
       },
