@@ -1,74 +1,36 @@
+[WebServer] (node:1477) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 
-Running 27 tests using 1 worker
+Running 29 tests using 1 worker
 
-  ✓   1 [mobile-chromium] › tests/e2e/explore.spec.ts:3:1 › T13/T14 production build: every region is hit at its label point; names in both languages; no labels or reveal inside a round (5.3s)
-  ✓   2 [mobile-chromium] › tests/e2e/explore.spec.ts:32:1 › T24 data failure: corrupted package shows a localized error and never starts a round (524ms)
-  ✓   3 [mobile-chromium] › tests/e2e/game.spec.ts:4:3 › practice › T02–T05 mixed 5-question round: feedback, hidden answer, reveal, single review, 360/500 (10.4s)
-  ✓   4 [mobile-chromium] › tests/e2e/game.spec.ts:77:3 › practice › double-clicking "confirm" does not skip the feedback (1.9s)
-  ✓   5 [mobile-chromium] › tests/e2e/game.spec.ts:86:3 › practice › T13 all 27 regions selectable in a round; Kyiv and Sevastopol after zooming in; 2700/2700 (28.1s)
-  ✓   6 [mobile-chromium] › tests/e2e/game.spec.ts:104:3 › assessment › T06/T07 12 questions: changeable selection, neutral UI for right and wrong, no way back, 9/12 → 75%, grade 9 (11.9s)
-  ✓   7 [mobile-chromium] › tests/e2e/game.spec.ts:133:3 › assessment › T07 26/27 → 96,3%, grade 12 (14.5s)
-  ✓   8 [mobile-chromium] › tests/e2e/game.spec.ts:145:3 › assessment › T08/T10 5-minute limit with a selected but unconfirmed answer: timeout after background, N stays 5 (2.6s)
-  ✓   9 [mobile-chromium] › tests/e2e/game.spec.ts:169:3 › round controls › T11/T16 restart and exit dialogs; language and theme switch keep the round; reload returns home with nothing stored (4.5s)
-  ✓  10 [mobile-chromium] › tests/e2e/game.spec.ts:226:3 › tectonics topic › practice: only 5/all offered, grey background land is not an answer, all 11 units selectable (1100/1100) (11.2s)
-  ✓  11 [mobile-chromium] › tests/e2e/game.spec.ts:264:3 › tectonics topic › assessment: 4/5 → 80%, grade 10, in Ukrainian (3.5s)
-  ✓  12 [mobile-chromium] › tests/e2e/game.spec.ts:281:3 › continents topic › practice: 6 continents + 5 oceans all selectable (1100/1100); oceanic islands and the Caspian are not answers (19.9s)
-  ✓  13 [mobile-chromium] › tests/e2e/game.spec.ts:321:3 › continents topic › assessment in Ukrainian: 4/5 → 80%, grade 10 (7.0s)
-  ✓  14 [mobile-chromium] › tests/e2e/pwa.spec.ts:6:1 › T19 after the first full load everything works offline: both languages, both themes, a round (2.5s)
-  ✓  15 [mobile-chromium] › tests/e2e/pwa.spec.ts:27:1 › T20 failed install: no false offline-ready when the package cannot be cached (4.3s)
-  ✓  16 [mobile-chromium] › tests/e2e/pwa.spec.ts:49:3 › updates › T21 A→B release: an active round is never reloaded; other tab waits; explicit update after the round loads B (9.9s)
-  ✓  17 [mobile-chromium] › tests/e2e/visual.spec.ts:52:5 › screens hu-light 390×844 (8.6s)
-  ✓  18 [mobile-chromium] › tests/e2e/visual.spec.ts:52:5 › screens hu-dark 390×844 (8.7s)
-  ✓  19 [mobile-chromium] › tests/e2e/visual.spec.ts:52:5 › screens uk-light 390×844 (9.0s)
-  ✓  20 [mobile-chromium] › tests/e2e/visual.spec.ts:52:5 › screens uk-dark 390×844 (8.9s)
-  ✓  21 [mobile-chromium] › tests/e2e/visual.spec.ts:105:3 › layout 320x568 (2.1s)
-  ✓  22 [mobile-chromium] › tests/e2e/visual.spec.ts:105:3 › layout 844x390-landscape (2.1s)
-  ✓  23 [mobile-chromium] › tests/e2e/visual.spec.ts:105:3 › layout 768x1024-tablet (2.9s)
-  ✓  24 [mobile-chromium] › tests/e2e/visual.spec.ts:105:3 › layout 1366x768-desktop (3.1s)
-  ✓  25 [mobile-chromium] › tests/e2e/visual.spec.ts:123:1 › explore + help screenshots; no About page (2.4s)
-  ✓  26 [mobile-chromium] › tests/e2e/visual.spec.ts:141:1 › tectonics screenshots hu-light and uk-dark (7.9s)
-  ✘  27 [mobile-chromium] › tests/e2e/visual.spec.ts:161:1 › continents screenshots: desktop hu-light practice + uk-dark explore, phone explore (5.7s)
+  ✓   1 [mobile-chromium] › tests/e2e/account.spec.ts:29:1 › superadmin setup → teacher → class → student → student sign-in; logout leaves nothing behind (5.1s)
+  ✓   2 [mobile-chromium] › tests/e2e/account.spec.ts:99:1 › wrong passwords are throttled; Ukrainian login screen (2.2s)
+  ✓   3 [mobile-chromium] › tests/e2e/explore.spec.ts:3:1 › T13/T14 production build: every region is hit at its label point; names in both languages; no labels or reveal inside a round (5.5s)
+  ✓   4 [mobile-chromium] › tests/e2e/explore.spec.ts:32:1 › T24 data failure: corrupted package shows a localized error and never starts a round (527ms)
+  ✓   5 [mobile-chromium] › tests/e2e/game.spec.ts:4:3 › practice › T02–T05 mixed 5-question round: feedback, hidden answer, reveal, single review, 360/500 (8.8s)
+  ✓   6 [mobile-chromium] › tests/e2e/game.spec.ts:77:3 › practice › double-clicking "confirm" does not skip the feedback (1.9s)
+  ✓   7 [mobile-chromium] › tests/e2e/game.spec.ts:86:3 › practice › T13 all 27 regions selectable in a round; Kyiv and Sevastopol after zooming in; 2700/2700 (28.5s)
+  ✓   8 [mobile-chromium] › tests/e2e/game.spec.ts:104:3 › assessment › T06/T07 12 questions: changeable selection, neutral UI for right and wrong, no way back, 9/12 → 75%, grade 9 (12.0s)
+  ✓   9 [mobile-chromium] › tests/e2e/game.spec.ts:133:3 › assessment › T07 26/27 → 96,3%, grade 12 (13.1s)
+  ✓  10 [mobile-chromium] › tests/e2e/game.spec.ts:145:3 › assessment › T08/T10 5-minute limit with a selected but unconfirmed answer: timeout after background, N stays 5 (2.7s)
+  ✓  11 [mobile-chromium] › tests/e2e/game.spec.ts:169:3 › round controls › T11/T16 restart and exit dialogs; language and theme switch keep the round; reload returns home with nothing stored (4.6s)
+  ✓  12 [mobile-chromium] › tests/e2e/game.spec.ts:226:3 › tectonics topic › practice: only 5/all offered, grey background land is not an answer, all 11 units selectable (1100/1100) (12.1s)
+  ✓  13 [mobile-chromium] › tests/e2e/game.spec.ts:264:3 › tectonics topic › assessment: 4/5 → 80%, grade 10, in Ukrainian (3.5s)
+  ✓  14 [mobile-chromium] › tests/e2e/game.spec.ts:281:3 › continents topic › practice: 6 continents + 5 oceans all selectable (1100/1100); oceanic islands and the Caspian are not answers (21.6s)
+  ✓  15 [mobile-chromium] › tests/e2e/game.spec.ts:321:3 › continents topic › assessment in Ukrainian: 4/5 → 80%, grade 10 (7.1s)
+  ✓  16 [mobile-chromium] › tests/e2e/pwa.spec.ts:6:1 › T19 after the first full load everything works offline: both languages, both themes, a round (2.6s)
+  ✓  17 [mobile-chromium] › tests/e2e/pwa.spec.ts:27:1 › T20 failed install: no false offline-ready when the package cannot be cached (4.4s)
+  ✓  18 [mobile-chromium] › tests/e2e/pwa.spec.ts:49:3 › updates › T21 A→B release: an active round is never reloaded; other tab waits; explicit update after the round loads B (9.7s)
+  ✓  19 [mobile-chromium] › tests/e2e/visual.spec.ts:52:5 › screens hu-light 390×844 (9.4s)
+  ✓  20 [mobile-chromium] › tests/e2e/visual.spec.ts:52:5 › screens hu-dark 390×844 (9.8s)
+  ✓  21 [mobile-chromium] › tests/e2e/visual.spec.ts:52:5 › screens uk-light 390×844 (8.7s)
+  ✓  22 [mobile-chromium] › tests/e2e/visual.spec.ts:52:5 › screens uk-dark 390×844 (10.7s)
+  ✓  23 [mobile-chromium] › tests/e2e/visual.spec.ts:105:3 › layout 320x568 (2.4s)
+  ✓  24 [mobile-chromium] › tests/e2e/visual.spec.ts:105:3 › layout 844x390-landscape (2.3s)
+  ✓  25 [mobile-chromium] › tests/e2e/visual.spec.ts:105:3 › layout 768x1024-tablet (3.0s)
+  ✓  26 [mobile-chromium] › tests/e2e/visual.spec.ts:105:3 › layout 1366x768-desktop (3.5s)
+  ✓  27 [mobile-chromium] › tests/e2e/visual.spec.ts:123:1 › explore + help screenshots; no About page (2.7s)
+  ✓  28 [mobile-chromium] › tests/e2e/visual.spec.ts:141:1 › tectonics screenshots hu-light and uk-dark (8.2s)
+  ✓  29 [mobile-chromium] › tests/e2e/visual.spec.ts:161:1 › continents screenshots: desktop hu-light practice + uk-dark explore, phone explore (8.4s)
 
-
-  1) [mobile-chromium] › tests/e2e/visual.spec.ts:161:1 › continents screenshots: desktop hu-light practice + uk-dark explore, phone explore 
-
-    Error: expect(received).toEqual(expected) // deep equality
-
-    - Expected  - 1
-    + Received  + 0
-
-    @@ -3,11 +3,10 @@
-        "C-AN",
-        "C-AU",
-        "C-EA",
-        "C-NA",
-        "C-SA",
-    -   "O-AR",
-        "O-AT",
-        "O-IN",
-        "O-PA",
-        "O-SO",
-      ]
-
-      183 |       .filter((e) => e.style.visibility !== 'hidden').map((e) => { const r = e.getBoundingClientRect(); return { id: e.dataset['labelId']!, l: r.left, t: r.top, r: r.right, b: r.bottom }; }));
-      184 |     for (const a of boxes) for (const b of boxes) if (a.id < b.id) expect(a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t, `${a.id} overlaps ${b.id}`).toBe(false);
-    > 185 |     if (tag === 'desktop') expect(boxes.map((x) => x.id).sort()).toEqual(['C-AF', 'C-AN', 'C-AU', 'C-EA', 'C-NA', 'C-SA', 'O-AR', 'O-AT', 'O-IN', 'O-PA', 'O-SO']);
-          |                                                                  ^
-      186 |     await shot(page, `continents-${locale}-${theme}-explore-${tag}`);
-      187 |     if (tag === 'phone') {
-      188 |       // Labels that do not fit at the small default scale appear after zooming in.
-        at /home/claude/topogok/tests/e2e/visual.spec.ts:185:66
-
-    Error Context: test-results/visual-continents-screensh-134d1--dark-explore-phone-explore-mobile-chromium/error-context.md
-
-    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
-    test-results/visual-continents-screensh-134d1--dark-explore-phone-explore-mobile-chromium/trace.zip
-    Usage:
-
-        npx playwright show-trace test-results/visual-continents-screensh-134d1--dark-explore-phone-explore-mobile-chromium/trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-  1 failed
-    [mobile-chromium] › tests/e2e/visual.spec.ts:161:1 › continents screenshots: desktop hu-light practice + uk-dark explore, phone explore 
-  26 passed (3.5m)
+  29 passed (3.7m)

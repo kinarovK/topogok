@@ -7,6 +7,7 @@ Frissítve: 2026-11-10.
 - [0003 specifikáció](tasks/0003_ONLINE_PLATFORM/task.md) és [döntési napló](tasks/0003_ONLINE_PLATFORM/DECISIONS.md): elkészült jóváhagyásra, hat külön fázisspecifikációval.
 - Fázisok: F1 hosting; F2 fiókok/osztályok; F3 próbálkozások/tanári panel; F4 tanári elemkészletek; F5 teljes térképes toplista/rekord; F6 oldalelhagyási jelzések.
 - A specifikáció a `main`-ben van (PR #1, tulajdonosi jóváhagyással).
+- **F2 (fiókok és jogosultságok):** megvalósítva, PR-jóváhagyásra vár. Cloudflare D1 (külön éles és preview adatbázis), belépés, tanári és szuperadmin felület, napló, helyreállítás, heti mentés. Részletek: [F2_DESIGN](tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN.md) 13a.
 - **F1 (online vendégkiadás): kiadva 2026-11-11.** Éles: https://topogok.pages.dev (`main`). Minden más ág a saját `<ág>.topogok.pages.dev` preview-címére kerül. Tartalma: Névjegy oldal törölve, buildazonosító a Súgóban és a `version.json`-ban, GitHub Actions kapuk, Cloudflare Pages deploy, HTTP-smoke az éles címen, A→B→recovery E2E. Részletek: [F1_RELEASE](tasks/0003_ONLINE_PLATFORM/phases/F1_RELEASE.md). Nyitott: a tankönyv felhasználási engedélye, rövid telefonos ellenőrzés az éles címen.
 - A 0001 fennmaradó P10 kiadási munkája F1-ben folytatódik. A helyi MVP és a tektonikai integráció a következő fejlesztés alapja.
 - GitHub: a kód 2026-11-10 óta a privát `kinarovK/topogok` repóban van (`main`, teljes előzmény), a helyi checkout `origin` remote-ja erre mutat. Innentől minden változás külön PR-ban, tulajdonosi jóváhagyással kerül a `main`-be.

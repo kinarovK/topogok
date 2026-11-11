@@ -243,6 +243,22 @@ A hibák `{"error": "<kód>"}` alakban jönnek, ezért a felület mindkét nyelv
 
    Generálni egy jelszókezelővel lehet, vagy közösen megnézzük. Ezeket sem a chatbe, sem a repóba nem szabad bemásolni.
 
+## 13a. Megvalósítás (2026-11-11)
+
+- Az F2-A és az F2-B egy PR-ba került, mert ugyanannak a fázisnak a két fele, és a felület nélkül a backend nem próbálható ki.
+- **Backend:**
+  - `migrations/0001_init.sql`, `server/`, `functions/api/[[path]].ts`, `wrangler.toml`;
+  - a CI minden deploy előtt migrál, utána a smoke ellenőrzi, hogy az `/api/health` végpont `ok`;
+  - a preview-n valódi D1-gyel ellenőrizve: a migráció lefutott, `db=true`, `schema=1`.
+- **Felület:**
+  - `src/account/`: API-kliens és a belépett felhasználó állapota;
+  - `src/features/account/`: belépés, `#/setup`, tanári és szuperadmin képernyők;
+  - a főoldalon egy fióksáv; hu és uk szövegek.
+- **Munkafolyamatok:** `admin-recovery.yml`, `backup.yml` (heti mentés, 4 adatbázisos körforgással).
+- **Tesztek:**
+  - 13 API-teszt `node:sqlite`-tal, köztük a végpont×szerep izolációs teszt. Mutációval ellenőrizve: ha a hatókört vagy a visszavonást gyengítjük, a tesztek elbuknak.
+  - 2 E2E-folyamat a valódi API-kóddal: setup → tanár → osztály → diák → diákbelépés → kijelentkezés közös eszközön; próbálkozáskorlát; ukrán felület.
+
 ## 14. Tulajdonosi döntések (2026-11-11)
 
 - A login karakterkészlete `a–z 0–9 . _ -`, ékezet nélkül, például `kovacs.anna`: **elfogadva**.

@@ -72,3 +72,27 @@ Az alkalmazás nem kér és nem küld neveket, osztályt, válaszokat vagy eredm
 - [ ] CSP és hálózati audit sikeres, nincs külső szükségtelen hívás.
 - [ ] Release record, ismert korlátok és tulajdonosi átvétel elkészült.
 - [ ] Publikálás után HTTPS címen smoke megtörtént; URL csak valódi deploy után közölve.
+
+## Fiókok és adatbázis (F2)
+
+Részletes terv: [F2_DESIGN](project/tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN.md).
+
+- **Felépítés:** a `functions/api/[[path]].ts` Pages Function futtatja a `server/` kódot, csak az `/api/*` címeken (`public/_routes.json`). Az adatbázis Cloudflare D1:
+  - `topogok-prod`: a `main` ág deployja használja;
+  - `topogok-preview`: minden más ág deployja használja, csak tesztadattal.
+
+  A kötéseket a `wrangler.toml` írja le.
+- **Titkok:** a Pages-projektben, környezetenként külön értékkel, *Secret* típussal kell beállítani:
+  - `PEPPER`: soha nem változtatható, különben minden jelszó érvénytelenné válik;
+  - `SETUP_CODE`.
+
+  „Text” típusú változót a `wrangler.toml` minden deploynál felülír.
+- **Séma:** `migrations/NNNN_*.sql`. A CI a feltöltés előtt alkalmazza őket. Minden migrációnak kompatibilisnek kell lennie az éppen futó kóddal, ezért csak bővítő változás jöhet egy lépésben.
+- **Első szuperadmin:** a `https://topogok.pages.dev/#/setup` oldalon, az éles `SETUP_CODE` megadásával.
+- **Helyreállítás:** GitHub → Actions → *admin-recovery* → Run workflow. A futás összefoglalójában megjelenik egy egyszer használható, 1 óráig érvényes kód. Ezzel a `#/setup` oldalon új jelszót lehet adni. Minden korábbi munkamenet megszűnik.
+- **Mentés:**
+  - D1 Time Travel: 7 napra visszamenőleg, automatikus. Visszaállítás: `npx wrangler d1 time-travel restore topogok-prod --timestamp=<ISO idő>`.
+  - Heti mentés: GitHub → Actions → *backup* (vasárnap 02:17 UTC, vagy kézi indítással). Körforgásban a `topogok-backup-1…4` adatbázisok egyikébe ment, és sorszámokkal ellenőrzi az eredményt. Visszaállítás mentési adatbázisból: `npx wrangler d1 export topogok-backup-N --remote --output b.sql`, majd az éles táblák eldobása után `npx wrangler d1 execute topogok-prod --remote --file b.sql`.
+
+    Visszaállítás után kötelező minden munkamenetet visszavonni: `UPDATE sessions SET revoked_at = <most>`.
+- **Helyi futtatás:** a `node scripts/dev/serve.mjs dist 4176 --api` a valódi API-kódot futtatja memóriabeli SQLite-on. A beállítási kód: `local-setup-code-0123456789`.
