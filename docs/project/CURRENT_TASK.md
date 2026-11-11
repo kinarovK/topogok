@@ -1,5 +1,7 @@
 # Aktív feladat
 
+[0004_CONTINENTS_TOPIC](tasks/0004_CONTINENTS_TOPIC/task.md): a Kontinensek topója megvalósítva a `feat/continents-topic` ágon, PR-jóváhagyásra vár.
+
 [0003_ONLINE_PLATFORM](tasks/0003_ONLINE_PLATFORM/task.md)
 
 Állapot (2026-11-10): a specifikáció a `main`-ben van (PR #1). **F1 kiadva (PR #2, 2026-11-11): https://topogok.pages.dev.** Tartalma: a Névjegy oldal eltávolítva, kiadásazonosító, CI és Cloudflare Pages deploy, recovery-teszt. Leírás: [F1_RELEASE](tasks/0003_ONLINE_PLATFORM/phases/F1_RELEASE.md). F2–F6 csak külön jóváhagyás után indul.

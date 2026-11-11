@@ -29,6 +29,7 @@
     "topicCount": "{count} kérdezhető egység",
     "topicAdminDesc": "24 terület, a Krími Autonóm Köztársaság, Kijev és Szevasztopol.",
     "topicTectonicsDesc": "Ukrajna 11 tektonikai szerkezeti egysége.",
+    "topicWorldDesc": "A hat kontinens és az öt óceán a világtérképen.",
     "chooseMode": "Mit szeretnél csinálni?"
   },
   "setup": {
@@ -130,7 +131,7 @@
     "troubleTitle": "Ha valami nem működik",
     "troubleText": "Nyisd meg az oldalt internetkapcsolattal, és frissítsd. Ha ez sem segít, töröld az oldal helyi adatait a böngésző beállításaiban, majd töltsd be újra; ez a nyelv- és megjelenésbeállítást is törli.",
     "greyTitle": "Szürke területek",
-    "greyText": "A tektonikai térképen a szürke területek nem tartoznak a kérdezett egységekhez. Ha oda koppintasz, nem jelölsz ki választ, és nem veszítesz próbálkozást.",
+    "greyText": "A tektonikai és a kontinens-térképen a szürke területek nem tartoznak a kérdezett egységekhez (pl. Új-Zéland, Hawaii). Ha oda koppintasz, nem jelölsz ki választ, és nem veszítesz próbálkozást.",
     "version": "Verzió: {app} (build: {build})",
     "dataVersions": "adatok: {versions}"
   },

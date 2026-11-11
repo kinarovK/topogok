@@ -274,3 +274,59 @@ test.describe('tectonics topic', () => {
     await expect(page.getByTestId('grade')).toHaveText('10 з 12');
   });
 });
+
+test.describe('continents topic', () => {
+  test.use({ viewport: { width: 1366, height: 768 } });
+
+  test('practice: 6 continents + 5 oceans all selectable (1100/1100); oceanic islands and the Caspian are not answers', async ({ page }) => {
+    await openTopic(page, E2E, 'world');
+    await expect(page.locator('h1')).toHaveText('Kontinensek topója');
+    await page.getByRole('button', { name: /^Gyakorlás/ }).click();
+    await expect(page.locator('label', { hasText: /^12$/ })).toHaveCount(0);
+    await page.locator('label', { hasText: 'Mindegyik (11)' }).click();
+    await page.getByRole('button', { name: 'Indítás' }).click();
+    await mapReady(page);
+    await expect(page.locator('main')).toContainText('A szürke területek nem tartoznak a kérdezett egységekhez.');
+
+    // New Zealand (grey oceanic island, 172.5°E 43.3°S) and the Caspian Sea (50.5°E 42.5°N) select nothing.
+    // The package holds Robinson display coordinates (scripts/data/world/derive.py), so these are the display positions.
+    for (const [lng, lat] of [[78.0748, -23.7694], [22.9611, 23.3592]] as const) {
+      const xy = await page.evaluate(([x, y]) => {
+        const h = window.__topogokE2E!.maps['main']!;
+        h.container.scrollIntoView({ block: 'center' });
+        const r = h.container.getBoundingClientRect();
+        const q = h.project([x, y]);
+        return { x: r.left + q.x, y: r.top + q.y };
+      }, [lng, lat] as const);
+      await page.mouse.click(xy.x, xy.y);
+      await page.waitForTimeout(300);
+      await expect(page.getByTestId('status')).toContainText('Válassz egy területet a térképen.');
+      await expect(confirmBtn(page)).toBeDisabled();
+    }
+
+    const seen = new Set<string>();
+    for (let i = 0; i < 11; i++) {
+      const id = await currentTargetId(page);
+      expect(/^[CO]-/.test(id)).toBe(true);
+      seen.add(id);
+      await selectRegion(page, id);
+      await confirmBtn(page).click();
+      await expect(page.getByTestId('status')).toContainText('Helyes!');
+      await clickNext(page);
+    }
+    expect(seen.size).toBe(11);
+    await expect(page.getByTestId('points')).toHaveText('1100 / 1100');
+  });
+
+  test('assessment in Ukrainian: 4/5 → 80%, grade 10', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('topogok.preferences.v1', JSON.stringify({ locale: 'uk', theme: 'dark' })));
+    await start(page, E2E, 'assessment', '5', undefined, 'world');
+    for (let i = 0; i < 5; i++) {
+      const id = await currentTargetId(page);
+      await selectRegion(page, i === 0 ? otherId(id) : id);
+      await confirmBtn(page).click();
+    }
+    await expect(page.getByTestId('correct')).toHaveText('4 / 5');
+    await expect(page.getByTestId('grade')).toHaveText('10 з 12');
+  });
+});

@@ -47,9 +47,14 @@ for (const m of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
   if (/^(https?:)?\/\//.test(m[1])) errors.push(`external reference in index.html: ${m[1]}`);
 }
 
-const versionRes = await get('/version.json');
+// A branch alias (e.g. <branch>.<project>.pages.dev) can serve the previous deployment for a short while.
 let version = null;
-try { version = await versionRes.json(); } catch { errors.push('/version.json is not JSON'); }
+for (let i = 0; i < 12; i++) {
+  try { version = await (await get('/version.json')).json(); } catch { version = null; }
+  if (!version || !expectedBuild || version.buildId === expectedBuild) break;
+  await sleep(10000);
+}
+if (!version) errors.push('/version.json is missing or not JSON');
 if (version) {
   if (expectedBuild && version.buildId !== expectedBuild) errors.push(`buildId ${version.buildId} ≠ expected ${expectedBuild}`);
   if (!version.appVersion || !version.dataVersions) errors.push('version.json lacks appVersion/dataVersions');

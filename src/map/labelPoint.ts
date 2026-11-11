@@ -74,3 +74,8 @@ export function labelPoint(geometry: PolygonGeometry): Position {
   }
   return best;
 }
+
+/** The package may carry a precomputed label point (world topic: placed so labels do not overlap). */
+export function regionLabelPoint(r: { properties: { label?: Position }; geometry: PolygonGeometry }): Position {
+  return r.properties.label ?? labelPoint(r.geometry);
+}

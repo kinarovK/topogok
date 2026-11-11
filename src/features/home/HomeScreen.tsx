@@ -8,6 +8,7 @@ import s from '../../app/app.module.css';
 const DESC: Record<TopicId, MessageKey> = {
   'ukraine-administration': 'home.topicAdminDesc',
   'ukraine-tectonics': 'home.topicTectonicsDesc',
+  'world-continents': 'home.topicWorldDesc',
 };
 
 /** Home = topic choice. */

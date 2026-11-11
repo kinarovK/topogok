@@ -13,6 +13,7 @@ Frissítve: 2026-11-10.
 
 ## Meglévő alkalmazás és korábbi ellenőrzések
 
+- **Harmadik téma (2026-11-11, PR-jóváhagyásra vár):** Kontinensek topója: 6 kontinens és 5 óceán Robinson-vetületű világtérképen, Natural Earth (közkincs) alapon; részletek: [0004](tasks/0004_CONTINENTS_TOPIC/task.md).
 - **Második téma:** Ukrajna tektonikai szerkezete (11 egység), témaválasztó főoldallal; részletek: [0002](tasks/0002_TECTONICS_TOPIC/task.md).
 
 - **Implementáció: a helyi MVP működik.** Gyakorlás, számonkérés, térkép (Kijev és Szevasztopol nagyítással; a betéttérképek 2026-11-09-én tulajdonosi döntéssel kikerültek), felfedezés, hu/uk felület, világos/sötét/rendszer téma, offline működés és biztonságos frissítés. A plan.md P01–P09 szakaszai a helyi határig készek, a P10-ből a helyi átadás kész. Részletes bizonyítékok: [átvételi jelentés](../../reports/acceptance.md).

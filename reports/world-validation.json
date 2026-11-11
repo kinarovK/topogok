@@ -1,0 +1,95 @@
+{
+  "topicId": "world-continents",
+  "dataVersion": "2026.11.11.1",
+  "node": "v22.23.4",
+  "sources": [
+    {
+      "file": "shp/ne_110m_land.shp",
+      "sha256": "8689e6932b8e370e2ca4587cf3ba21e460b1235db37b6ed3c172c35b4a6088de"
+    },
+    {
+      "file": "shp/ne_110m_land.dbf",
+      "sha256": "db7cf6d2de2811df09bd7fcc6f243ab78a715b83571a0cb7b36b4e2af3297caa"
+    }
+  ],
+  "checks": [
+    {
+      "id": "unit-ids",
+      "status": "pass",
+      "detail": "11 units: C-AF, C-AN, C-AU, C-EA, C-NA, C-SA, O-AR, O-AT, O-IN, O-PA, O-SO"
+    },
+    {
+      "id": "unit-names",
+      "status": "pass",
+      "detail": "hu/uk names and kinds match"
+    },
+    {
+      "id": "geometry-validity",
+      "status": "pass",
+      "detail": "all rings closed, finite, no self-intersections, holes inside shells"
+    },
+    {
+      "id": "display-geometry-validity",
+      "status": "pass",
+      "detail": "Robinson display geometry is valid"
+    },
+    {
+      "id": "labels-inside",
+      "status": "pass",
+      "detail": "label points inside their unit; placement {\"C-AF\":{\"minZoom\":{\"hu\":0.49,\"uk\":0.49},\"labelWidthPx\":{\"hu\":49,\"uk\":49}},\"C-AN\":{\"minZoom\":{\"hu\":0.91,\"uk\":0.91},\"labelWidthPx\":{\"hu\":76,\"uk\":76}},\"C-AU\":{\"minZoom\":{\"hu\":1.59,\"uk\":1.49},\"labelWidthPx\":{\"hu\":76,\"uk\":70}},\"C-EA\":{\"minZoom\":{\"hu\":0.23,\"uk\":0.23},\"labelWidthPx\":{\"hu\":63,\"uk\":56}},\"C-NA\":{\"minZoom\":{\"hu\":1.15,\"uk\":1.28},\"labelWidthPx\":{\"hu\":56,\"uk\":63}},\"C-SA\":{\"minZoom\":{\"hu\":1.39,\"uk\":1.47},\"labelWidthPx\":{\"hu\":56,\"uk\":63}},\"O-AR\":{\"minZoom\":{\"hu\":2.26,\"uk\":2.45},\"labelWidthPx\":{\"hu\":56,\"uk\":76}},\"O-AT\":{\"minZoom\":{\"hu\":0.49,\"uk\":0.81},\"labelWidthPx\":{\"hu\":63,\"uk\":83}},\"O-IN\":{\"minZoom\":{\"hu\":0.88,\"uk\":1.08},\"labelWidthPx\":{\"hu\":56,\"uk\":117}},\"O-PA\":{\"minZoom\":{\"hu\":-0.03,\"uk\":-0.36},\"labelWidthPx\":{\"hu\":63,\"uk\":42}},\"O-SO\":{\"minZoom\":{\"hu\":1.02,\"uk\":1.05},\"labelWidthPx\":{\"hu\":76,\"uk\":110}}}"
+    },
+    {
+      "id": "derive-ocean-regions",
+      "status": "pass",
+      "detail": "{\"O-SO\":1,\"O-PA\":2,\"O-AR\":1,\"O-AT\":1,\"O-IN\":1}"
+    },
+    {
+      "id": "derive-land-area",
+      "status": "pass",
+      "detail": "\"continents 21452.615 + grey islands 44.337 vs land 21496.951 deg²\""
+    },
+    {
+      "id": "derive-tiling",
+      "status": "pass",
+      "detail": "\"continents + islands + oceans + Caspian = 64800.000 of 64800 deg²\""
+    },
+    {
+      "id": "no-overlap",
+      "status": "pass",
+      "detail": "0 of 64800 sample points in more than one unit"
+    },
+    {
+      "id": "oceans-fill-water",
+      "status": "pass",
+      "detail": "0 water sample points outside every ocean (Caspian excluded)"
+    },
+    {
+      "id": "continents-on-land",
+      "status": "pass",
+      "detail": "0 continent sample points off land"
+    }
+  ],
+  "issues": [],
+  "metrics": {
+    "samples": 64800,
+    "overlap": 0,
+    "gaps": 0,
+    "continentOffLand": 0
+  },
+  "outputs": [
+    {
+      "file": "public/data/world-continents/2026.11.11.1/manifest.json",
+      "sha256": "540a5ca098efdc54b96b276ce839c6d2128b6df35a23b097a6a2380eb8110415"
+    },
+    {
+      "file": "public/data/world-continents/2026.11.11.1/regions.geojson",
+      "sha256": "678100e13e69b6cb941b1cd2c335111622bff192475487e0fd6c57d98a1f5ce6",
+      "bytes": 354966
+    },
+    {
+      "file": "public/data/world-continents/2026.11.11.1/country.geojson",
+      "sha256": "badba847c98615b2da762f505c72a93e15ee6afe6f88547954fc9200f48c41c5",
+      "bytes": 165110
+    }
+  ]
+}

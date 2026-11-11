@@ -1,7 +1,7 @@
 import type { QuestionCount } from '../domain/types.ts';
 import { loadTopic, type LocalizedText, type Topic } from './validation.ts';
 
-export type TopicId = 'ukraine-administration' | 'ukraine-tectonics';
+export type TopicId = 'ukraine-administration' | 'ukraine-tectonics' | 'world-continents';
 
 export type TopicEntry = {
   id: TopicId;
@@ -10,7 +10,7 @@ export type TopicEntry = {
   title: LocalizedText;
   featureCount: number;
   counts: readonly QuestionCount[];
-  /** True when the question units do not cover the whole country (grey background land). */
+  /** True when the question units do not cover all land shown (grey background land). */
   partialCoverage: boolean;
 };
 
@@ -23,6 +23,11 @@ export const TOPICS: readonly TopicEntry[] = [
   {
     id: 'ukraine-tectonics', dataVersion: '2026.11.09.1',
     title: { hu: 'Ukrajna tektonikai szerkezete', uk: 'Тектонічна будова України' },
+    featureCount: 11, counts: [5, 'all'], partialCoverage: true,
+  },
+  {
+    id: 'world-continents', dataVersion: '2026.11.11.1',
+    title: { hu: 'Kontinensek topója', uk: 'Материки та океани' },
     featureCount: 11, counts: [5, 'all'], partialCoverage: true,
   },
 ];

@@ -1,11 +1,14 @@
 // Runtime validation of the generated topic package. A failing package never starts a game.
 export type LocalizedText = { hu: string; uk: string; en?: string };
+export type LocalizedNumber = { hu: number; uk: number };
 export type Bounds = [number, number, number, number];
 export type Position = [number, number];
 export type PolygonGeometry = { type: 'Polygon'; coordinates: Position[][] } | { type: 'MultiPolygon'; coordinates: Position[][][] };
-export type RegionKind = 'oblast' | 'autonomous-republic' | 'city' | 'tectonic-unit';
-export type RegionFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText; kind: RegionKind }; geometry: PolygonGeometry };
-export type CountryFeature = { type: 'Feature'; id: 'UA'; properties: { id: 'UA'; names: LocalizedText }; geometry: PolygonGeometry };
+export const REGION_KINDS = ['oblast', 'autonomous-republic', 'city', 'tectonic-unit', 'continent', 'ocean'] as const;
+export type RegionKind = (typeof REGION_KINDS)[number];
+export type RegionFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText; kind: RegionKind; label?: Position; labelMinZoom?: LocalizedNumber; labelWidth?: LocalizedNumber }; geometry: PolygonGeometry };
+/** Background land: the country outline for country topics, all land for the world topic. */
+export type CountryFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText }; geometry: PolygonGeometry };
 
 export type Inset = { id: string; anchorFeatureId: string; title: LocalizedText; bounds: Bounds };
 export type Provenance = {
@@ -76,8 +79,14 @@ export function validateRegions(v: unknown, manifest: TopicManifest): RegionFeat
     if (ids.has(f['id'])) throw bad(`duplicate id ${f['id']}`);
     ids.add(f['id']);
     if (!isText(props['names'])) throw bad(`names for ${f['id']}`);
-    if (!['oblast', 'autonomous-republic', 'city', 'tectonic-unit'].includes(props['kind'] as string)) throw bad(`kind for ${f['id']}`);
+    if (!(REGION_KINDS as readonly string[]).includes(props['kind'] as string)) throw bad(`kind for ${f['id']}`);
     if (!validGeometry(f['geometry'])) throw bad(`geometry for ${f['id']}`);
+    const label = props['label'];
+    for (const key of ['labelMinZoom', 'labelWidth']) {
+      const v = props[key];
+      if (v !== undefined && !(isObj(v) && Number.isFinite(v['hu']) && Number.isFinite(v['uk']))) throw bad(`${key} for ${f['id']}`);
+    }
+    if (label !== undefined && !(Array.isArray(label) && label.length === 2 && label.every((n) => typeof n === 'number' && Number.isFinite(n)))) throw bad(`label for ${f['id']}`);
   }
   for (const ins of manifest.insets) if (!ids.has(ins.anchorFeatureId)) throw bad(`inset anchor ${ins.anchorFeatureId} missing`);
   return features as RegionFeature[];
@@ -87,7 +96,7 @@ export function validateCountry(v: unknown): CountryFeature {
   const bad = (m: string) => new DataError('invalid', `country: ${m}`);
   if (!isObj(v) || v['type'] !== 'FeatureCollection' || !Array.isArray(v['features']) || v['features'].length !== 1) throw bad('expected one feature');
   const f = v['features'][0] as unknown;
-  if (!isObj(f) || f['id'] !== 'UA' || !validGeometry(f['geometry'])) throw bad('feature');
+  if (!isObj(f) || typeof f['id'] !== 'string' || f['id'] === '' || !validGeometry(f['geometry'])) throw bad('feature');
   return f as unknown as CountryFeature;
 }
 
