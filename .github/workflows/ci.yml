@@ -115,7 +115,7 @@ jobs:
             --project-name="${CF_PAGES_PROJECT}" --branch="${BRANCH}" \
             --commit-hash="${GITHUB_SHA}" --commit-message="${{ needs.gates.outputs.build_id }} ${GITHUB_REF_NAME}" \
             2>&1 | tee wrangler.log
-          URL=$(grep -oE 'https://[a-z0-9.-]+\.pages\.dev' wrangler.log | tail -1)
+          URL=$(grep -oE 'https://[a-z0-9.-]+\.pages\.dev' wrangler.log | head -1)  # the immutable deployment URL, not the branch alias
           echo "url=${URL}" >> "$GITHUB_OUTPUT"
           echo "Deployed ${{ needs.gates.outputs.build_id }} (${BRANCH}) to ${URL}" >> "$GITHUB_STEP_SUMMARY"
       - if: steps.cfg.outputs.enabled == 'true'
