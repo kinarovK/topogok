@@ -1,5 +1,7 @@
 # Aktív feladat
 
+**F2 – Fiókok és jogosultságok:** a design a [F2_DESIGN.md](tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN.md) fájlban van, tulajdonosi jóváhagyásra vár (docs PR). Az implementáció csak a jóváhagyás után indul.
+
 [0004_CONTINENTS_TOPIC](tasks/0004_CONTINENTS_TOPIC/task.md): a Kontinensek topója megvalósítva a `feat/continents-topic` ágon, PR-jóváhagyásra vár.
 
 [0003_ONLINE_PLATFORM](tasks/0003_ONLINE_PLATFORM/task.md)
