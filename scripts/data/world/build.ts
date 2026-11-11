@@ -27,11 +27,9 @@ const EXPECTED: Record<string, { hu: string; uk: string; kind: 'continent' | 'oc
   'O-PA': { hu: 'Csendes-óceán', uk: 'Тихий океан', kind: 'ocean' },
   'O-SO': { hu: 'Déli-óceán', uk: 'Південний океан', kind: 'ocean' },
 };
-// Initial map view (Mercator): the whole world without the polar extremes. Pan/zoom reach the rest.
-const VIEW_BOUNDS = [-180, -76, 180, 82];
 
 type Geometry = { type: 'Polygon' | 'MultiPolygon'; coordinates: unknown };
-type Feature = { type: 'Feature'; id: string; properties: { id: string; names: { hu: string; uk: string }; kind: string }; geometry: Geometry };
+type Feature = { type: 'Feature'; id: string; properties: { id: string; names: { hu: string; uk: string }; kind: string; label?: [number, number]; labelMinZoom?: { hu: number; uk: number }; labelWidth?: { hu: number; uk: number } }; geometry: Geometry };
 const polysOf = (g: Geometry): PolygonCoords[] => (g.type === 'Polygon' ? [g.coordinates as PolygonCoords] : (g.coordinates as PolygonCoords[]));
 const inPoly = (p: [number, number], polys: PolygonCoords[]) => polys.some((poly) => pointInRing(p, poly[0]!) && !poly.slice(1).some((h) => pointInRing(p, h)));
 
@@ -41,6 +39,8 @@ const check = (id: string, ok: boolean, detail: string) => checks.push({ id, sta
 
 const units = (JSON.parse(readFileSync(join(root, 'build/world/units.geojson'), 'utf8')) as { features: Feature[] }).features;
 const land = (JSON.parse(readFileSync(join(root, 'build/world/background.geojson'), 'utf8')) as { features: Feature[] }).features[0]!;
+// Robinson display coordinates (see derive.py): this is what the package ships; checks below run on geographic data.
+const display = JSON.parse(readFileSync(join(root, 'build/world/display.geojson'), 'utf8')) as { bounds: [number, number, number, number]; labels: Record<string, unknown>; features: Feature[]; background: Feature };
 const derive = JSON.parse(readFileSync(join(root, 'build/world/derive-report.json'), 'utf8')) as { checks: Array<{ id: string; ok: boolean; detail: unknown }> };
 const sources = ['shp/ne_110m_land.shp', 'shp/ne_110m_land.dbf'].map((f) => ({ file: f, sha256: sha(readFileSync(join(root, f))) }));
 
@@ -50,6 +50,12 @@ const nameProblems = units.filter((f) => { const e = EXPECTED[f.id]; return !e |
 check('unit-names', nameProblems.length === 0, nameProblems.length ? `mismatch: ${nameProblems.join(', ')}` : 'hu/uk names and kinds match');
 for (const f of [...units, land]) for (const poly of polysOf(f.geometry)) issues.push(...validatePolygon(f.id, poly));
 check('geometry-validity', issues.length === 0, issues.length ? `${issues.length} issue(s)` : 'all rings closed, finite, no self-intersections, holes inside shells');
+const displayIssues: Issue[] = [];
+for (const f of [...display.features, display.background]) for (const poly of polysOf(f.geometry)) displayIssues.push(...validatePolygon(`display:${f.id}`, poly));
+issues.push(...displayIssues);
+check('display-geometry-validity', displayIssues.length === 0, displayIssues.length ? `${displayIssues.length} issue(s)` : 'Robinson display geometry is valid');
+const badLabels = display.features.filter((f) => !f.properties.label || !inPoly(f.properties.label, polysOf(f.geometry))).map((f) => f.id);
+check('labels-inside', badLabels.length === 0, badLabels.length ? `outside: ${badLabels.join(', ')}` : `label points inside their unit; placement ${JSON.stringify(display.labels)}`);
 for (const c of derive.checks) check(`derive-${c.id}`, c.ok, JSON.stringify(c.detail));
 
 // Sampling on a 1° grid (cell centres): every point is in exactly one ocean, or on land; continents lie on land.
@@ -70,9 +76,9 @@ check('oceans-fill-water', gaps === 0, `${gaps} water sample points outside ever
 check('continents-on-land', continentOffLand === 0, `${continentOffLand} continent sample points off land`);
 
 const failed = checks.some((c) => c.status === 'fail');
-const sorted = [...units].sort((a, b) => (a.id < b.id ? -1 : 1)).map((f) => ({ type: 'Feature', id: f.id, properties: { id: f.id, names: f.properties.names, kind: f.properties.kind }, geometry: f.geometry }));
+const sorted = [...display.features].sort((a, b) => (a.id < b.id ? -1 : 1)).map((f) => ({ type: 'Feature', id: f.id, properties: { id: f.id, names: f.properties.names, kind: f.properties.kind, label: f.properties.label, labelMinZoom: f.properties.labelMinZoom, labelWidth: f.properties.labelWidth }, geometry: f.geometry }));
 const regionsText = JSON.stringify({ type: 'FeatureCollection', features: sorted }) + '\n';
-const countryText = JSON.stringify({ type: 'FeatureCollection', features: [{ type: 'Feature', id: 'LAND', properties: { id: 'LAND', names: { hu: 'Szárazföld', uk: 'Суходіл' } }, geometry: land.geometry }] }) + '\n';
+const countryText = JSON.stringify({ type: 'FeatureCollection', features: [{ type: 'Feature', id: 'LAND', properties: { id: 'LAND', names: { hu: 'Szárazföld', uk: 'Суходіл' } }, geometry: display.background.geometry }] }) + '\n';
 const manifest = {
   schemaVersion: 1,
   id: TOPIC_ID,
@@ -80,7 +86,8 @@ const manifest = {
   title: { hu: 'Kontinensek topója', uk: 'Материки та океани' },
   geometryKind: 'polygon',
   featureCount: 11,
-  bounds: VIEW_BOUNDS,
+  bounds: display.bounds,
+  projection: 'robinson-display',
   layers: { background: { path: 'country.geojson', sha256: sha(countryText) }, questions: { path: 'regions.geojson', sha256: sha(regionsText) } },
   insets: [],
   provenance: {

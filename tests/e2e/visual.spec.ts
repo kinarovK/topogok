@@ -178,6 +178,18 @@ test('continents screenshots: desktop hu-light practice + uk-dark explore, phone
     await mapReady(page, 'explore');
     await page.waitForTimeout(300);
     await checkLayout(page);
+    // Visible labels never overlap each other. On desktop all fit except the Arctic Ocean, whose polar band
+    // is too thin at this scale (it appears after zooming in); Antarctica and the Southern Ocean both show.
+    const boxes = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>('[data-label-id]')]
+      .filter((e) => e.style.visibility !== 'hidden').map((e) => { const r = e.getBoundingClientRect(); return { id: e.dataset['labelId']!, l: r.left, t: r.top, r: r.right, b: r.bottom }; }));
+    for (const a of boxes) for (const b of boxes) if (a.id < b.id) expect(a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t, `${a.id} overlaps ${b.id}`).toBe(false);
+    if (tag === 'desktop') expect(boxes.map((x) => x.id).sort()).toEqual(['C-AF', 'C-AN', 'C-AU', 'C-EA', 'C-NA', 'C-SA', 'O-AT', 'O-IN', 'O-PA', 'O-SO']);
     await shot(page, `continents-${locale}-${theme}-explore-${tag}`);
+    if (tag === 'phone') {
+      // Labels that do not fit at the small default scale appear after zooming in.
+      await page.getByRole('button', { name: 'Nagyítás' }).click();
+      await page.waitForTimeout(600);
+      await shot(page, `continents-${locale}-${theme}-explore-${tag}-zoomed`);
+    }
   }
 });

@@ -4,8 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { partsToPolygons, validatePolygon, type Ring } from '../../scripts/data/geometry.ts';
-import { labelPoint } from '../../src/map/labelPoint.ts';
+import { partsToPolygons, pointInRing, validatePolygon, type Ring } from '../../scripts/data/geometry.ts';
 import { DataError, loadTopic, sha256Hex, validateManifest, validateRegions } from '../../src/data/validation.ts';
 
 const root = resolve(import.meta.dirname, '../..');
@@ -155,7 +154,7 @@ test('tectonics package: 11 units with hu/uk names, kind tectonic-unit, provenan
   assert.equal(files['country.geojson'], countryText);
 });
 
-test('continents package: 6 continents + 5 oceans with hu/uk names, Natural Earth provenance, label points visible on the Mercator map', async () => {
+test('continents package: 6 continents + 5 oceans with hu/uk names, Natural Earth provenance, precomputed label points inside their unit', async () => {
   const dir = join(root, 'public/data/world-continents/2026.11.11.1');
   const files = Object.fromEntries(['manifest.json', 'regions.geojson', 'country.geojson'].map((f) => [f, readFileSync(join(dir, f), 'utf8')]));
   const topic = await loadTopic('/w/', { id: 'world-continents', dataVersion: '2026.11.11.1' }, fetchFrom(files));
@@ -167,8 +166,11 @@ test('continents package: 6 continents + 5 oceans with hu/uk names, Natural Eart
   assert.equal(topic.manifest.provenance.status, 'verified');
   assert.equal(topic.manifest.provenance.license, 'Public domain');
   assert.equal(topic.country.id, 'LAND');
+  assert.equal((JSON.parse(files['manifest.json']!) as { projection?: string }).projection, 'robinson-display');
   for (const r of topic.regions) {
-    const [, lat] = labelPoint(r.geometry);
-    assert.ok(Math.abs(lat) <= 75, `${r.id} label point at ${lat}° is outside the visible Mercator range`);
+    const p = r.properties.label;
+    assert.ok(p, `${r.id} has a label point`);
+    const polys = r.geometry.type === 'Polygon' ? [r.geometry.coordinates] : r.geometry.coordinates;
+    assert.ok(polys.some((poly) => pointInRing(p as [number, number], poly[0] as [number, number][]) && !poly.slice(1).some((h) => pointInRing(p as [number, number], h as [number, number][]))), `${r.id} label point inside`);
   }
 });

@@ -32,6 +32,7 @@ export type MapAdapter = {
   resize: () => void;
   project: (lngLat: [number, number]) => { x: number; y: number };
   isMoving: () => boolean;
+  getZoom: () => number;
   onMove: (fn: () => void) => () => void;
   destroy: () => void;
 };
@@ -130,6 +131,7 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
     resize() { map.resize(); },
     project(lngLat) { const p = map.project(lngLat); return { x: p.x, y: p.y }; },
     isMoving() { return map.isMoving() || map.isZooming(); },
+    getZoom() { return map.getZoom(); },
     onMove(fn) { map.on('move', fn); map.on('resize', fn); return () => { map.off('move', fn); map.off('resize', fn); }; },
     destroy() { ro.disconnect(); map.remove(); },
   };
@@ -137,5 +139,5 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
 
 function inertAdapter(): MapAdapter {
   const noop = () => {};
-  return { setSelection: noop, setFeedback: noop, resetView: noop, zoomBy: noop, setTheme: noop, resize: noop, project: () => ({ x: 0, y: 0 }), isMoving: () => false, onMove: () => noop, destroy: noop };
+  return { setSelection: noop, setFeedback: noop, resetView: noop, zoomBy: noop, setTheme: noop, resize: noop, project: () => ({ x: 0, y: 0 }), isMoving: () => false, getZoom: () => 0, onMove: () => noop, destroy: noop };
 }

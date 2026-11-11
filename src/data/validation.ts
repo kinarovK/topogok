@@ -1,11 +1,12 @@
 // Runtime validation of the generated topic package. A failing package never starts a game.
 export type LocalizedText = { hu: string; uk: string; en?: string };
+export type LocalizedNumber = { hu: number; uk: number };
 export type Bounds = [number, number, number, number];
 export type Position = [number, number];
 export type PolygonGeometry = { type: 'Polygon'; coordinates: Position[][] } | { type: 'MultiPolygon'; coordinates: Position[][][] };
 export const REGION_KINDS = ['oblast', 'autonomous-republic', 'city', 'tectonic-unit', 'continent', 'ocean'] as const;
 export type RegionKind = (typeof REGION_KINDS)[number];
-export type RegionFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText; kind: RegionKind }; geometry: PolygonGeometry };
+export type RegionFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText; kind: RegionKind; label?: Position; labelMinZoom?: LocalizedNumber; labelWidth?: LocalizedNumber }; geometry: PolygonGeometry };
 /** Background land: the country outline for country topics, all land for the world topic. */
 export type CountryFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText }; geometry: PolygonGeometry };
 
@@ -80,6 +81,12 @@ export function validateRegions(v: unknown, manifest: TopicManifest): RegionFeat
     if (!isText(props['names'])) throw bad(`names for ${f['id']}`);
     if (!(REGION_KINDS as readonly string[]).includes(props['kind'] as string)) throw bad(`kind for ${f['id']}`);
     if (!validGeometry(f['geometry'])) throw bad(`geometry for ${f['id']}`);
+    const label = props['label'];
+    for (const key of ['labelMinZoom', 'labelWidth']) {
+      const v = props[key];
+      if (v !== undefined && !(isObj(v) && Number.isFinite(v['hu']) && Number.isFinite(v['uk']))) throw bad(`${key} for ${f['id']}`);
+    }
+    if (label !== undefined && !(Array.isArray(label) && label.length === 2 && label.every((n) => typeof n === 'number' && Number.isFinite(n)))) throw bad(`label for ${f['id']}`);
   }
   for (const ins of manifest.insets) if (!ids.has(ins.anchorFeatureId)) throw bad(`inset anchor ${ins.anchorFeatureId} missing`);
   return features as RegionFeature[];

@@ -4,7 +4,8 @@ import type { Bounds, Position, Topic } from '../data/validation.ts';
 import { createMapAdapter, type Feedback, type MapAdapter } from './mapAdapter.ts';
 import s from './map.module.css';
 
-export type MapLabel = { id: string; text: string; point: Position };
+/** minZoom: below this zoom the label does not fit inside its unit and stays hidden; maxWidth: wrap width in px (world topic). */
+export type MapLabel = { id: string; text: string; point: Position; minZoom?: number; maxWidth?: number };
 
 type Props = {
   topic: Topic;
@@ -35,7 +36,7 @@ export function MapView(p: Props) {
   useLayoutEffect(() => { cb.current = p; });
   const [ready, setReady] = useState(false);
   const [moveTick, setMoveTick] = useState(0);
-  const [positions, setPositions] = useState<Array<{ id: string; text: string; x: number; y: number; hidden: boolean }>>([]);
+  const [positions, setPositions] = useState<Array<{ id: string; text: string; x: number; y: number; hidden: boolean; maxWidth: number | undefined }>>([]);
 
   useLayoutEffect(() => {
     const container = containerRef.current!;
@@ -72,14 +73,17 @@ export function MapView(p: Props) {
     if (!a || !labels) { setPositions([]); return; }
     // Greedy collision handling in the given priority order; hidden labels reappear when zooming in.
     const placed: Array<[number, number, number, number]> = [];
+    const zoom = a.getZoom();
     setPositions(labels.map((l) => {
       const { x, y } = a.project(l.point as [number, number]);
-      const w = Math.min(120, l.text.length * 6.6 + 8) / 2 + 2;
-      const h = (l.text.length * 6.6 + 8 > 120 ? 30 : 16) / 2 + 1;
+      const maxW = l.maxWidth ?? 120;
+      const lines = Math.ceil((l.text.length * 6.6 + 8) / maxW);
+      const w = Math.min(maxW, l.text.length * 6.6 + 8) / 2 + 2;
+      const h = (lines * 14.4 + 2) / 2 + 1;
       const box: [number, number, number, number] = [x - w, y - h, x + w, y + h];
-      const hidden = placed.some((b) => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1]);
+      const hidden = (l.minZoom !== undefined && zoom < l.minZoom) || placed.some((b) => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1]);
       if (!hidden) placed.push(box);
-      return { id: l.id, text: l.text, x, y, hidden };
+      return { id: l.id, text: l.text, x, y, hidden, maxWidth: l.maxWidth };
     }));
   }, [labels, moveTick]);
   return (
@@ -88,7 +92,7 @@ export function MapView(p: Props) {
       {labels && (
         <div className={s.labels} aria-hidden="true">
           {positions.map((l) => (
-            <span key={l.id} className={s.label} data-label-id={l.id} data-hidden={l.hidden ? 'true' : undefined} style={{ transform: `translate(${l.x}px, ${l.y}px) translate(-50%, -50%)`, visibility: l.hidden ? 'hidden' : 'visible' }}>{l.text}</span>
+            <span key={l.id} className={s.label} data-label-id={l.id} data-hidden={l.hidden ? 'true' : undefined} style={{ transform: `translate(${l.x}px, ${l.y}px) translate(-50%, -50%)`, visibility: l.hidden ? 'hidden' : 'visible', ...(l.maxWidth ? { maxWidth: `${l.maxWidth}px` } : {}) }}>{l.text}</span>
           ))}
         </div>
       )}

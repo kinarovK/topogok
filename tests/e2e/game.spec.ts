@@ -288,8 +288,9 @@ test.describe('continents topic', () => {
     await mapReady(page);
     await expect(page.locator('main')).toContainText('A szürke területek nem tartoznak a kérdezett egységekhez.');
 
-    // New Zealand (grey oceanic island) and the Caspian Sea select nothing.
-    for (const [lng, lat] of [[172.5, -43.3], [50.5, 42.5]] as const) {
+    // New Zealand (grey oceanic island, 172.5°E 43.3°S) and the Caspian Sea (50.5°E 42.5°N) select nothing.
+    // The package holds Robinson display coordinates (scripts/data/world/derive.py), so these are the display positions.
+    for (const [lng, lat] of [[78.0748, -23.7694], [22.9611, 23.3592]] as const) {
       const xy = await page.evaluate(([x, y]) => {
         const h = window.__topogokE2E!.maps['main']!;
         h.container.scrollIntoView({ block: 'center' });

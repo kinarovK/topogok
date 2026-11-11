@@ -7,7 +7,8 @@ Dátum: 2026-11-11. Állapot: megvalósítva a `feat/continents-topic` ágon, tu
 - Új, harmadik téma a főoldalon „Kontinensek topója” címmel. Ukránul: „Материки та океани”.
 - Kérdezhető egységek: 6 kontinens (Észak-Amerika, Dél-Amerika, Afrika, Eurázsia, Ausztrália, Antarktisz) és **5 óceán**: Csendes-, Atlanti-, Indiai-óceán, Északi-Jeges-tenger, Déli-óceán.
 - A kontinentális szigetek a kontinens részei, például Grönland, Madagaszkár, a Brit-szigetek, Japán, Indonézia, Új-Guinea és Tasmánia. Az óceáni szigetek szürke háttérként jelennek meg: Új-Zéland, Hawaii, Fidzsi, Vanuatu, Salamon-szigetek, Új-Kaledónia, Bismarck-szigetek, Kerguelen.
-- A térkép sík világtérkép (Web Mercator). A gömbnézetet a tulajdonos elvetette. Ezzel együtt jár, hogy az Antarktisz erősen torzul, és a 85° feletti sarkvidék nem látszik.
+- A térkép sík világtérkép, a gömbnézetet a tulajdonos elvetette. A preview után a tulajdonos döntése (2026-11-11): a Mercator helyett **Robinson-vetület**, mert a Mercator a sarkvidéket túlzottan torzította.
+- Preview-visszajelzés: a feliratok nem fedhetik egymást (a Déli-óceán és az Antarktisz felirata egybeesett), és az óceánok felirata nem lóghat rá a kontinensekre.
 - Kérdésszám: 5 vagy Mindegyik (11), a tektonikai témához hasonlóan.
 
 ## Adatforrás
@@ -41,12 +42,16 @@ A forrásokból két dolog hiányzott:
 
    A `--check` mód bájtra azonos újragenerálást követel. Ez a CI `data:validate` lépésében fut.
 
+## Vetület és feliratok
+
+- A MapLibre csak Web Mercatort tud rajzolni. Ezért a pipeline a Robinson-vetületű képet előre „átveti”: minden csúcspontot arra a hosszúság–szélesség párra tesz, amelynek Mercator-képe a Robinson-pozíciója (`derive.py`, `display_package`). A csomag tehát kijelző-koordinátákat tartalmaz, nem földrajziakat (`manifest.projection = robinson-display`). A földrajzi ellenőrzések a `build/world` földrajzi adatain futnak. A Robinson-kép a Mercator-világ felére van kicsinyítve, hogy bármilyen képarányú térképdobozban egészben látsszon.
+- A feliratok helyét a pipeline számolja ki (`label`, `labelMinZoom`, `labelWidth` nyelvenként). A felirat doboza a saját egységén belül, a lehető legkisebb méretaránynál fér el; hosszabb nevek szóköznél vagy kötőjelnél tördelődnek. A doboz így se más egységre, se más feliratra nem lóghat. Ahol a felirat az adott nagyításon nem férne el, ott rejtve marad, és nagyításkor jelenik meg. Asztali gépen ilyen csak az Északi-Jeges-tenger, mert a sarki sávja Robinson-vetületben keskeny. Telefonon az alapnézetben a nevek egy nagyítás után jelennek meg.
+
 ## Alkalmazásváltozások
 
 - Új régiótípusok: `continent`, `ocean`. Az óceánok vízszínnel jelennek meg. A háttérréteg azonosítója már nem csak `UA` lehet.
-- A címkepontok a ±75° szélességen belül maradnak, ezért az Antarktisz és a sarki óceánok is kattinthatók az alapnézetben.
+- Az egységeknek előre kiszámolt feliratpontja és minimális nagyítása lehet. A térképi feliratoknál a `MapView` ennél kisebb nagyításon elrejti őket.
 - Világméretű témánál nincs pásztázási korlát (`maxBounds`), mert a MapLibre a világ szélességű korláttal nem talál érvényes kamerát. Az alapnézet gomb mindig visszaállít.
-- Álló telefonon a MapLibre a térképet függőlegesen kitöltve mutatja, ezért a világ egy része oldalra kilóg; elhúzással elérhető. Ez a sík Mercator-nézet ismert korlátja.
 
 ## Ellenőrzés
 
@@ -54,6 +59,7 @@ A forrásokból két dolog hiányzott:
 - E2E (1366×768):
   - mind a 11 egység kijelölhető (1100/1100);
   - Új-Zéland és a Kaszpi-tenger nem válasz;
-  - ukrán számonkérés: 4/5 → 10 pont.
+  - ukrán számonkérés: 4/5 → 10 pont;
+  - asztali gépen és telefonon a látható feliratok nem fedik egymást.
 - Képernyőképek: `reports/screenshots/continents-*.png`.
 - Fizikai telefonos próba: NOT RUN.

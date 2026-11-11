@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test as base, type Page } from '@playwright/test';
-import { labelPoint } from '../../src/map/labelPoint.ts';
+import { regionLabelPoint } from '../../src/map/labelPoint.ts';
 import type { RegionFeature } from '../../src/data/validation.ts';
 
 export const PROD = 'http://127.0.0.1:4173/';
@@ -14,7 +14,7 @@ export const REGIONS = regions;
 const ALL = [...regions, ...TECTONICS, ...WORLD];
 export const NAME_TO_ID = new Map<string, string>();
 for (const r of ALL) { NAME_TO_ID.set(r.properties.names.hu, r.id); NAME_TO_ID.set(r.properties.names.uk, r.id); }
-export const POINT = new Map(ALL.map((r) => [r.id, labelPoint(r.geometry)]));
+export const POINT = new Map(ALL.map((r) => [r.id, regionLabelPoint(r)]));
 export const NAME = new Map(ALL.map((r) => [r.id, r.properties.names]));
 
 export type TopicKey = 'admin' | 'tectonics' | 'world';

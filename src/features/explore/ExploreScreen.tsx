@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSettings } from '../../app/settings.tsx';
 import { Button } from '../../components/ui.tsx';
 import type { Topic } from '../../data/validation.ts';
-import { labelPoint } from '../../map/labelPoint.ts';
+import { regionLabelPoint } from '../../map/labelPoint.ts';
 import { padBounds, type Feedback } from '../../map/mapAdapter.ts';
 import { MapView, type MapLabel } from '../../map/MapView.tsx';
 import { topicEntry } from '../../data/topicRegistry.ts';
@@ -15,7 +15,7 @@ export function ExploreScreen({ topic, onBack, onRenderError }: { topic: Topic; 
   const { t, locale } = useSettings();
   const [selected, setSelected] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(true);
-  const points = useMemo(() => new Map(topic.regions.map((r) => [r.id, labelPoint(r.geometry)])), [topic]);
+  const points = useMemo(() => new Map(topic.regions.map((r) => [r.id, regionLabelPoint(r)])), [topic]);
   // Priority: the two cities first, then larger units (bbox size) before smaller ones.
   const order = useMemo(() => {
     const size = (b: number[]) => (b[2]! - b[0]!) * (b[3]! - b[1]!);
@@ -27,7 +27,7 @@ export function ExploreScreen({ topic, onBack, onRenderError }: { topic: Topic; 
     return [...topic.regions].sort((a, b) => (a.properties.kind === 'city' ? -1 : 0) - (b.properties.kind === 'city' ? -1 : 0) || size(bbox(b)) - size(bbox(a)));
   }, [topic]);
   const labels: MapLabel[] | null = useMemo(
-    () => (showLabels ? order.map((r) => ({ id: r.id, text: r.properties.names[locale], point: points.get(r.id)! })) : null),
+    () => (showLabels ? order.map((r) => ({ id: r.id, text: r.properties.names[locale], point: points.get(r.id)!, ...(r.properties.labelMinZoom ? { minZoom: r.properties.labelMinZoom[locale] } : {}), ...(r.properties.labelWidth ? { maxWidth: r.properties.labelWidth[locale] } : {}) })) : null),
     [showLabels, order, locale, points],
   );
   const maxBounds = useMemo(() => padBounds(topic.manifest.bounds, 0.6), [topic]);

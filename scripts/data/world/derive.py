@@ -19,7 +19,7 @@ Method (no GIS dependencies, only numpy):
      different labels, and chaining them into rings.
 Because continents and oceans come from the same edges, they share coastlines exactly.
 """
-import json, math, os, struct, sys
+import json, math, os, re, struct, sys
 from collections import defaultdict
 
 import numpy as np
@@ -474,35 +474,223 @@ def main():
                  for f in features if f['properties']['kind'] == kind]
         write_shp(os.path.join(OUT, name), recsw, ['id', 'name_hu', 'name_uk'])
 
-    if '--no-preview' not in sys.argv: preview(features, background)
+    display = display_package(features, background)
+    json.dump(display, open(os.path.join(OUT, 'display.geojson'), 'w', encoding='utf-8'), ensure_ascii=False)
+    if '--no-preview' not in sys.argv: preview(display)
     print(json.dumps(report['checks'], ensure_ascii=False))
     print(json.dumps(report['units'], ensure_ascii=False))
 
 
-def preview(features, background):
+# ---------------------------------------------------------------- Robinson display coordinates
+# MapLibre renders Web Mercator only. To show a Robinson map, every vertex is moved to the
+# longitude/latitude whose Web Mercator position equals its Robinson position (same scale on both
+# axes). The map then *looks* like Robinson, hit-testing stays consistent, and the poles fit
+# (pseudo-latitude ±67°). The package therefore holds display coordinates, not geographic ones.
+ROBINSON = np.array([  # Snyder: latitude, PLEN, PDFE
+    [0, 1.0000, 0.0000], [5, 0.9986, 0.0620], [10, 0.9954, 0.1240], [15, 0.9900, 0.1860], [20, 0.9822, 0.2480],
+    [25, 0.9730, 0.3100], [30, 0.9600, 0.3720], [35, 0.9427, 0.4340], [40, 0.9216, 0.4958], [45, 0.8962, 0.5571],
+    [50, 0.8679, 0.6176], [55, 0.8350, 0.6769], [60, 0.7986, 0.7346], [65, 0.7597, 0.7903], [70, 0.7186, 0.8435],
+    [75, 0.6732, 0.8936], [80, 0.6213, 0.9394], [85, 0.5722, 0.9761], [90, 0.5322, 1.0000]])
+
+
+def _cubic(table, x):
+    """Catmull-Rom interpolation of a table column on the 5° latitude grid."""
+    t = np.clip(x, 0, 90) / 5.0; i = np.minimum(np.floor(t).astype(int), 17); f = t - i
+    y = np.concatenate([[2 * table[0] - table[1]], table, [2 * table[-1] - table[-2]]])
+    p0, p1, p2, p3 = y[i], y[i + 1], y[i + 2], y[i + 3]
+    return 0.5 * ((2 * p1) + (-p0 + p2) * f + (2 * p0 - 5 * p1 + 4 * p2 - p3) * f ** 2 + (-p0 + 3 * p1 - 3 * p2 + p3) * f ** 3)
+
+
+def robinson_xy(lon, lat):
+    """Robinson plane, scaled so the equator spans ±π (the Web Mercator x range)."""
+    a = np.abs(lat)
+    x = _cubic(ROBINSON[:, 1], a) * np.radians(lon)
+    y = np.sign(lat) * _cubic(ROBINSON[:, 2], a) * (1.3523 / 0.8487)
+    return x, y
+
+
+# The Robinson world is drawn at half the size of the Web Mercator world square. MapLibre keeps the
+# viewport inside that square (renderWorldCopies: false); at full size a wide or tall map container
+# could not zoom out far enough to show the whole Robinson outline.
+DISPLAY_SCALE = 0.5
+
+
+def xy_to_display(x, y):
+    x, y = x * DISPLAY_SCALE, y * DISPLAY_SCALE
+    return np.degrees(x), np.degrees(2 * np.arctan(np.exp(y)) - np.pi / 2)
+
+
+def densify(ring, step=1.0):
+    out = []
+    for a, b in zip(ring[:-1], ring[1:]):
+        n = max(1, int(math.ceil(max(abs(b[0] - a[0]), abs(b[1] - a[1])) / step)))
+        out += [(a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n) for k in range(n)]
+    out.append(ring[-1]); return out
+
+
+def to_display_geom(geom):
+    polys = []
+    for poly in geom['coordinates']:
+        rings = []
+        for r in poly:
+            d = np.array(densify([tuple(p) for p in r]))
+            lon, lat = xy_to_display(*robinson_xy(d[:, 0], d[:, 1]))
+            q = []
+            for x, y in zip(lon, lat):
+                v = [round(float(x), 6), round(float(y), 6)]
+                if not q or q[-1] != v: q.append(v)
+            if q[0] != q[-1]: q.append(q[0])
+            rings.append(q)
+        polys.append(rings)
+    return {'type': 'MultiPolygon', 'coordinates': polys}
+
+
+# Label boxes as the app draws them (src/map/map.module.css .label: 12px, max-width 120px, padding
+# 1px 4px). Placement runs on a raster at a reference world width of 1300 px.
+REF_PX = 1300
+CELL = 2 * math.pi * DISPLAY_SCALE / REF_PX / 2   # raster cell: half a reference pixel, in Mercator radians
+
+
+CHAR_PX, PAD_PX, LINE_PX, MAX_W_PX = 6.8, 8, 14.4, 120
+
+
+def label_shapes(name):
+    """Candidate label boxes (width, height, max-width) for a name: one line, or wrapped at spaces."""
+    words = [w for w in re.split(r'(?<=-)|\s+', name) if w]  # browsers break at spaces and after hyphens
+    out = []
+    for lines in range(1, min(3, len(words)) + 1):
+        best = None
+        def splits(ws, k):
+            if k == 1: yield [ws]; return
+            for c in range(1, len(ws) - k + 2):
+                for rest in splits(ws[c:], k - 1): yield [ws[:c]] + rest
+        for parts in splits(words, lines):
+            wpx = max(len(''.join(w if w.endswith('-') else w + ' ' for w in p).strip()) * CHAR_PX for p in parts) + PAD_PX
+            if best is None or wpx < best: best = wpx
+        if best <= MAX_W_PX: out.append((best, lines * LINE_PX + 2))
+    if not out: out.append((MAX_W_PX, math.ceil(len(name) * CHAR_PX / (MAX_W_PX - PAD_PX)) * LINE_PX + 2))
+    return out
+
+
+def rasterize(polys, xs, ys):
+    """Even-odd fill of display-space polygons (Mercator radians) on the cell grid."""
+    grid = np.zeros((len(ys), len(xs)), dtype=bool)
+    edges = []
+    for poly in polys:
+        for r in poly:
+            a = np.array(r); edges.append(np.hstack([a[:-1], a[1:]]))
+    e = np.vstack(edges); x0, y0, x1, y1 = e[:, 0], e[:, 1], e[:, 2], e[:, 3]
+    for j, yv in enumerate(ys):
+        m = (y0 > yv) != (y1 > yv)
+        if not m.any(): continue
+        xc = np.sort(x0[m] + (yv - y0[m]) * (x1[m] - x0[m]) / (y1[m] - y0[m]))
+        for k in range(0, len(xc) - 1, 2):
+            grid[j, np.searchsorted(xs, xc[k]):np.searchsorted(xs, xc[k + 1])] = True
+    return grid
+
+
+def window_full(ok, hw, hh):
+    """For each cell: is the (2hw+1)x(2hh+1) window around it entirely True? (summed-area table)"""
+    sat = np.zeros((ok.shape[0] + 1, ok.shape[1] + 1), dtype=np.int64)
+    sat[1:, 1:] = ok.astype(np.int64).cumsum(0).cumsum(1)
+    H, W = ok.shape; res = np.zeros_like(ok)
+    if 2 * hh + 1 > H or 2 * hw + 1 > W: return res
+    y0 = np.arange(0, H - 2 * hh); x0 = np.arange(0, W - 2 * hw)
+    s = sat[y0[:, None] + 2 * hh + 1, x0[None, :] + 2 * hw + 1] - sat[y0[:, None], x0[None, :] + 2 * hw + 1] \
+        - sat[y0[:, None] + 2 * hh + 1, x0[None, :]] + sat[y0[:, None], x0[None, :]]
+    res[hh:H - hh, hw:W - hw] = s == (2 * hh + 1) * (2 * hw + 1)
+    return res
+
+
+def place_labels(disp_features):
+    """One label point per unit, placed where its box fits inside the unit at the smallest map scale.
+
+    A box that lies entirely inside its own unit cannot cover another unit or another label (units do
+    not overlap). Long names may wrap (labelWidth sets the label's max-width). labelMinZoom is the zoom
+    from which the box fits at the chosen point; the app hides the label below it (src/map/MapView.tsx)."""
+    to_m = lambda poly: [[(math.radians(x), math.log(math.tan(math.pi / 4 + math.radians(y) / 2))) for x, y in r] for r in poly]
+    polys = {f['id']: [to_m(p) for p in f['geometry']['coordinates']] for f in disp_features}
+    allpts = np.array([p for ps in polys.values() for poly in ps for r in poly for p in r])
+    xs = np.arange(allpts[:, 0].min(), allpts[:, 0].max(), CELL); ys = np.arange(allpts[:, 1].min(), allpts[:, 1].max(), CELL)
+    px = 2  # cells per pixel at the reference width (see CELL)
+    zoom_of = lambda world_px: round(math.log2(world_px / (512 * DISPLAY_SCALE)), 2)
+    cells = lambda world_px, bw, bh: (int(bw / 2 * px * REF_PX / world_px), int(bh / 2 * px * REF_PX / world_px))
+    labels = {}; report = {}
+    for f in sorted(disp_features, key=lambda f: f['id']):
+        fid = f['id']; inside = rasterize(polys[fid], xs, ys)
+
+        def min_px_anywhere(bw, bh):
+            lo, hi = 150, REF_PX * 8
+            if not window_full(inside, *cells(hi, bw, bh)).any(): return None
+            while hi - lo > 10:
+                mid = (lo + hi) // 2
+                if window_full(inside, *cells(mid, bw, bh)).any(): hi = mid
+                else: lo = mid
+            return hi
+        shape = {}
+        for loc, name in f['properties']['names'].items():
+            cands = [(min_px_anywhere(w, h), w, h) for w, h in label_shapes(name)]
+            cands = [c for c in cands if c[0] is not None]
+            shape[loc] = min(cands)[1:]
+        uw = max(v[0] for v in shape.values()); uh = max(v[1] for v in shape.values())
+        need = min_px_anywhere(uw, uh)
+        ok = window_full(inside, *cells(need, uw, uh))
+        jj, ii = np.nonzero(ok)
+        biggest = max(polys[fid], key=lambda p: abs(signed_area(p[0])))[0]
+        cx, cy = np.mean(np.array(biggest), axis=0)
+        k = int(np.argmin((xs[ii] - cx) ** 2 + (ys[jj] - cy) ** 2)); j, i = jj[k], ii[k]
+        min_zoom = {}
+        for loc, (bw, bh) in shape.items():
+            best = REF_PX * 8
+            for world_px in range(REF_PX * 8, 149, -10):
+                hw, hh = cells(world_px, bw, bh)
+                win = inside[max(0, j - hh):j + hh + 1, max(0, i - hw):i + hw + 1]
+                if win.shape == (2 * hh + 1, 2 * hw + 1) and win.all(): best = world_px
+                else: break
+            min_zoom[loc] = zoom_of(best)
+        lon, lat = math.degrees(xs[i]), math.degrees(2 * math.atan(math.exp(ys[j])) - math.pi / 2)  # already display space
+        width = {loc: math.ceil(v[0]) for loc, v in shape.items()}
+        labels[fid] = ([round(float(lon), 6), round(float(lat), 6)], min_zoom, width)
+        report[fid] = {'minZoom': min_zoom, 'labelWidthPx': width}
+    return labels, report
+
+
+def display_package(features, background):
+    disp = []
+    for f in features:
+        g = to_display_geom(f['geometry'])
+        disp.append({'type': 'Feature', 'id': f['id'], 'properties': dict(f['properties']), 'geometry': g})
+    labels, lrep = place_labels(disp)
+    for f in disp: f['properties']['label'], f['properties']['labelMinZoom'], f['properties']['labelWidth'] = labels[f['id']]
+    bg = {'type': 'Feature', 'id': 'LAND', 'properties': {'id': 'LAND'}, 'geometry': to_display_geom(background['geometry'])}
+    xs = [p[0] for f in disp for poly in f['geometry']['coordinates'] for r in poly for p in r]
+    ys = [p[1] for f in disp for poly in f['geometry']['coordinates'] for r in poly for p in r]
+    bounds = [round(min(xs), 6), round(min(ys), 6), round(max(xs), 6), round(max(ys), 6)]
+    return {'type': 'FeatureCollection', 'projection': 'Robinson (pre-projected into Web Mercator display coordinates)',
+            'bounds': bounds, 'labels': lrep, 'features': disp, 'background': bg}
+
+
+def preview(display):
+    """Owner preview: the Robinson display data as the app draws it, with the placed hu labels."""
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    from matplotlib.patches import Polygon as MplPolygon
     from matplotlib.path import Path
     from matplotlib.patches import PathPatch
-    colors = {'C-NA': '#e4a95b', 'C-SA': '#9fc46a', 'C-AF': '#e6d36a', 'C-EA': '#d98b8b', 'C-AU': '#c48fd0', 'C-AN': '#eeeeee',
-              'O-PA': '#7fb2e5', 'O-AT': '#9ed3e8', 'O-IN': '#6fa7c9', 'O-AR': '#c9e3f2', 'O-SO': '#a7c4dd'}
-    merc = lambda y: np.degrees(np.log(np.tan(np.pi / 4 + np.radians(np.clip(y, -85, 85)) / 2)))
-    fig, ax = plt.subplots(figsize=(16, 10), dpi=110)
-    def draw(geom, fc, ec, lw):
+    to_m = lambda a: np.column_stack([np.radians(a[:, 0]), np.log(np.tan(np.pi / 4 + np.radians(a[:, 1]) / 2))])
+    fig, ax = plt.subplots(figsize=(16, 8.5), dpi=110)
+    def draw(geom, fc):
         for poly in geom['coordinates']:
             verts = []; codes = []
             for r in poly:
-                a = np.array(r, dtype=float); a[:, 1] = merc(a[:, 1])
-                verts += a.tolist(); codes += [Path.MOVETO] + [Path.LINETO] * (len(a) - 2) + [Path.CLOSEPOLY]
-            ax.add_patch(PathPatch(Path(verts, codes), facecolor=fc, edgecolor=ec, lw=lw))
-    draw(background['geometry'], '#b8bcc4', '#888888', 0.3)
-    for f in features: draw(f['geometry'], colors[f['id']], '#333333', 0.4)
-    for f in features:
-        a = max(f['geometry']['coordinates'], key=lambda p: abs(signed_area(p[0])))[0]
-        a = np.array(a); ax.text(a[:, 0].mean(), merc(a[:, 1].mean()), f["properties"]["names"]["hu"], ha='center', fontsize=9)
-    ax.set_xlim(-180, 180); ax.set_ylim(merc(-85), merc(85)); ax.set_aspect('equal'); ax.axis('off')
+                a = to_m(np.array(r, dtype=float)); verts += a.tolist(); codes += [Path.MOVETO] + [Path.LINETO] * (len(a) - 2) + [Path.CLOSEPOLY]
+            ax.add_patch(PathPatch(Path(verts, codes), facecolor=fc, edgecolor='#444444', lw=0.4))
+    draw(display['background']['geometry'], '#C9CDD3')
+    for f in display['features']: draw(f['geometry'], '#E5DFD2' if f['properties']['kind'] == 'continent' else '#C7DDF0')
+    for f in display['features']:
+        x, y = to_m(np.array([f['properties']['label']]))[0]
+        ax.text(x, y, f['properties']['names']['hu'], ha='center', va='center', fontsize=9, bbox=dict(boxstyle='round,pad=0.2', fc='white', ec='none', alpha=0.85))
+    ax.autoscale_view(); ax.set_aspect('equal'); ax.axis('off')
     fig.savefig(os.path.join(OUT, 'preview.png'), bbox_inches='tight'); plt.close(fig)
 
 

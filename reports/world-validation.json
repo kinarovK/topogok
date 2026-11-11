@@ -29,6 +29,16 @@
       "detail": "all rings closed, finite, no self-intersections, holes inside shells"
     },
     {
+      "id": "display-geometry-validity",
+      "status": "pass",
+      "detail": "Robinson display geometry is valid"
+    },
+    {
+      "id": "labels-inside",
+      "status": "pass",
+      "detail": "label points inside their unit; placement {\"C-AF\":{\"minZoom\":{\"hu\":0.49,\"uk\":0.49},\"labelWidthPx\":{\"hu\":49,\"uk\":49}},\"C-AN\":{\"minZoom\":{\"hu\":0.91,\"uk\":0.91},\"labelWidthPx\":{\"hu\":76,\"uk\":76}},\"C-AU\":{\"minZoom\":{\"hu\":1.59,\"uk\":1.49},\"labelWidthPx\":{\"hu\":76,\"uk\":70}},\"C-EA\":{\"minZoom\":{\"hu\":0.23,\"uk\":0.23},\"labelWidthPx\":{\"hu\":63,\"uk\":56}},\"C-NA\":{\"minZoom\":{\"hu\":1.15,\"uk\":1.28},\"labelWidthPx\":{\"hu\":56,\"uk\":63}},\"C-SA\":{\"minZoom\":{\"hu\":1.39,\"uk\":1.47},\"labelWidthPx\":{\"hu\":56,\"uk\":63}},\"O-AR\":{\"minZoom\":{\"hu\":2.26,\"uk\":2.45},\"labelWidthPx\":{\"hu\":56,\"uk\":76}},\"O-AT\":{\"minZoom\":{\"hu\":0.49,\"uk\":0.81},\"labelWidthPx\":{\"hu\":63,\"uk\":83}},\"O-IN\":{\"minZoom\":{\"hu\":0.88,\"uk\":1.08},\"labelWidthPx\":{\"hu\":56,\"uk\":117}},\"O-PA\":{\"minZoom\":{\"hu\":-0.03,\"uk\":-0.36},\"labelWidthPx\":{\"hu\":63,\"uk\":42}},\"O-SO\":{\"minZoom\":{\"hu\":1.02,\"uk\":1.05},\"labelWidthPx\":{\"hu\":76,\"uk\":110}}}"
+    },
+    {
       "id": "derive-ocean-regions",
       "status": "pass",
       "detail": "{\"O-SO\":1,\"O-PA\":2,\"O-AR\":1,\"O-AT\":1,\"O-IN\":1}"
@@ -69,17 +79,17 @@
   "outputs": [
     {
       "file": "public/data/world-continents/2026.11.11.1/manifest.json",
-      "sha256": "82809baea63913649a64d13682431d80de68a01b584759d49581e7da7baaf538"
+      "sha256": "540a5ca098efdc54b96b276ce839c6d2128b6df35a23b097a6a2380eb8110415"
     },
     {
       "file": "public/data/world-continents/2026.11.11.1/regions.geojson",
-      "sha256": "645fb5d01343056773bf19c5a768b1ae623d64928513dd5bff708973118514e5",
-      "bytes": 230182
+      "sha256": "678100e13e69b6cb941b1cd2c335111622bff192475487e0fd6c57d98a1f5ce6",
+      "bytes": 354966
     },
     {
       "file": "public/data/world-continents/2026.11.11.1/country.geojson",
-      "sha256": "95c7f6b130b4c93434b263d4c19a7ac582fe790d0f84911052e6064fbe275e2f",
-      "bytes": 117076
+      "sha256": "badba847c98615b2da762f505c72a93e15ee6afe6f88547954fc9200f48c41c5",
+      "bytes": 165110
     }
   ]
 }
