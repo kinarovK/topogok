@@ -1,6 +1,6 @@
 # F2 – Design és végrehajtási terv: backend, fiókok, osztályok, jogosultságok
 
-Dátum: 2026-11-11. Állapot: **design, tulajdonosi jóváhagyásra (docs PR)**.
+Dátum: 2026-11-11. Állapot: **elfogadva 2026-11-11** (docs PR #5).
 Követelmények: [F2_ACCOUNTS.md](F2_ACCOUNTS.md), közös szerződés: [task.md](../task.md), döntések: [DECISIONS.md](../DECISIONS.md).
 
 Ez a dokumentum dönti el a `task.md` 12. pontjában nyitva hagyott technikai kérdéseket: a szolgáltatót, a felhasználónév–jelszó alapú belépést és a jelszó-hash módját, a munkamenetet, az API-t, a jogosultság-ellenőrzést, az adatmentést és a tesztelést. Az implementáció csak a jóváhagyás után indul, külön PR-okban (lásd 12. pont).
@@ -243,7 +243,8 @@ A hibák `{"error": "<kód>"}` alakban jönnek, ezért a felület mindkét nyelv
 
    Generálni egy jelszókezelővel lehet, vagy közösen megnézzük. Ezeket sem a chatbe, sem a repóba nem szabad bemásolni.
 
-## 14. Nyitott kérdések a tulajdonosnak
+## 14. Tulajdonosi döntések (2026-11-11)
 
-- A login karakterkészlete (`a–z 0–9 . _ -`, ékezet nélkül) megfelel-e. Javaslat: például `kovacs.anna`.
-- A 180 napos, használattal meghosszabbodó munkamenet megfelel-e. Ez nem tétlenségi kiléptetés: aki fél évig nem lép be, annak újra be kell lépnie.
+- A login karakterkészlete `a–z 0–9 . _ -`, ékezet nélkül, például `kovacs.anna`: **elfogadva**.
+- A 180 napos, használattal meghosszabbodó munkamenet: **elfogadva**. Aki fél évig nem használja a fiókját, annak újra be kell lépnie.
+- A design elfogadva, az F2-A megvalósítás indulhat.
