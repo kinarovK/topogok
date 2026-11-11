@@ -74,5 +74,8 @@ async function health(env: Env): Promise<Response> {
       db = true; schema = r?.n === 6 ? SCHEMA_VERSION : 0;
     } catch { db = false; }
   }
-  return json({ ok: db && schema === SCHEMA_VERSION && !!env.PEPPER, db, schema, configured: !!env.PEPPER && env.PEPPER.length >= 32, build: env.APP_BUILD ?? null });
+  // Presence and length only — never the values.
+  const pepper = !env.PEPPER ? 'missing' : env.PEPPER.length < 32 ? 'too_short' : 'ok';
+  const setupCode = !env.SETUP_CODE ? 'missing' : env.SETUP_CODE.length < 16 ? 'too_short' : 'ok';
+  return json({ ok: db && schema === SCHEMA_VERSION && pepper === 'ok', db, schema, configured: pepper === 'ok', pepper, setupCode, build: env.APP_BUILD ?? null });
 }

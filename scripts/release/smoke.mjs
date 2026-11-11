@@ -93,7 +93,7 @@ if (checkApi) {
   try { h = await r.json(); } catch { h = null; }
   if (r.status !== 200 || !h || typeof h.db !== 'boolean') errors.push(`/api/health is not the API (status ${r.status})`);
   else {
-    api = `db=${h.db} schema=${h.schema} configured=${h.configured}`;
+    api = `db=${h.db} schema=${h.schema} pepper=${h.pepper} setupCode=${h.setupCode}`;
     if (!h.ok) errors.push(`/api/health is not ready (${api})`);
   }
   if (!(r.headers.get('cache-control') ?? '').includes('no-store')) errors.push('/api answers must be no-store');
