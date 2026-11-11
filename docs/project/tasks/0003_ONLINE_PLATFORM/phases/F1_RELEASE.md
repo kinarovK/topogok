@@ -2,7 +2,12 @@
 
 Dátum: 2026-11-10. Ág: `f1/online-guest-release`. Specifikáció: [F1_HOSTING.md](F1_HOSTING.md).
 
-Ez a dokumentum az F1 design-, plan- és átadási leírása egyben. A kód és a CI elkészült. **Éles kiadás még nem történt.** Ahhoz a tulajdonos Cloudflare-fiókja és két GitHub-secret kell (lent, „Tulajdonosi lépések”). Valós URL-t csak az első sikeres deploy után közlünk.
+Ez a dokumentum az F1 design-, plan- és átadási leírása egyben. A kód és a CI elkészült, a PR #2 2026-11-11-én bekerült a `main`-be.
+
+**Kiadva (2026-11-11):**
+- Éles: https://topogok.pages.dev, build `944319b` (a PR #2 merge-commitja). A smoke a deployment hash-címén és az éles címen is PASS volt.
+- Preview: https://f1-online-guest-release.topogok.pages.dev, build `ff1e8fa`, smoke PASS. A tulajdonos ezt a verziót megnézte, elfogadta és merge-elte.
+- Cloudflare: a tulajdonos fiókja, `topogok` Pages-projekt Direct Upload módban. API-token csak *Account → Cloudflare Pages → Edit* jogosultsággal, 2027-11-10-ig érvényes. A GitHub-secretek beállítva.
 
 ## 1. Mi változott az alkalmazásban
 
@@ -65,15 +70,15 @@ A secretek beállítása egyben azt is jelenti, hogy a tulajdonos vállalja: az 
 
 | ID | Állapot | Bizonyíték / hiány |
 |---|---|---|
-| F1-01 | **NYITOTT** | Cloudflare-fiók és secretek nélkül nincs deploy. |
-| F1-02 | PASS emulációban | E2E: mindkét téma, mindkét mód, hu/uk, világos/sötét. Az éles címen és valódi telefonon NOT RUN. |
+| F1-01 | PASS | https://topogok.pages.dev a Cloudflare-en fut, a tulajdonos gépétől függetlenül; HTTPS, a http→https átirányítást a smoke ellenőrzi |
+| F1-02 | PASS (E2E) + tulajdonosi közlés | E2E minden CI-futásban: mindkét téma, mindkét mód, hu/uk, világos/sötét. A tulajdonos a preview-t átnézte és elfogadta. Telefonon a kiadás előtti buildet próbálta, rendben volt. |
 | F1-03 | PASS (Chromium) | T19, T20 E2E |
-| F1-04 | PASS (konfiguráció) | `deploy` csak `needs: gates` után fut; az első GitHub-futás eredménye a PR-ban látszik |
+| F1-04 | PASS | `deploy` csak `needs: gates` után fut. Bizonyíték: az első futás a smoke-lépésnél elbukott, és a deploy kimaradt. A javítás után minden kapu zöld volt, utána jött a deploy. |
 | F1-05 | PASS (konfiguráció) | csak a `main` ág ír élesre; `version.json` és Súgó-verziósor |
-| F1-06 | PASS helyben | `verify-dist`, `smoke.mjs`. Az éles fejléc-ellenőrzés automatikusan lefut az első deploy után. |
+| F1-06 | PASS | `verify-dist` és `smoke.mjs` helyben, a preview-n és az éles címen is: fejlécek, helyi worker, nincs külső hivatkozás, nincs publikált forrás- vagy backupfájl |
 | F1-07 | PASS (Chromium) | T21: A→B aktív körrel, két lappal, recovery build, offline indulás |
 | F1-08 | PASS | 3. pont; nincs fizetős szolgáltatás a konfigurációban |
-| F1-09 | részben | a repó privát és a tulajdonosé; a secretek csak a GitHub Secretsben vannak. Cloudflare-fiók még nincs. |
+| F1-09 | PASS | A repó és a Cloudflare-fiók is a tulajdonosé. A token és az Account ID csak a GitHub Secretsben van, a chatbe és a repóba nem került. |
 | F1-10 | **részben** | Forrás rögzítve: Гільберг–Довгань–Савчук: Географія 8 (Генеза, 2025), a `provenance.source` mezőben. A licenc nyitott: a tankönyv jogvédett, engedély nincs (`status = unverified`), a kiadás a tulajdonos kockázatvállalásával történik. Telefonos próba: a tulajdonos közlése szerint 2026-11-10-én rendben volt; az éles címen rövid ismétlés kell. |
 
-Az F1 akkor jelenthető teljesen kiadottnak, ha az F1-01 és az F1-10 lezárul. Ehhez kell: az első éles deploy, a smoke a valódi címen, a tulajdonos telefonos próbája a TEST_PLAN „Tanári átvételi próba” szerint, és az adatlicenc tisztázása vagy tulajdonosi kockázatvállalása.
+Az F1 kiadva. Nyitott maradt: a tankönyv felhasználási engedélye (F1-10, tulajdonosi kockázatvállalással publikálva), egy rövid telefonos ellenőrzés az éles címen, valamint a WebKit/Firefox automatikus futtatás.

@@ -98,7 +98,7 @@ Képernyőképek: `reports/screenshots/tectonics-*.png`, `hu-light-00-topics.png
 
 - Fizikai Android Chrome és iPhone Safari: telepítés, pinch, képernyőzár, repülő üzemmód, Safe Area. Ezeket nem végeztük el, és emulációval nem helyettesíthetők.
 - WebKit és Firefox: a környezetben csak Chromium volt telepítve.
-- Cloudflare-kiadás és a kiadott HTTPS-cím fejléceinek ellenőrzése (a recovery-próba 2026-11-10 óta PASS).
+- (A Cloudflare-kiadás és az éles HTTPS-cím fejléc-ellenőrzése 2026-11-11 óta PASS, ld. F1_RELEASE; a recovery-próba 2026-11-10 óta PASS.)
 - GDAL/GEOS-os geometria-keresztellenőrzés.
 - Anyanyelvi lektorálás.
 - Adatforrás: 2026-11-10 óta rögzítve (Гільберг–Довгань–Савчук: Географія 8, Генеза, 2025; DATA_CONTRACT). Licenc vagy engedély nincs.
