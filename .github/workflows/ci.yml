@@ -44,6 +44,8 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - name: Python for the world data re-derivation (numpy only)
+        run: python3 -m pip install --user --break-system-packages numpy==2.5.3
       - run: npm run data:validate
       - name: Production build (precache + forbidden-file gate)
         run: npm run build

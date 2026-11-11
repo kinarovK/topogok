@@ -157,3 +157,27 @@ test('tectonics screenshots hu-light and uk-dark', async ({ page }) => {
     await shot(page, `tectonics-${locale}-${theme}-explore`);
   }
 });
+
+test('continents screenshots: desktop hu-light practice + uk-dark explore, phone explore', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await prefs(page, 'hu', 'light');
+  await start(page, E2E, 'practice', '5', undefined, 'world');
+  await dismissBanner(page);
+  const id = await currentTargetId(page);
+  await selectRegion(page, otherId(id));
+  await confirmBtn(page).click();
+  await checkLayout(page);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await shot(page, 'continents-hu-light-practice-wrong');
+  for (const [locale, theme, vp, tag] of [['uk', 'dark', { width: 1366, height: 768 }, 'desktop'], ['hu', 'light', { width: 390, height: 844 }, 'phone']] as const) {
+    await page.setViewportSize(vp);
+    await prefs(page, locale, theme);
+    await page.goto(E2E);
+    await page.locator('[data-topic="world-continents"]').click();
+    await page.getByRole('button', { name: /Térkép felfedezése|Ознайомлення з картою/ }).click();
+    await mapReady(page, 'explore');
+    await page.waitForTimeout(300);
+    await checkLayout(page);
+    await shot(page, `continents-${locale}-${theme}-explore-${tag}`);
+  }
+});

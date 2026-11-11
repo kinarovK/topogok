@@ -2,6 +2,9 @@ import type { PolygonGeometry, Position } from '../data/validation.ts';
 
 type Poly = Position[][];
 
+/** Latitude limit for label points: inside the default world view, far from the Mercator limit (±85.05°). */
+const MERCATOR_LAT = 75;
+
 function inRing(x: number, y: number, ring: Position[]): boolean {
   let inside = false;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
@@ -53,6 +56,8 @@ export function labelPoint(geometry: PolygonGeometry): Position {
   const poly = polys.reduce((best, p) => (ringArea(p[0]!) > ringArea(best[0]!) ? p : best));
   let w = Infinity, s = Infinity, e = -Infinity, n = -Infinity;
   for (const [x, y] of poly[0]!) { w = Math.min(w, x); e = Math.max(e, x); s = Math.min(s, y); n = Math.max(n, y); }
+  // Stay where the Web Mercator map can show the point (polar units such as Antarctica).
+  s = Math.max(s, -MERCATOR_LAT); n = Math.min(n, MERCATOR_LAT);
   const cosLat = Math.cos((((s + n) / 2) * Math.PI) / 180);
   let best: Position = poly[0]![0]!;
   let bestD = -1;
@@ -62,7 +67,7 @@ export function labelPoint(geometry: PolygonGeometry): Position {
     for (let i = 0; i <= steps; i++) for (let j = 0; j <= steps; j++) {
       const x = cx - cw / 2 + (cw * i) / steps;
       const y = cy - ch / 2 + (ch * j) / steps;
-      if (!inPoly(x, y, poly)) continue;
+      if (y < -MERCATOR_LAT || y > MERCATOR_LAT || !inPoly(x, y, poly)) continue;
       const d = edgeDistance(x, y, poly, cosLat);
       if (d > bestD) { bestD = d; best = [x, y]; }
     }

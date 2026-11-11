@@ -5,6 +5,7 @@ import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } 
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { partsToPolygons, validatePolygon, type Ring } from '../../scripts/data/geometry.ts';
+import { labelPoint } from '../../src/map/labelPoint.ts';
 import { DataError, loadTopic, sha256Hex, validateManifest, validateRegions } from '../../src/data/validation.ts';
 
 const root = resolve(import.meta.dirname, '../..');
@@ -152,4 +153,22 @@ test('tectonics package: 11 units with hu/uk names, kind tectonic-unit, provenan
   assert.deepEqual(topic.manifest.insets, []);
   // Same country background as the administration topic.
   assert.equal(files['country.geojson'], countryText);
+});
+
+test('continents package: 6 continents + 5 oceans with hu/uk names, Natural Earth provenance, label points visible on the Mercator map', async () => {
+  const dir = join(root, 'public/data/world-continents/2026.11.11.1');
+  const files = Object.fromEntries(['manifest.json', 'regions.geojson', 'country.geojson'].map((f) => [f, readFileSync(join(dir, f), 'utf8')]));
+  const topic = await loadTopic('/w/', { id: 'world-continents', dataVersion: '2026.11.11.1' }, fetchFrom(files));
+  assert.deepEqual(topic.regions.map((r) => r.id), ['C-AF', 'C-AN', 'C-AU', 'C-EA', 'C-NA', 'C-SA', 'O-AR', 'O-AT', 'O-IN', 'O-PA', 'O-SO']);
+  assert.equal(topic.regions.filter((r) => r.properties.kind === 'continent').length, 6);
+  assert.equal(topic.regions.filter((r) => r.properties.kind === 'ocean').length, 5);
+  assert.equal(topic.regions.find((r) => r.id === 'O-AR')!.properties.names.uk, 'Північний Льодовитий океан');
+  assert.equal(topic.regions.find((r) => r.id === 'C-EA')!.properties.names.hu, 'Eurázsia');
+  assert.equal(topic.manifest.provenance.status, 'verified');
+  assert.equal(topic.manifest.provenance.license, 'Public domain');
+  assert.equal(topic.country.id, 'LAND');
+  for (const r of topic.regions) {
+    const [, lat] = labelPoint(r.geometry);
+    assert.ok(Math.abs(lat) <= 75, `${r.id} label point at ${lat}° is outside the visible Mercator range`);
+  }
 });

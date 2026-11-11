@@ -1,0 +1,85 @@
+{
+  "topicId": "world-continents",
+  "dataVersion": "2026.11.11.1",
+  "node": "v22.23.4",
+  "sources": [
+    {
+      "file": "shp/ne_110m_land.shp",
+      "sha256": "8689e6932b8e370e2ca4587cf3ba21e460b1235db37b6ed3c172c35b4a6088de"
+    },
+    {
+      "file": "shp/ne_110m_land.dbf",
+      "sha256": "db7cf6d2de2811df09bd7fcc6f243ab78a715b83571a0cb7b36b4e2af3297caa"
+    }
+  ],
+  "checks": [
+    {
+      "id": "unit-ids",
+      "status": "pass",
+      "detail": "11 units: C-AF, C-AN, C-AU, C-EA, C-NA, C-SA, O-AR, O-AT, O-IN, O-PA, O-SO"
+    },
+    {
+      "id": "unit-names",
+      "status": "pass",
+      "detail": "hu/uk names and kinds match"
+    },
+    {
+      "id": "geometry-validity",
+      "status": "pass",
+      "detail": "all rings closed, finite, no self-intersections, holes inside shells"
+    },
+    {
+      "id": "derive-ocean-regions",
+      "status": "pass",
+      "detail": "{\"O-SO\":1,\"O-PA\":2,\"O-AR\":1,\"O-AT\":1,\"O-IN\":1}"
+    },
+    {
+      "id": "derive-land-area",
+      "status": "pass",
+      "detail": "\"continents 21452.615 + grey islands 44.337 vs land 21496.951 deg²\""
+    },
+    {
+      "id": "derive-tiling",
+      "status": "pass",
+      "detail": "\"continents + islands + oceans + Caspian = 64800.000 of 64800 deg²\""
+    },
+    {
+      "id": "no-overlap",
+      "status": "pass",
+      "detail": "0 of 64800 sample points in more than one unit"
+    },
+    {
+      "id": "oceans-fill-water",
+      "status": "pass",
+      "detail": "0 water sample points outside every ocean (Caspian excluded)"
+    },
+    {
+      "id": "continents-on-land",
+      "status": "pass",
+      "detail": "0 continent sample points off land"
+    }
+  ],
+  "issues": [],
+  "metrics": {
+    "samples": 64800,
+    "overlap": 0,
+    "gaps": 0,
+    "continentOffLand": 0
+  },
+  "outputs": [
+    {
+      "file": "public/data/world-continents/2026.11.11.1/manifest.json",
+      "sha256": "82809baea63913649a64d13682431d80de68a01b584759d49581e7da7baaf538"
+    },
+    {
+      "file": "public/data/world-continents/2026.11.11.1/regions.geojson",
+      "sha256": "645fb5d01343056773bf19c5a768b1ae623d64928513dd5bff708973118514e5",
+      "bytes": 230182
+    },
+    {
+      "file": "public/data/world-continents/2026.11.11.1/country.geojson",
+      "sha256": "95c7f6b130b4c93434b263d4c19a7ac582fe790d0f84911052e6064fbe275e2f",
+      "bytes": 117076
+    }
+  ]
+}

@@ -94,6 +94,15 @@ Tektonikai téma 11 egységgel, témaválasztó főoldallal. Új E2E-tesztek:
 
 Képernyőképek: `reports/screenshots/tectonics-*.png`, `hu-light-00-topics.png`. Az adatok validációja: `reports/tectonics-validation.json`.
 
+## Harmadik téma (2026-11-11)
+
+Kontinensek topója, 6 kontinens és 5 óceán ([0004](../docs/project/tasks/0004_CONTINENTS_TOPIC/task.md)). Új E2E-tesztek:
+- mind a 11 egység kijelölhető;
+- az óceáni szigetek és a Kaszpi-tenger nem válasz;
+- ukrán nyelvű számonkérés.
+
+Az E2E összesen 27/27 PASS. Adatellenőrzés: `reports/world-validation.json`.
+
 ## Nem elvégzett próbák
 
 - Fizikai Android Chrome és iPhone Safari: telepítés, pinch, képernyőzár, repülő üzemmód, Safe Area. Ezeket nem végeztük el, és emulációval nem helyettesíthetők.

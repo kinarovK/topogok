@@ -9,14 +9,16 @@ export const E2E = 'http://127.0.0.1:4174/';
 const read = (p: string) => (JSON.parse(readFileSync(p, 'utf8')) as { features: RegionFeature[] }).features;
 const regions = read('public/data/ukraine-administration/2026.11.05.1/regions.geojson');
 export const TECTONICS = read('public/data/ukraine-tectonics/2026.11.09.1/regions.geojson');
+export const WORLD = read('public/data/world-continents/2026.11.11.1/regions.geojson');
 export const REGIONS = regions;
+const ALL = [...regions, ...TECTONICS, ...WORLD];
 export const NAME_TO_ID = new Map<string, string>();
-for (const r of [...regions, ...TECTONICS]) { NAME_TO_ID.set(r.properties.names.hu, r.id); NAME_TO_ID.set(r.properties.names.uk, r.id); }
-export const POINT = new Map([...regions, ...TECTONICS].map((r) => [r.id, labelPoint(r.geometry)]));
-export const NAME = new Map([...regions, ...TECTONICS].map((r) => [r.id, r.properties.names]));
+for (const r of ALL) { NAME_TO_ID.set(r.properties.names.hu, r.id); NAME_TO_ID.set(r.properties.names.uk, r.id); }
+export const POINT = new Map(ALL.map((r) => [r.id, labelPoint(r.geometry)]));
+export const NAME = new Map(ALL.map((r) => [r.id, r.properties.names]));
 
-export type TopicKey = 'admin' | 'tectonics';
-const TOPIC_ATTR: Record<TopicKey, string> = { admin: 'ukraine-administration', tectonics: 'ukraine-tectonics' };
+export type TopicKey = 'admin' | 'tectonics' | 'world';
+const TOPIC_ATTR: Record<TopicKey, string> = { admin: 'ukraine-administration', tectonics: 'ukraine-tectonics', world: 'world-continents' };
 
 /** Home → topic page. */
 export async function openTopic(page: Page, base: string, topic: TopicKey = 'admin') {
@@ -84,7 +86,7 @@ export async function currentTargetId(page: Page): Promise<string> {
 }
 
 export function otherId(id: string, avoid: string[] = []): string {
-  const pool = id.startsWith('TU-') ? TECTONICS : regions;
+  const pool = id.startsWith('TU-') ? TECTONICS : /^[CO]-/.test(id) ? WORLD : regions;
   return pool.map((r) => r.id).find((x) => x !== id && !avoid.includes(x) && x !== 'UA-30' && x !== 'UA-40')!;
 }
 
