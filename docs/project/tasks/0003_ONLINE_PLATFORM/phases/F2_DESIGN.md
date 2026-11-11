@@ -49,7 +49,7 @@ A döntés: **Cloudflare**. Mellette szól, hogy már ott fut a frontend, nincs 
 
 ## 3. Jelszavak
 
-Követelmény: legalább 10 karakter, olvashatatlan tárolás, az admin sem láthatja, korlátozott próbálkozás. Ehhez a következő megoldást választjuk („kliensoldali kulcsszármaztatás + szerveres bors”):
+Követelmény: legalább **6** karakter (tulajdonosi döntés, 2026-11-11; az eredeti specifikációban 10), olvashatatlan tárolás, az admin sem láthatja, korlátozott próbálkozás. Ehhez a következő megoldást választjuk („kliensoldali kulcsszármaztatás + szerveres bors”):
 
 1. Jelszó beállításakor a tanár vagy admin böngészője véletlen 16 bájtos **sót** generál. Ebből és a jelszóból **PBKDF2-SHA256, 600 000 kör** (OWASP-ajánlás) segítségével 32 bájtos kulcsot számol (`K`). Ez telefonon kb. 0,3–1 másodperc, és csak belépéskor vagy jelszócserekor fut.
 2. A szerver a jelszót **soha nem kapja meg**, csak a sót és a `K` kulcsot. Ezt tárolja: `verifier = HMAC-SHA256(PEPPER, K)`. A `PEPPER` egy Cloudflare-titok, ami nincs az adatbázisban.
@@ -61,7 +61,7 @@ Követelmény: legalább 10 karakter, olvashatatlan tárolás, az admin sem lát
 - Ha a bors is kiszivárogna, akkor is tippenként 600 000 PBKDF2-kört kell futtatni.
 - A jelszó soha nem halad át a hálózaton, és nem kerül naplóba.
 
-**Korlát:** a 10 karakteres minimumot a tanári vagy admin felület ellenőrzi, mert a szerver nem látja a jelszót. Ezt csak tanár vagy admin kerülhetné meg, és csak a saját diákjainál. Ezt elfogadott, dokumentált eltérésként kezeljük. A KDF körszáma felhasználónként tárolódik, így később emelhető.
+**Korlát:** a 6 karakteres minimumot a tanári vagy admin felület ellenőrzi, mert a szerver nem látja a jelszót. Ezt csak tanár vagy admin kerülhetné meg, és csak a saját diákjainál. Ezt elfogadott, dokumentált eltérésként kezeljük. A KDF körszáma felhasználónként tárolódik, így később emelhető.
 
 **Próbálkozáskorlátozás** (D1-tábla, csúszó ablak):
 - felhasználónevenként 5 hibás próbálkozás után 15 perc várakozás, utána exponenciálisan nő;
@@ -264,3 +264,4 @@ A hibák `{"error": "<kód>"}` alakban jönnek, ezért a felület mindkét nyelv
 - A login karakterkészlete `a–z 0–9 . _ -`, ékezet nélkül, például `kovacs.anna`: **elfogadva**.
 - A 180 napos, használattal meghosszabbodó munkamenet: **elfogadva**. Aki fél évig nem használja a fiókját, annak újra be kell lépnie.
 - A design elfogadva, az F2-A megvalósítás indulhat.
+- **A jelszó minimális hossza 6 karakter, a 10 helyett** (2026-11-11, a preview kipróbálása után): a diákoknak egyszerűbb jelszó kell. A rövidebb jelszót a belépési korlát védi a próbálgatás ellen: felhasználónként 5 hibás próbálkozás után nő a várakozási idő. Adatbázis-szivárgás esetén a bors és a 600 000 körös kulcsszármaztatás védi.

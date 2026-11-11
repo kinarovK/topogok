@@ -25,7 +25,7 @@ A tanár archiválása/letiltása megakadályozza az ő és a hozzá tartozó di
 | F2-03 | A tanár egyenként létrehoz/szerkeszt/archivál, jelszót cserél és saját osztályok között mozgat; diák ezeket közvetlen API-val sem teheti. |
 | F2-04 | Tanár A nem olvashat vagy módosíthat Tanár B diákját/osztályát, akkor sem, ha kitalálja az ID-t vagy paramétert cserél. |
 | F2-05 | Szuperadmin tanárt és bármely tanárhoz diákot kezelhet, de nincs olvasható jelszó vagy titkos beléptetés a diák nevében. |
-| F2-06 | Legalább 10 karakteres jelszó szükséges; tárolása biztonságos hash. Login hibája nem szivárogtat jelszót; belépési próbálkozások korlátozottak. |
+| F2-06 | Legalább 6 karakteres jelszó szükséges (tulajdonosi módosítás 2026-11-11, eredetileg 10); tárolása biztonságos hash. Login hibája nem szivárogtat jelszót; belépési próbálkozások korlátozottak. |
 | F2-07 | Böngésző újraindítása után a belépés megmarad, nincs idle logout. Logout/reset/archiválás/letiltás visszavonja az érintett munkameneteket. |
 | F2-08 | Kijelentkezés után közös eszközön másik diák nem láthatja az előző személyes adatait, API-cache-ét vagy függő feltöltését. |
 | F2-09 | Üres/archivált osztály és archivált diák kezelése nem törli az előzményeket vagy hoz létre árva aktív tagságot. |
