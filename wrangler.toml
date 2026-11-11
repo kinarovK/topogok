@@ -1,0 +1,26 @@
+# Cloudflare Pages project configuration (source of truth for bindings; secrets PEPPER and
+# SETUP_CODE are set in the dashboard per environment and are not part of this file).
+# Production = deployments of the `main` branch; preview = every other branch.
+name = "topogok"
+pages_build_output_dir = "./dist"
+compatibility_date = "2025-09-01"
+
+# Production database (real accounts).
+[[d1_databases]]
+binding = "DB"
+database_name = "topogok-prod"
+database_id = "9b70c0d4-5cfa-4ad1-b081-ecfd50da2fad"
+migrations_dir = "migrations"
+
+# Preview deployments use a separate database with test data only.
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "topogok-preview"
+database_id = "757b3af6-7e74-45f5-b50d-ddf7d787e96b"
+migrations_dir = "migrations"
+
+# Weekly backup targets (not bound to the app; used by .github/workflows/backup.yml):
+#   topogok-backup-1 61ba6213-813f-4956-993e-2078f63cec9d
+#   topogok-backup-2 8854be37-35af-493c-8542-205b40ab5c0c
+#   topogok-backup-3 dd467804-064b-4f63-a314-a9343a236d5a
+#   topogok-backup-4 6c9b753f-31f9-40ca-8f56-0cdad4936516
