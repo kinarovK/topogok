@@ -11,6 +11,7 @@
     "data:build": "node scripts/data/build.ts",
     "data:validate": "node scripts/data/build.ts --check && python3 scripts/data/world/derive.py --no-preview && node scripts/data/world/build.ts --check",
     "test": "node --test --test-reporter=spec \"tests/unit/**/*.test.ts\"",
+    "test:api": "node --test --test-reporter=spec \"tests/api/**/*.test.ts\"",
     "typecheck": "tsc -p .",
     "setup:linux-binaries": "node scripts/dev/fetch-linux-binaries.mjs",
     "dev": "vite",

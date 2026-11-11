@@ -20,12 +20,13 @@ if (forbidden.length) errors.push(`forbidden files in build: ${forbidden.join(',
 
 const sw = readFileSync(join(dir, 'sw.js'), 'utf8');
 const precached = new Set([...sw.matchAll(/url:"([^"]+)"/g)].map((m) => m[1]));
-const notPrecached = ['sw.js', '_headers', 'registerSW.js'];
+const notPrecached = ['sw.js', '_headers', '_routes.json', 'registerSW.js'];
 const missing = files.filter((f) => !notPrecached.includes(f) && !/^workbox-[\w-]+\.js$/.test(f) && !precached.has(f));
 if (missing.length) errors.push(`not in precache: ${missing.join(', ')}`);
 for (const must of ['index.html', 'manifest.webmanifest']) if (!precached.has(must)) errors.push(`precache lacks ${must}`);
 if (![...precached].some((u) => /maplibre-gl-worker.*\.mjs$/.test(u))) errors.push('precache lacks the MapLibre worker');
 if (![...precached].some((u) => u.endsWith('regions.geojson'))) errors.push('precache lacks regions.geojson');
+if ([...precached].some((u) => u.startsWith('api/') || u === '_routes.json')) errors.push('API or routing files must not be precached');
 
 const total = files.reduce((n, f) => n + statSync(join(dir, f)).size, 0);
 console.log(`verify-dist: ${files.length} files, ${(total / 1024).toFixed(0)} KiB, ${precached.size} precached`);
