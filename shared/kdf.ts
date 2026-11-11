@@ -2,7 +2,8 @@
 // The server never receives a password: only salt + PBKDF2-SHA256(password, salt) (see F2_DESIGN.md §3).
 
 export const KDF_ITERATIONS = 600_000;
-export const PASSWORD_MIN_LENGTH = 10;
+/** Owner decision 2026-11-11: 6 characters (the spec's original 10 was found too strict for students). */
+export const PASSWORD_MIN_LENGTH = 6;
 
 export function toBase64(bytes: Uint8Array): string {
   let s = '';
