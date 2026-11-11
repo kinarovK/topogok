@@ -35,7 +35,7 @@ test('superadmin setup → teacher → class → student → student sign-in; lo
   await page.getByLabel('Teljes név').fill('Tulajdonos Teszt');
   await setPasswords(page, 'short');
   await page.getByRole('button', { name: 'Mentés' }).click();
-  await expect(page.getByRole('alert')).toContainText('legalább 10 karakter');
+  await expect(page.getByRole('alert')).toContainText('legalább 6 karakter');
   await setPasswords(page, 'owner-password-1');
   await page.getByRole('button', { name: 'Mentés' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'A fiók elkészült' })).toBeVisible({ timeout: 30_000 });

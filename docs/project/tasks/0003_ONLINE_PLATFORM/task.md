@@ -102,7 +102,7 @@ A tanár saját diákja próbálkozását indoklással kizárhatja a toplistáb�
 
 ## 9. Adatvédelem, munkamenet, megőrzés
 
-Nincs diák e-mail, önregisztráció vagy diákoldali login/jelszóváltoztatás. Globálisan egyedi login és külön teljes név. A tanár állítja be a jelszót, később csak lecserélheti, nem olvashatja vissza. Biztonságos jelszó-hash, próbálkozáskorlátozás és hitelesítés szükséges, konkrét mechanizmus a design feladata. A minimum jelszóhossz 10 karakter az elfogadott javaslat szerint.
+Nincs diák e-mail, önregisztráció vagy diákoldali login/jelszóváltoztatás. Globálisan egyedi login és külön teljes név. A tanár állítja be a jelszót, később csak lecserélheti, nem olvashatja vissza. Biztonságos jelszó-hash, próbálkozáskorlátozás és hitelesítés szükséges, konkrét mechanizmus a design feladata. A minimum jelszóhossz 6 karakter (tulajdonosi döntés 2026-11-11; az eredeti javaslat 10 volt).
 
 A munkamenet maradjon meg böngésző újraindítása után; nincs tétlenségi automatikus kijelentkezés. Ez nem korlátlan, visszavonhatatlan token: kézi logout, jelszó-visszaállítás, fiókarchiválás/letiltás visszavonja az érintett hozzáférést. A tokenrotáció és technikai élettartam úgy tervezendő, hogy a vállalt tartós belépést ne tegye kétórás idle logouttá. Mindig látszik az aktuális felhasználó. Közös eszközön kijelentkezés után a következő használó nem férhet hozzá az előző személyes adataihoz vagy függő feltöltéseihez.
 
