@@ -3,12 +3,12 @@
 Dátum: 2026-11-13. Állapot: **design, tulajdonosi jóváhagyásra (docs PR)**.
 Követelmények: [F4_TOPIC_SETTINGS.md](F4_TOPIC_SETTINGS.md). Erre épül: [F2_DESIGN.md](F2_DESIGN.md), [F3_DESIGN.md](F3_DESIGN.md) (a takarékos, körönként két kérés elve itt is érvényes).
 
-## 0. Tulajdonosi döntések (jóváhagyásra, javasolt alapértékkel)
+## 0. Tulajdonosi döntések (2026-11-13: mind a négy javaslat elfogadva)
 
-1. **Új fejlesztői elem egy későbbi adatfrissítésben:** *javaslat:* automatikusan **bekapcsolt** a tanároknál is. Ezért a szerver a **kikapcsolt** elemek listáját tárolja: ami nincs rajta, az kérdezhető. Az adatfrissítésből kikerült ID-t a szerver figyelmen kívül hagyja.
-2. **Tanári „Legjobb (teljes kör)”:** *javaslat:* a tanári panelen a szűkített készlet „Mindegyik” köre is teljes körnek számít, „szűkített” jelzéssel. Az F5-ös toplistára viszont **soha** nem kerül fel (F4-09).
-3. **Felfedezés mód:** *javaslat:* a teljes térkép marad. A tanári beállítás csak a gyakorlásra és a számonkérésre hat, ahogy a specifikáció írja.
-4. **Kikapcsolt terület megjelenése:** *javaslat:* szürke, név és kiemelés nélkül, nem kattintható. A rákattintás semmit nem csinál, így próbálkozást sem fogyaszt.
+1. **Új fejlesztői elem egy későbbi adatfrissítésben:** automatikusan **bekapcsolt** a tanároknál is. Ezért a szerver a **kikapcsolt** elemek listáját tárolja: ami nincs rajta, az kérdezhető. Az adatfrissítésből kikerült ID-t a szerver figyelmen kívül hagyja.
+2. **Tanári „Legjobb (teljes kör)”:** a tanári panelen a szűkített készlet „Mindegyik” köre is teljes körnek számít, „szűkített” jelzéssel. Az F5-ös toplistára viszont **soha** nem kerül fel (F4-09).
+3. **Felfedezés mód:** a teljes térkép marad. A tanári beállítás csak a gyakorlásra és a számonkérésre hat, ahogy a specifikáció írja.
+4. **Kikapcsolt terület megjelenése:** szürke, név és kiemelés nélkül, nem kattintható. A rákattintás semmit nem csinál, így próbálkozást sem fogyaszt.
 
 ## 1. Összkép
 
