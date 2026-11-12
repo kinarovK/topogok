@@ -10,6 +10,8 @@ const OFF = plain[5]!;
 
 test('teacher narrows the question set; the student gets only those; guests keep the full map', async ({ page, browser }) => {
   await seedAccounts(BASE);
+  let settingsRequests = 0;
+  page.on('request', (r) => { if (r.url().includes('/api/topic-settings') && r.method() === 'GET') settingsRequests++; });
   await login(page, BASE, 'kovacs.tanar', 'teacher-password-1');
   await page.getByRole('button', { name: 'Tanári felület' }).click();
   await page.getByRole('button', { name: 'Témák' }).click();
@@ -22,6 +24,7 @@ test('teacher narrows the question set; the student gets only those; guests keep
   await expect(panel.getByText('2 / 27 kérdezhető')).toHaveCount(2);
   await panel.getByRole('button', { name: 'Mentés' }).click();
   await expect(panel.getByRole('status')).toHaveText('Mentve.');
+  expect(settingsRequests, 'the topics tab loads its settings once').toBe(1);
 
   const ctx = await browser.newContext();
   const student = await ctx.newPage();

@@ -9,12 +9,14 @@ import { assessmentResult, practiceResult } from '../src/domain/scoring.ts';
 import type { GameConfiguration, GameEvent, GameState, QuestionCount, TimeLimitMinutes } from '../src/domain/types.ts';
 import type { Ctx, Session } from './auth.ts';
 import { teacherScope } from './admin.ts';
+import { CANDIDATE_SQL, fullSet } from './leaderboard.ts';
 import { loadSetting } from './topicSettings.ts';
 import { TOPIC_FEATURES } from './topics.generated.ts';
 import { fail, json, sha256 } from './util.ts';
 import { idParam } from './validate.ts';
 
-export const RULES_VERSION = 1;
+import { RULES_VERSION } from './rules.ts';
+export { RULES_VERSION };
 const ABANDON_AFTER = 6 * 3_600_000;
 const WALL_TOLERANCE = 5_000;
 const DEADLINE_GRACE = 30_000;
@@ -28,6 +30,7 @@ type AttemptRow = {
   duration_ms: number | null; visible_ms: number | null; late_finish: number; percent: number | null; points: number | null;
   max_points: number | null; correct: number | null; total: number | null; grade: number | null; result_hash: string | null;
   invalid_reason: string | null; deleted_at: number | null; disabled_ids: string | null; restricted: number;
+  lb_excluded_at: number | null; lb_exclude_reason: string | null; review_status: string | null;
 };
 
 function parseConfig(body: Record<string, unknown>): { config: GameConfiguration; dataVersion: string; ids: readonly string[] } {
@@ -226,9 +229,9 @@ export async function report(ctx: Ctx, s: Session, q: URLSearchParams) {
 
   const before = cursor ? Number(cursor) : Number.MAX_SAFE_INTEGER;
   const { results: rows } = await ctx.db.prepare(
-    `SELECT a.*, ${eff} AS eff_status, u.full_name, u.login, c.name AS class_name FROM attempts a JOIN users u ON u.id = a.student_id
+    `SELECT a.*, ${eff} AS eff_status, (${CANDIDATE_SQL}) AS lb_candidate, u.full_name, u.login, c.name AS class_name FROM attempts a JOIN users u ON u.id = a.student_id
      JOIN classes c ON c.id = a.class_id WHERE ${where} AND (? IS NULL OR ${eff} = ?) AND a.started_at < ?
-     ORDER BY a.started_at DESC LIMIT 50`).bind(...args, status, status, before).all<AttemptRow & { eff_status: string; full_name: string; login: string; class_name: string }>();
+     ORDER BY a.started_at DESC LIMIT 50`).bind(...args, status, status, before).all<AttemptRow & { eff_status: string; lb_candidate: number; full_name: string; login: string; class_name: string }>();
 
   return json({
     generatedAt: ctx.now,
@@ -243,6 +246,8 @@ export async function report(ctx: Ctx, s: Session, q: URLSearchParams) {
       count: a.question_count, isFull: a.is_full === 1, timeLimitMinutes: a.time_limit_min, status: a.eff_status, startedAt: a.started_at,
       durationMs: a.duration_ms, visibleMs: a.visible_ms, timingComplete: a.visible_ms !== null, lateFinish: a.late_finish === 1,
       percent: a.percent, points: a.points, maxPoints: a.max_points, correct: a.correct, total: a.total, grade: a.grade, invalidReason: a.invalid_reason, restricted: a.restricted === 1,
+      leaderboardCandidate: a.lb_candidate === 1 && (fullSet(a.topic_id)?.(a.question_ids) ?? false), lbExcluded: a.lb_excluded_at !== null, lbExcludeReason: a.lb_exclude_reason,
+      reviewStatus: a.review_status,
     })),
     nextBefore: rows.length === 50 ? rows[rows.length - 1]!.started_at : null,
   });

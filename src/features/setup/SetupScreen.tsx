@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAccount } from '../../account/account.tsx';
 import { useTopicAccess } from '../../account/topicAccess.ts';
 import { countOptions } from '../../domain/questionCounts.ts';
 import { useSettings } from '../../app/settings.tsx';
@@ -14,6 +15,7 @@ export function SetupScreen({ topic, entry, initial, onStart, onBack }: {
 }) {
   const { t, locale } = useSettings();
   const access = useTopicAccess(topic)!;
+  const { me } = useAccount();
   const total = access.enabled.length;
   const counts = countOptions(entry.counts, total);
   const pick = (c: QuestionCount | undefined): QuestionCount => (c !== undefined && counts.includes(c) ? c : counts.includes(DEFAULT_COUNT) ? DEFAULT_COUNT : 'all');
@@ -37,6 +39,10 @@ export function SetupScreen({ topic, entry, initial, onStart, onBack }: {
         </div>
         <ChoiceGroup legend={t('setup.count')} name="count" value={count} onChange={setCount}
           options={counts.map((c) => ({ value: c, label: c === 'all' ? t('setup.all', { count: total }) : String(c) }))} />
+        {/* F5-10: say up front whether this round can reach the leaderboard, and why not. */}
+        <p className={s.topicLine} data-testid="board-eligibility">
+          {me?.role !== 'student' ? t('setup.boardGuest') : access.restricted ? t('setup.boardRestricted') : count !== 'all' ? t('setup.boardNotAll') : t('setup.boardYes')}
+        </p>
         <section>
           <h2 className="visually-hidden">{t('setup.rulesTitle')}</h2>
           <p className={s.rules}>{t('setup.rulesAssessment')}</p>

@@ -25,7 +25,12 @@ export type ReportAttempt = {
   count: string; isFull: boolean; timeLimitMinutes: number | null; status: AttemptStatus; startedAt: number; durationMs: number | null; visibleMs: number | null;
   timingComplete: boolean; lateFinish: boolean; percent: number | null; points: number | null; maxPoints: number | null; correct: number | null; total: number | null;
   grade: number | null; invalidReason: string | null; restricted: boolean;
+  leaderboardCandidate: boolean; lbExcluded: boolean; lbExcludeReason: string | null; reviewStatus: 'pending' | 'approved' | 'rejected' | null;
 };
+export type BoardRow = { rank: number; studentId: string; fullName: string; correct: number; total: number; percent: number; durationMs: number };
+export type Board = { generatedAt: number; periodStart: number | null; rows: BoardRow[]; myStudentId: string | null };
+export type PersonalRecord = { correct: number; total: number; percent: number; durationMs: number };
+
 export type Report = { generatedAt: number; summary: ReportSummary[] | null; attempts: ReportAttempt[]; nextBefore: number | null };
 
 export class ApiFailure extends Error {
@@ -110,6 +115,11 @@ export const api = {
   topicSettings: (teacherId: string | null) => call<{ settings: Record<string, TopicSetting> }>('GET', `/api/topic-settings${qs({ teacherId })}`).then((r) => r.settings),
   saveTopicSetting: (teacherId: string | null, topicId: string, disabled: string[], baseVersion: number) =>
     call<{ setting: TopicSetting }>('PUT', `/api/topic-settings/${topicId}`, { ...scope(teacherId), disabled, baseVersion }).then((r) => r.setting),
+  leaderboard: (topicId: string, teacherId: string | null) => call<Board>('GET', `/api/leaderboard${qs({ topicId, teacherId })}`),
+  record: (topicId: string) => call<{ record: PersonalRecord | null }>('GET', `/api/record${qs({ topicId })}`).then((r) => r.record),
+  newPeriod: (teacherId: string | null, topicId: string) => call('POST', '/api/leaderboard/periods', { ...scope(teacherId), topicId, confirm: true }),
+  setLeaderboardExcluded: (teacherId: string | null, id: string, excluded: boolean, reason = '') =>
+    call('POST', `/api/report/attempts/${id}/leaderboard`, { ...scope(teacherId), excluded, ...(excluded ? { reason } : {}) }),
   startAttempt: (body: AttemptStart) => call<{ attemptId: string }>('POST', '/api/attempts', body),
   finishAttempt: (id: string, body: { reason: 'completed' | 'quit'; events?: WireEvent[]; visibleMs?: number }) =>
     call<{ result: AttemptResult }>('POST', `/api/attempts/${id}/finish`, body).then((r) => r.result),

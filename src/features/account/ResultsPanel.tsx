@@ -123,7 +123,8 @@ export function ResultsPanel({ scope }: { scope: string | null }) {
               {report.attempts.map((a) => (
                 <AttemptItem key={a.id} a={a} topicName={topicName} scope={scope} open={deleting === a.id}
                   onOpen={() => setDeleting(deleting === a.id ? null : a.id)}
-                  onDeleted={() => { setDeleting(null); setReport((cur) => cur && { ...cur, attempts: cur.attempts.filter((x) => x.id !== a.id) }); }} />
+                  onDeleted={() => { setDeleting(null); setReport((cur) => cur && { ...cur, attempts: cur.attempts.filter((x) => x.id !== a.id) }); }}
+                  onUpdate={(patch) => setReport((cur) => cur && { ...cur, attempts: cur.attempts.map((x) => (x.id === a.id ? { ...x, ...patch } : x)) })} />
               ))}
             </ul>
           )}
@@ -159,11 +160,14 @@ function SummaryItem({ r, topicName }: { r: ReportSummary; topicName: (id: strin
   );
 }
 
-function AttemptItem({ a, topicName, scope, open, onOpen, onDeleted }: {
+function AttemptItem({ a, topicName, scope, open, onOpen, onDeleted, onUpdate }: {
   a: ReportAttempt; topicName: (id: string) => string; scope: string | null; open: boolean; onOpen: () => void; onDeleted: () => void;
+  onUpdate: (patch: Partial<ReportAttempt>) => void;
 }) {
   const { t, locale } = useSettings();
   const [reason, setReason] = useState('');
+  const [excluding, setExcluding] = useState(false);
+  const [lbReason, setLbReason] = useState('');
   const action = useAction();
   const scored = a.status === 'finished' || a.status === 'expired';
   return (
@@ -177,6 +181,12 @@ function AttemptItem({ a, topicName, scope, open, onOpen, onDeleted }: {
         {a.timeLimitMinutes ? ` · ${t('report.limit', { minutes: a.timeLimitMinutes })}` : ''}
         {a.restricted ? ` · ${t('report.restricted')}` : ''}
       </span>
+      {(a.leaderboardCandidate || a.lbExcluded) && (
+        <span className={s.meta} data-testid="lb-state">
+          <span className={s.badge}>{a.lbExcluded ? t('board.excluded') : t('board.candidate')}</span>
+          {a.lbExcluded && a.lbExcludeReason ? ` ${t('report.invalidReason', { reason: a.lbExcludeReason })}` : ''}
+        </span>
+      )}
       <span className={s.meta}>
         <span className={s.badge}>{t(`report.status.${a.status === 'started' ? 'in_progress' : a.status}`)}</span>
         {scored && a.percent !== null && <> {formatPercent(locale, a.percent)}</>}
@@ -196,7 +206,24 @@ function AttemptItem({ a, topicName, scope, open, onOpen, onDeleted }: {
           {a.invalidReason && ` ${t('report.invalidReason', { reason: a.invalidReason })}`}
         </span>
       )}
-      <div className={s.itemActions}><Button onClick={onOpen}>{t('account.delete')}</Button></div>
+      <div className={s.itemActions}>
+        {a.leaderboardCandidate && !a.lbExcluded && <Button onClick={() => setExcluding((x) => !x)}>{t('board.exclude')}</Button>}
+        {a.lbExcluded && (
+          <Button onClick={() => void action.run(async () => { await api.setLeaderboardExcluded(scope, a.id, false); onUpdate({ lbExcluded: false, lbExcludeReason: null }); })}>
+            {t('board.include')}
+          </Button>
+        )}
+        <Button onClick={onOpen}>{t('account.delete')}</Button>
+      </div>
+      {excluding && !a.lbExcluded && (
+        <form className={s.toolbar} onSubmit={(e) => {
+          e.preventDefault();
+          void action.run(async () => { await api.setLeaderboardExcluded(scope, a.id, true, lbReason); setExcluding(false); onUpdate({ lbExcluded: true, lbExcludeReason: lbReason.trim() }); });
+        }}>
+          <Field label={t('board.excludeReason')}><TextInput value={lbReason} maxLength={200} onChange={(e) => setLbReason(e.target.value)} /></Field>
+          <Button type="submit" variant="primary" disabled={action.busy || lbReason.trim().length < 3}>{t('board.exclude')}</Button>
+        </form>
+      )}
       {open && (
         <form className={s.toolbar} onSubmit={(e) => { e.preventDefault(); void action.run(async () => { await api.deleteAttempt(scope, a.id, reason); onDeleted(); }); }}>
           <Field label={t('report.deleteReason')}><TextInput value={reason} maxLength={200} onChange={(e) => setReason(e.target.value)} /></Field>

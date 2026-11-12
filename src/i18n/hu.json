@@ -40,7 +40,11 @@
     "start": "Indítás",
     "rulesTitle": "Szabályok",
     "rulesAssessment": "Kérdésenként egy válasz, a kijelölés a véglegesítésig módosítható. Nincs visszalépés, kihagyás és helyességi visszajelzés. Nincs időkorlát; az idő nem számít bele a jegybe.",
-    "teacherSelection": "Tanárod {count} elemet jelölt ki a {total}-ból."
+    "teacherSelection": "Tanárod {count} elemet jelölt ki a {total}-ból.",
+    "boardYes": "Ez a kör felkerülhet a toplistára (teljes térkép, időkorlát nélkül).",
+    "boardNotAll": "Ez a kör nem kerül a toplistára: csak a „Mindegyik” kör számít.",
+    "boardRestricted": "Ez a kör nem kerül a toplistára, mert a tanárod szűkítette a kérdezhető elemeket.",
+    "boardGuest": "Toplista csak bejelentkezett diákoknak van."
   },
   "game": {
     "find": "Keresd meg: {name}",
@@ -231,7 +235,8 @@
       "settings_conflict": "Közben máshol módosították a beállítást."
     },
     "results": "Eredmények",
-    "topics": "Témák"
+    "topics": "Témák",
+    "leaderboard": "Toplista"
   },
   "save": {
     "pending": "Mentés függőben… (a kapcsolat helyreálltakor automatikusan elküldjük)",
@@ -290,5 +295,29 @@
     "save": "Mentés",
     "saved": "Mentve.",
     "conflict": "Közben máshol módosították, betöltöttük a mentett állapotot. Ellenőrizd, és mentsd újra."
+  },
+  "board": {
+    "title": "Toplista",
+    "refresh": "Frissítés",
+    "refreshIn": "Frissítés ({seconds} mp)",
+    "updated": "Frissítve: {time}",
+    "period": "Versenyidőszak kezdete: {time}",
+    "empty": "Még nincs toplistás eredmény ebben az időszakban.",
+    "wait": "Percenként egyszer frissíthető. Próbáld újra {seconds} másodperc múlva.",
+    "rule": "Csak a teljes térképes, időkorlát nélküli számonkérések számítanak; diákonként a legjobb. Sorrend: több helyes válasz, azon belül rövidebb idő.",
+    "record": "Saját rekord: {correct} / {total} · {percent} · {time}",
+    "noRecord": "Még nincs toplistás eredményed ezen a térképen.",
+    "tab": "Toplista",
+    "newPeriod": "Új versenyidőszak",
+    "newPeriodConfirm": "Biztosan új időszakot indítasz? A jelenlegi lista kiürül, a korábbi eredmények a tanári nyilvántartásban megmaradnak.",
+    "newPeriodYes": "Igen, új időszak",
+    "cancel": "Mégse",
+    "periodStarted": "Új versenyidőszak indult. A lista a következő frissítéskor ürül ki.",
+    "exclude": "Kizárás a toplistából",
+    "include": "Visszavétel a toplistára",
+    "excluded": "kizárva a toplistából",
+    "excludeReason": "A kizárás indoka",
+    "candidate": "toplistás",
+    "chooseTopic": "Válassz témát…"
   }
 }
