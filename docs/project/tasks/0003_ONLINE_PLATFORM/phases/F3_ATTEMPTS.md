@@ -1,6 +1,6 @@
 # F3 – Próbálkozások mentése és tanári panel
 
-Állapot: specifikációtervezet. Függőség: F2. Közös szerződés: [task.md](../task.md).
+Állapot: specifikáció, a 2026-11-12-i tulajdonosi módosításokkal ([F3_DESIGN.md](F3_DESIGN.md), 0. és 8. pont: takarékos mentés, nincs tanári kérdésenkénti nézet, a legjobb eredmény csak teljes körből). Függőség: F2. Közös szerződés: [task.md](../task.md).
 
 ## Eredmény
 
