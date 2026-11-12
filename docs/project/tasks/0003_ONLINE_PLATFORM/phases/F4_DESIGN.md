@@ -1,6 +1,6 @@
 # F4 – Design és végrehajtási terv: tanári kérdezhető elemkészletek
 
-Dátum: 2026-11-13. Állapot: **design, tulajdonosi jóváhagyásra (docs PR)**.
+Dátum: 2026-11-13. Állapot: **megvalósítva (8. pont), a `staging` ágban**.
 Követelmények: [F4_TOPIC_SETTINGS.md](F4_TOPIC_SETTINGS.md). Erre épül: [F2_DESIGN.md](F2_DESIGN.md), [F3_DESIGN.md](F3_DESIGN.md) (a takarékos, körönként két kérés elve itt is érvényes).
 
 ## 0. Tulajdonosi döntések (2026-11-13: mind a négy javaslat elfogadva)
@@ -104,3 +104,23 @@ Az ingyenes keretre hatása elhanyagolható.
    - tanári „Témák” fül hu/uk nyelven;
    - beállítóképernyő és térkép;
    - tesztek, dokumentáció.
+
+## 8. Megvalósítás (2026-11-13)
+
+Ág: `f4/topic-settings`, a `staging`-be merge-elve. Kód:
+- `migrations/0003_topic_settings.sql`;
+- `server/topicSettings.ts`;
+- `server/attempts.ts`: indításkor verzióellenőrzés és sorsolás a tárolt készletből; a lezáráskor az indításkori készlettel játszik újra;
+- `src/domain/questionCounts.ts`;
+- `src/account/topicAccess.ts`;
+- `src/features/account/TopicsPanel.tsx`;
+- a térkép `disabledIds` opciója.
+
+Kiegészítések a tervhez:
+- Az `attempts` tábla az indításkori kikapcsolt listát is tárolja (`disabled_ids`). Így a lezárás akkor is helyesen játszik újra, ha a tanár közben módosított (F4-06), és a szerver a kikapcsolt területre kattintást is szabálytalannak veszi (F4-05).
+- Ha a böngésző nem küld `settingsVersion` értéket, a szerver 0-nak veszi. Ez csak akkor egyezik, ha a tanár még nem szűkített, így egy frissítés előtti régi kliens nem kerülheti meg a szűkítést.
+
+Tesztek:
+- `tests/api/topicSettings.test.ts`: 3 teszt;
+- `tests/unit/questionCounts.test.ts`;
+- `tests/e2e/topics.spec.ts`.

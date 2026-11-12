@@ -2,14 +2,15 @@
 import { deriveKey, passwordPayload } from '../../shared/kdf.ts';
 
 export type Role = 'superadmin' | 'teacher' | 'student';
-export type Me = { id: string; role: Role; login: string; fullName: string; teacherName?: string | null; className?: string | null };
+export type TopicSetting = { disabled: string[]; version: number };
+export type Me = { id: string; role: Role; login: string; fullName: string; teacherName?: string | null; className?: string | null; topicSettings?: Record<string, TopicSetting> };
 export type ClassItem = { id: string; name: string; status: 'active' | 'archived'; studentCount: number };
 export type Student = { id: string; login: string; fullName: string; status: 'active' | 'archived'; classId: string; className: string | null; createdAt: number; passwordChangedAt: number };
 export type Teacher = { id: string; login: string; fullName: string; status: 'active' | 'disabled'; studentCount: number; createdAt: number; passwordChangedAt: number };
 export type AuditEntry = { id: number; at: number; actor: string | null; action: string; targetType: string | null; targetId: string | null; details: Record<string, unknown> | null };
 
 export type WireEvent = { type: 'SELECT'; t: number; f: string } | { type: 'CONFIRM' | 'REVEAL' | 'NEXT' | 'TIME_CHECK'; t: number };
-export type AttemptStart = { topicId: string; dataVersion: string; mode: 'practice' | 'assessment'; count: number | 'all'; showElapsed?: boolean; timeLimitMinutes?: number | null; seed: number };
+export type AttemptStart = { topicId: string; dataVersion: string; mode: 'practice' | 'assessment'; count: number | 'all'; showElapsed?: boolean; timeLimitMinutes?: number | null; seed: number; settingsVersion?: number };
 export type AttemptResult = { attemptId: string; status: AttemptStatus; percent: number | null; points: number | null; maxPoints: number | null; correct: number | null; total: number | null; grade: number | null; durationMs: number | null };
 export type AttemptStatus = 'in_progress' | 'started' | 'finished' | 'expired' | 'abandoned' | 'invalid';
 export type ReportFilters = { teacherId?: string | null; classId?: string | null; studentId?: string | null; topicId?: string | null; mode?: string | null; status?: string | null; from?: number | null; to?: number | null };
@@ -23,7 +24,7 @@ export type ReportAttempt = {
   id: string; studentId: string; fullName: string; login: string; className: string; topicId: string; mode: 'practice' | 'assessment';
   count: string; isFull: boolean; timeLimitMinutes: number | null; status: AttemptStatus; startedAt: number; durationMs: number | null; visibleMs: number | null;
   timingComplete: boolean; lateFinish: boolean; percent: number | null; points: number | null; maxPoints: number | null; correct: number | null; total: number | null;
-  grade: number | null; invalidReason: string | null;
+  grade: number | null; invalidReason: string | null; restricted: boolean;
 };
 export type Report = { generatedAt: number; summary: ReportSummary[] | null; attempts: ReportAttempt[]; nextBefore: number | null };
 
@@ -31,8 +32,11 @@ export class ApiFailure extends Error {
   readonly status: number;
   readonly code: string;
   readonly retryAfterSeconds: number | undefined;
-  constructor(status: number, code: string, retryAfterSeconds?: number) {
+  /** The rest of the error body (e.g. the current setting on a conflict). */
+  readonly extra: Record<string, unknown> | undefined;
+  constructor(status: number, code: string, retryAfterSeconds?: number, extra?: Record<string, unknown>) {
     super(code);
+    this.extra = extra;
     this.status = status;
     this.code = code;
     this.retryAfterSeconds = retryAfterSeconds;
@@ -54,7 +58,7 @@ async function call<T>(method: string, path: string, body?: unknown): Promise<T>
   }
   let data: Record<string, unknown> = {};
   try { data = (await res.json()) as Record<string, unknown>; } catch { /* not JSON (e.g. no API on this host) */ }
-  if (!res.ok) throw new ApiFailure(res.status, typeof data['error'] === 'string' ? data['error'] : 'internal', typeof data['retryAfterSeconds'] === 'number' ? data['retryAfterSeconds'] : undefined);
+  if (!res.ok) throw new ApiFailure(res.status, typeof data['error'] === 'string' ? data['error'] : 'internal', typeof data['retryAfterSeconds'] === 'number' ? data['retryAfterSeconds'] : undefined, data);
   return data as T;
 }
 
@@ -103,6 +107,9 @@ export const api = {
   async setTeacherPassword(id: string, password: string) {
     return call('POST', `/api/teachers/${id}/password`, await passwordPayload(password));
   },
+  topicSettings: (teacherId: string | null) => call<{ settings: Record<string, TopicSetting> }>('GET', `/api/topic-settings${qs({ teacherId })}`).then((r) => r.settings),
+  saveTopicSetting: (teacherId: string | null, topicId: string, disabled: string[], baseVersion: number) =>
+    call<{ setting: TopicSetting }>('PUT', `/api/topic-settings/${topicId}`, { ...scope(teacherId), disabled, baseVersion }).then((r) => r.setting),
   startAttempt: (body: AttemptStart) => call<{ attemptId: string }>('POST', '/api/attempts', body),
   finishAttempt: (id: string, body: { reason: 'completed' | 'quit'; events?: WireEvent[]; visibleMs?: number }) =>
     call<{ result: AttemptResult }>('POST', `/api/attempts/${id}/finish`, body).then((r) => r.result),

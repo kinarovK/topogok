@@ -46,6 +46,14 @@
 6. Pusztán ranglistából kizárás mellett próbálkozás-adatbázis soft delete is szükséges.
 7. Külön, tanári elemkészletű toplistás kihívás helyett teljes térképes normál számonkérés. A tanári elemkészlet változása nem nullázza a listát; a szűkített kör nem jogosult.
 
+## Tulajdonosi döntések, 2026-11-13
+
+- **Munkamenet F4–F6-ra:** a négy feladat (F4, F4.5, F5, F6) egy ciklusban készül. Mindegyik saját ágon, a `staging` ágból indul, tesztelés után a `staging`-be kerül. A végén egyetlen PR megy a `main`-be. Külön design-PR nincs, a design dokumentumok a `staging`-ben vannak.
+- **F4.5 (új):**
+  - A gyakorlásnak nincs beállítóképernyője: kattintásra azonnal indul a tanár által engedélyezett összes elemmel, az eltelt idő mindig látszik és mentődik. A gyakorló pontozás nem változik.
+  - A számonkérésnél nincs időkorlát-választó, és alapból nincs korlát. A kérdésszám (5 / 12 / Mindegyik) marad.
+- **F6:** az elrejtéssel érintett számonkérő eredmény a tanár jóváhagyásáig nem kerül a toplistára, ahogy a specifikáció írja.
+
 ## Korábbi dokumentumok hatálya
 
 A 0001 és az ADR-0001 a backend nélküli vendég-MVP történeti specifikációja. Az ottani „nincs backend/fiók/mentés” továbbra is igaz a vendégfolyamra, de az új fiókos fázisokra ez a 0003 specifikáció lép a helyére. A pontozás, térképi adatok, lokalizáció és vizuális alapok változatlanok, ahol ez a dokumentumcsomag kifejezetten nem módosítja őket. A korábbi sikeres tesztek nem igazolják az új backend működését.

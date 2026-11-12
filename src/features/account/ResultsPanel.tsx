@@ -175,6 +175,7 @@ function AttemptItem({ a, topicName, scope, open, onOpen, onDeleted }: {
       <span className={s.meta}>
         {topicName(a.topicId)} · {a.mode === 'practice' ? t('game.modePractice') : t('game.modeAssessment')} · {a.count === 'all' ? t('report.allQuestions') : t('report.questions', { count: Number(a.count) })}
         {a.timeLimitMinutes ? ` · ${t('report.limit', { minutes: a.timeLimitMinutes })}` : ''}
+        {a.restricted ? ` · ${t('report.restricted')}` : ''}
       </span>
       <span className={s.meta}>
         <span className={s.badge}>{t(`report.status.${a.status === 'started' ? 'in_progress' : a.status}`)}</span>

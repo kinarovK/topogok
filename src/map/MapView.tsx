@@ -16,6 +16,7 @@ type Props = {
   selection: string | null;
   feedback: Feedback;
   onSelect: (id: string) => void;
+  disabledIds?: ReadonlySet<string>;
   onReady?: () => void;
   onError: (e: unknown) => void;
   resetKey?: number;
@@ -41,7 +42,7 @@ export function MapView(p: Props) {
   useLayoutEffect(() => {
     const container = containerRef.current!;
     const adapter = createMapAdapter({
-      container, country: p.topic.country, regions: p.topic.regions, theme, viewBounds: p.viewBounds, maxBounds: p.maxBounds,
+      container, country: p.topic.country, regions: p.topic.regions, theme, viewBounds: p.viewBounds, maxBounds: p.maxBounds, disabledIds: p.disabledIds,
       onSelect: (id) => cb.current.onSelect(id),
       onReady: () => { setReady(true); cb.current.onReady?.(); },
       onError: (e) => cb.current.onError(e),

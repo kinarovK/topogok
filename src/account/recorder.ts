@@ -8,6 +8,7 @@ export type SaveStatus =
   | 'starting'   // start request in flight, round in progress
   | 'recording'  // round has a server id
   | 'unsaved'    // start failed: this round will not be saved
+  | 'outdated'   // the teacher changed the question set meanwhile (F4): not saved, the next round uses the new set
   | 'pending'    // finish not yet acknowledged (offline, server busy); retrying
   | 'saved'
   | 'failed'     // the server refused the finish (e.g. signed out); the user may retry
@@ -37,17 +38,23 @@ export class RoundRecorder {
   private visibleSince: number | null;
   result: AttemptResult | null = null;
 
-  constructor(config: GameConfiguration, dataVersion: string, seed: number) {
+  constructor(config: GameConfiguration, dataVersion: string, seed: number, settingsVersion = 0, onSettingsChanged?: () => void) {
     live.add(this);
     this.visibleSince = document.visibilityState === 'visible' ? performance.now() : null;
     document.addEventListener('visibilitychange', this.onVisibility);
     window.addEventListener('online', this.onOnline);
     this.attemptId = api.startAttempt({
-      topicId: config.topicId, dataVersion, mode: config.mode, count: config.count, seed,
+      topicId: config.topicId, dataVersion, mode: config.mode, count: config.count, seed, settingsVersion,
       ...(config.mode === 'practice' ? { showElapsed: config.showElapsed } : { timeLimitMinutes: config.timeLimitMinutes }),
     }).then(
       (r) => { if (this.status === 'starting') this.set('recording'); return r.attemptId; },
-      () => { this.set('unsaved'); this.cleanup(); return null; },
+      (e: unknown) => {
+        const outdated = e instanceof ApiFailure && e.code === 'settings_changed';
+        this.set(outdated ? 'outdated' : 'unsaved');
+        if (outdated) onSettingsChanged?.();
+        this.cleanup();
+        return null;
+      },
     );
   }
 
@@ -71,7 +78,7 @@ export class RoundRecorder {
     this.closed = true;
     this.stopVisible();
     this.finishBody = reason === 'completed' ? { reason, events: this.events, visibleMs: Math.round(this.visibleMs) } : { reason };
-    if (this.status === 'unsaved' || this.status === 'discarded') return;
+    if (this.status === 'unsaved' || this.status === 'outdated' || this.status === 'discarded') return;
     this.set('pending');
     void this.send();
   }
@@ -123,6 +130,6 @@ export class RoundRecorder {
     if (this.timer) { clearTimeout(this.timer); this.timer = null; }
     document.removeEventListener('visibilitychange', this.onVisibility);
     window.removeEventListener('online', this.onOnline);
-    if (this.closed || this.status === 'unsaved') live.delete(this);
+    if (this.closed || this.status === 'unsaved' || this.status === 'outdated') live.delete(this);
   }
 }

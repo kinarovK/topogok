@@ -18,6 +18,8 @@ export type MapAdapterOptions = {
   theme: ResolvedTheme;
   viewBounds: Bounds;
   maxBounds: Bounds;
+  /** F4: areas that are shown but cannot be selected (not asked by the teacher). */
+  disabledIds?: ReadonlySet<string> | undefined;
   onSelect: (featureId: string) => void;
   onReady: () => void;
   onError: (error: unknown) => void;
@@ -52,7 +54,8 @@ export function padBounds([w, s, e, n]: Bounds, ratio: number): Bounds {
 
 export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
   const kinds = new Map<string, RegionKind>(o.regions.map((r) => [r.id, r.properties.kind]));
-  const allowed = new Set(kinds.keys());
+  const disabled = o.disabledIds ?? new Set<string>();
+  const allowed = new Set([...kinds.keys()].filter((id) => !disabled.has(id)));
   let map: MlMap;
   try {
     map = new MlMap({
@@ -104,7 +107,7 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
     map.setPaintProperty('regions-highlight', 'line-color', highlightLineColor(theme));
   };
 
-  map.on('load', () => { ready = true; if (theme !== o.theme) applyTheme(); apply(); o.onReady(); });
+  map.on('load', () => { for (const id of disabled) map.setFeatureState({ source: 'regions', id }, { disabled: true }); ready = true; if (theme !== o.theme) applyTheme(); apply(); o.onReady(); });
   map.on('error', (e) => { if (!ready) o.onError(e.error); });
   map.on('click', (e) => {
     const hits = map.queryRenderedFeatures(e.point, { layers: [LAYER_REGIONS_FILL] })
@@ -112,7 +115,10 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
     const id = pickFeatureId(hits, allowed);
     if (id) o.onSelect(id); // empty hit: keep the current selection
   });
-  map.on('mousemove', LAYER_REGIONS_FILL, () => { map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mousemove', LAYER_REGIONS_FILL, (e) => {
+    const id = String(e.features?.[0]?.properties?.['id'] ?? '');
+    map.getCanvas().style.cursor = allowed.has(id) ? 'pointer' : '';
+  });
   map.on('mouseleave', LAYER_REGIONS_FILL, () => { map.getCanvas().style.cursor = ''; });
 
   const ro = new ResizeObserver(() => map.resize());
