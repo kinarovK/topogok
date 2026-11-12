@@ -1,5 +1,7 @@
 # Aktív feladat
 
+**F3 – Próbálkozások mentése és tanári panel:** a design a [F3_DESIGN.md](tasks/0003_ONLINE_PLATFORM/phases/F3_DESIGN.md) fájlban van, tulajdonosi jóváhagyásra vár (docs PR).
+
 **F2 – Fiókok és jogosultságok:** a design a [F2_DESIGN.md](tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN.md) fájlban van, tulajdonosi jóváhagyásra vár (docs PR). Az implementáció csak a jóváhagyás után indul.
 
 [0004_CONTINENTS_TOPIC](tasks/0004_CONTINENTS_TOPIC/task.md): a Kontinensek topója megvalósítva a `feat/continents-topic` ágon, PR-jóváhagyásra vár.
