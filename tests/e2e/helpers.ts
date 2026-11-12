@@ -107,12 +107,14 @@ export async function selectRegion(page: Page, id: string) {
   await clickRegion(page, id);
 }
 
-export async function start(page: Page, base: string, mode: 'practice' | 'assessment', count: '5' | '12' | 'all', limit?: string, topic: TopicKey = 'admin') {
+/** Practice starts at once with every feature (F4.5); only the assessment has a setup screen (count, no time limit). */
+export async function start(page: Page, base: string, mode: 'practice' | 'assessment', count: '5' | '12' | 'all' = 'all', topic: TopicKey = 'admin') {
   await openTopic(page, base, topic);
   await page.locator('button', { hasText: mode === 'practice' ? /^Gyakorlás|^Практика/ : /^Számonkérés|^Перевірка знань/ }).first().click();
-  await page.locator('label', { hasText: count === 'all' ? /Mindegyik|Усі/ : new RegExp(`^${count}$`) }).click();
-  if (limit) await page.locator('label', { hasText: new RegExp(`^${limit}$`) }).click();
-  await page.getByRole('button', { name: /Indítás|Почати/ }).click();
+  if (mode === 'assessment') {
+    await page.locator('label', { hasText: count === 'all' ? /Mindegyik|Усі/ : new RegExp(`^${count}$`) }).click();
+    await page.getByRole('button', { name: /Indítás|Почати/ }).click();
+  }
   await mapReady(page);
   await expect(page.locator('#question')).toContainText(/Keresd meg|Знайди/);
 }

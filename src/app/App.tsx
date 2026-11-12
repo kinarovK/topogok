@@ -107,7 +107,10 @@ export function App() {
         content = <HomeScreen onTopic={(topicId) => setView({ name: 'topic', topicId })} onHelp={() => setView({ name: 'help' })} onLogin={() => setView({ name: 'login' })} onManage={() => setView({ name: 'manage' })} />;
         break;
       case 'topic':
-        content = <TopicScreen topic={topicEntry(view.topicId)} onMode={(mode) => setView({ name: 'setup', topicId: view.topicId, mode })} onExplore={() => setView({ name: 'explore', topicId: view.topicId })} onBack={() => setView({ name: 'home' })} />;
+        content = <TopicScreen topic={topicEntry(view.topicId)} onMode={(mode) => (mode === 'practice'
+          // F4.5: practice starts at once with every allowed feature and the elapsed time shown.
+          ? startGame(view.topicId, { mode: 'practice', topicId: view.topicId, count: 'all', showElapsed: true })
+          : setView({ name: 'setup', topicId: view.topicId, mode }))} onExplore={() => setView({ name: 'explore', topicId: view.topicId })} onBack={() => setView({ name: 'home' })} />;
         break;
       case 'setup':
         content = <SetupScreen key={`${view.topicId}:${view.mode}`} mode={view.mode} topic={topic!} entry={topicEntry(view.topicId)} initial={lastSetup[`${view.topicId}:${view.mode}`]}

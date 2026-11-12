@@ -20,7 +20,7 @@
   "home": {
     "tagline": "Keresd meg a megnevezett területet a térképen.",
     "practice": "Gyakorlás",
-    "practiceDesc": "Azonnali visszajelzés, segítség és a hibák ismétlése.",
+    "practiceDesc": "Azonnal indul az összes elemmel: visszajelzés, segítség, a hibák ismétlése, közben látszik az eltelt idő.",
     "assessment": "Számonkérés",
     "assessmentDesc": "Tanári felügyelet mellett: egy válasz kérdésenként, a végén százalék és jegy.",
     "explore": "Térkép felfedezése",
@@ -33,19 +33,13 @@
     "chooseMode": "Mit szeretnél csinálni?"
   },
   "setup": {
-    "titlePractice": "Gyakorlás beállítása",
     "titleAssessment": "Számonkérés beállítása",
     "topic": "Téma",
     "count": "Kérdések száma",
     "all": "Mindegyik ({count})",
-    "showElapsed": "Eltelt idő mutatása",
-    "timeLimit": "Időkorlát",
-    "noLimit": "Nincs időkorlát",
-    "minutes": "{count} perc",
     "start": "Indítás",
     "rulesTitle": "Szabályok",
-    "rulesPractice": "Kérdésenként legfeljebb 3 próbálkozás: 100, 60 vagy 30 pont. A „Mutasd meg” 0 pontot ér. A hibázott feladatok a végén egyszer újra előkerülnek; ez nem változtat a pontszámon.",
-    "rulesAssessment": "Kérdésenként egy válasz, a kijelölés a véglegesítésig módosítható. Nincs visszalépés, kihagyás és helyességi visszajelzés. Lejáratkor a meg nem válaszolt kérdések hibásnak számítanak. Az idő nem számít bele a jegybe.",
+    "rulesAssessment": "Kérdésenként egy válasz, a kijelölés a véglegesítésig módosítható. Nincs visszalépés, kihagyás és helyességi visszajelzés. Nincs időkorlát; az idő nem számít bele a jegybe.",
     "teacherSelection": "Tanárod {count} elemet jelölt ki a {total}-ból."
   },
   "game": {
@@ -118,7 +112,7 @@
     "practiceTitle": "Gyakorlás",
     "practiceText": "Válassz egy területet, majd nyomd meg a „Válasz véglegesítése” gombot. Kérdésenként 3 próbálkozásod van: elsőre 100, másodikra 60, harmadikra 30 pont jár. A „Mutasd meg” felfedi a megoldást, ekkor 0 pont jár. A hibás vagy megmutatott feladatok a kör végén egyszer újra előkerülnek; ez a pontszámot nem módosítja.",
     "assessmentTitle": "Számonkérés",
-    "assessmentText": "Minden kérdésre egy válasz adható; a kijelölés a véglegesítésig módosítható. Nincs visszalépés, kihagyás és helyességi visszajelzés. Időkorlát esetén lejáratkor a meg nem válaszolt kérdések hibásnak számítanak. Az idő a jegyet nem befolyásolja.",
+    "assessmentText": "Minden kérdésre egy válasz adható; a kijelölés a véglegesítésig módosítható. Nincs visszalépés, kihagyás és helyességi visszajelzés. Nincs időkorlát, és az idő a jegyet nem befolyásolja.",
     "gradeTitle": "A jegy számítása",
     "gradeText": "A jegy 1–12-es skálán készül: a helyes válaszok arányát 12-vel szorozzuk, és felfelé kerekítjük; a legkisebb jegy 1. Például 9/12 → 9, 26/27 → 12. Kevés kérdésnél nem minden jegy érhető el. Ez a TopoGok saját számítása, nem hivatalos átváltás.",
     "smallTitle": "Kis területek",

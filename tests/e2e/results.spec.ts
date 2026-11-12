@@ -38,15 +38,11 @@ test('student round is saved; offline finish waits and is sent once back online;
   await context.setOffline(false);
   await expect(save).toHaveAttribute('data-status', 'saved', { timeout: 30_000 });
 
-  // No connection at the start: the round can still be played, but it is never shown as saved.
-  await page.goto(BASE);
-  await page.locator('[data-topic="ukraine-administration"]').click();
-  await page.locator('button', { hasText: /^Gyakorlás/ }).first().click();
-  await page.locator('label', { hasText: /^5$/ }).click();
-  await context.setOffline(true);
-  await page.getByRole('button', { name: 'Indítás' }).click();
+  // The start request fails: the round can still be played, but it is never shown as saved.
+  await page.route('**/api/attempts', (r) => r.abort());
+  await start(page, BASE, 'practice');
   await expect(page.getByTestId('round-unsaved')).toContainText('nem lesz mentve', { timeout: 30_000 });
-  await context.setOffline(false);
+  await page.unroute('**/api/attempts');
   await page.getByRole('button', { name: 'Kilépés', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Kilépés' }).click();
 });
