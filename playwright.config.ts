@@ -28,5 +28,7 @@ export default defineConfig({
     { command: 'node scripts/dev/serve.mjs dist-e2e 4174', port: 4174, reuseExistingServer: true },
     // Production build + the real API code on an in-memory SQLite database (accounts E2E).
     { command: 'node scripts/dev/serve.mjs dist 4176 --api', port: 4176, reuseExistingServer: false },
+    // E2E build + the real API (results E2E: a student plays rounds on the map, the teacher reads them).
+    { command: 'node scripts/dev/serve.mjs dist-e2e 4177 --api', port: 4177, reuseExistingServer: false },
   ],
 });

@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useAccount } from '../../account/account.tsx';
+import { RoundRecorder } from '../../account/recorder.ts';
 import { useSettings } from '../../app/settings.tsx';
 import { Button, ConfirmDialog } from '../../components/ui.tsx';
 import type { Topic } from '../../data/validation.ts';
@@ -13,14 +15,21 @@ import { topicEntry } from '../../data/topicRegistry.ts';
 import s from '../../app/app.module.css';
 
 const NO_FEEDBACK: Feedback = { wrongIds: [], correctId: null };
+const noSubscribe = () => () => undefined;
+const noStatus = () => null;
 
 const questionKeyFor = (g: GameState | null) => (g ? `${g.mode === 'practice' ? g.stage : 'a'}-${progress(g).position}` : 'none');
 
 export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRenderError }: {
-  topic: Topic; config: GameConfiguration; onFinish: (r: GameResult) => void; onRestart: () => void; onExit: () => void; onRenderError: () => void;
+  topic: Topic; config: GameConfiguration; onFinish: (r: GameResult, recorder: RoundRecorder | null) => void; onRestart: () => void; onExit: () => void; onRenderError: () => void;
 }) {
   const { t, locale } = useSettings();
   const [game, setGame] = useState<GameState | null>(null);
+  const gameRef = useRef<GameState | null>(null);
+  const { me } = useAccount();
+  const recordFor = me?.role === 'student' ? me.id : null;
+  const [recorder, setRecorder] = useState<RoundRecorder | null>(null);
+  const recorderRef = useRef<RoundRecorder | null>(null);
   const clockRef = useRef<Clock | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [dialog, setDialog] = useState<'restart' | 'exit' | null>(null);
@@ -35,17 +44,35 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
 
   const send = useCallback((make: (elapsedMs: number) => GameEvent) => {
     const clock = clockRef.current;
-    if (!clock) return;
+    const g = gameRef.current;
+    if (!clock || !g) return;
     const e = make(clock.elapsed());
-    setGame((g) => (g ? reduce(g, e) : g));
+    const next = reduce(g, e);
+    if (next === g) return;
+    gameRef.current = next;
+    recorderRef.current?.record(e);
+    setGame(next);
   }, []);
 
   // Start only when the map is selectable: loading time is not part of the round.
   const onMapReady = useCallback(() => {
     if (clockRef.current) return;
     clockRef.current = createClock(browserTimeSource);
-    setGame(startGame(config, ids, randomSeed()));
-  }, [config, ids]);
+    const seed = randomSeed();
+    const g = startGame(config, ids, seed);
+    gameRef.current = g;
+    setGame(g);
+    // Logged-in students: the round is saved (F3). The start request runs in the background.
+    if (recordFor) {
+      const r = new RoundRecorder(config, topicEntry(topic.manifest.id).dataVersion, seed);
+      recorderRef.current = r;
+      setRecorder(r);
+    }
+  }, [config, ids, recordFor, topic]);
+
+  // Leaving the round in any way (exit, restart, error, logout) closes it on the server as abandoned.
+  useEffect(() => () => { const r = recorderRef.current; if (r && !r.isClosed) r.finish('quit'); }, []);
+  const saveStatus = useSyncExternalStore(recorder?.subscribe ?? noSubscribe, recorder?.getStatus ?? noStatus);
 
   // Deadline checks: timer tick plus every return to the page.
   const limit = config.mode === 'assessment' ? limitMs(config.timeLimitMinutes) : null;
@@ -76,7 +103,8 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
   useEffect(() => {
     if (!game || game.phase !== 'finished' || finished.current) return;
     finished.current = true;
-    onFinish(game.mode === 'practice' ? practiceResult(game) : assessmentResult(game));
+    recorderRef.current?.finish('completed');
+    onFinish(game.mode === 'practice' ? practiceResult(game) : assessmentResult(game), recorderRef.current);
   }, [game, onFinish]);
 
   // Same reset for every question: country view.
@@ -173,6 +201,7 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
           </div>
         )}
         {config.mode === 'assessment' && <p className="visually-hidden" aria-live="polite">{announcement}</p>}
+        {saveStatus === 'unsaved' && <p className={s.note} data-testid="round-unsaved">{t('save.unsaved')}</p>}
         {topicEntry(topic.manifest.id).partialCoverage && <p className={s.note}>{t('game.greyHint')}</p>}
         <div className={s.stickyActions}>
           {inFeedback ? (

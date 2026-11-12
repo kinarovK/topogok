@@ -7,9 +7,10 @@ import { useSettings } from '../../app/settings.tsx';
 import { Button } from '../../components/ui.tsx';
 import app from '../../app/app.module.css';
 import { Field, TextInput, formatDate, useAction, usePasswordFields } from './common.tsx';
+import { ResultsPanel } from './ResultsPanel.tsx';
 import s from './account.module.css';
 
-type Tab = 'students' | 'classes' | 'teachers' | 'audit';
+type Tab = 'students' | 'classes' | 'results' | 'teachers' | 'audit';
 
 export function ManageScreen({ onBack }: { onBack: () => void }) {
   const { t } = useSettings();
@@ -25,8 +26,8 @@ export function ManageScreen({ onBack }: { onBack: () => void }) {
   useEffect(() => { loadTeachers().catch(() => undefined); }, [loadTeachers]);
   if (!me || me.role === 'student') return null;
   const scope = isAdmin ? teacherId : null;
-  const tabs: Tab[] = isAdmin ? ['teachers', 'students', 'classes', 'audit'] : ['students', 'classes'];
-  const scoped = tab === 'students' || tab === 'classes';
+  const tabs: Tab[] = isAdmin ? ['teachers', 'students', 'classes', 'results', 'audit'] : ['students', 'classes', 'results'];
+  const scoped = tab === 'students' || tab === 'classes' || tab === 'results';
   return (
     <div className={app.page}>
       <h1>{isAdmin ? t('account.admin') : t('account.manage')}</h1>
@@ -41,7 +42,8 @@ export function ManageScreen({ onBack }: { onBack: () => void }) {
         </Field>
       )}
       {tab === 'teachers' && isAdmin && <TeachersPanel teachers={teachers} reload={loadTeachers} />}
-      {scoped && (!isAdmin || scope) && (tab === 'students' ? <StudentsPanel key={scope ?? 'own'} scope={scope} isAdmin={isAdmin} /> : <ClassesPanel key={scope ?? 'own'} scope={scope} />)}
+      {scoped && (!isAdmin || scope) && (tab === 'students' ? <StudentsPanel key={scope ?? 'own'} scope={scope} isAdmin={isAdmin} />
+        : tab === 'classes' ? <ClassesPanel key={scope ?? 'own'} scope={scope} /> : <ResultsPanel key={scope ?? 'own'} scope={scope} />)}
       {tab === 'audit' && isAdmin && <AuditPanel />}
       <div className={app.actions}><Button onClick={onBack}>{t('common.back')}</Button></div>
     </div>
