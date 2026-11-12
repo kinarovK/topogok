@@ -1,8 +1,10 @@
 import { clickNext, confirmBtn, openTopic, currentTargetId, E2E, expect, mapReady, nextBtn, otherId, selectRegion, start, test } from './helpers.ts';
 
 test.describe('practice', () => {
-  test('T02–T05 mixed 5-question round: feedback, hidden answer, reveal, single review, 360/500', async ({ page }) => {
-    await start(page, E2E, 'practice', '5');
+  test('T02–T05 mixed round (11 tectonic units, F4.5: starts at once, elapsed time shown): feedback, hidden answer, reveal, single review, 960/1100', async ({ page }) => {
+    await start(page, E2E, 'practice', 'all', 'tectonics');
+    await expect(page.locator('main')).toContainText('Gyakorlás · 1 / 11');
+    await expect(page.getByRole('timer')).toBeVisible();
     const status = page.getByTestId('status');
     await expect(status).toContainText('Válassz egy területet');
     await expect(status).toContainText('Hátralévő próbálkozás: 3');
@@ -47,6 +49,15 @@ test.describe('practice', () => {
     await expect(nextBtn(page)).toHaveText('Következő');
     await clickNext(page);
 
+    // Q6–Q11 correct first try
+    for (let i = 0; i < 6; i++) {
+      id = await currentTargetId(page);
+      await selectRegion(page, id);
+      await confirmBtn(page).click();
+      await expect(status).toContainText('Helyes!');
+      await clickNext(page);
+    }
+
     // Review: 2 unique tasks, header says so; fail one completely, solve the other
     await expect(page.locator('main')).toContainText('Hibák ismétlése • 1 / 2');
     await expect(page.locator('main')).toContainText('Az eredeti pontszám nem változik.');
@@ -68,23 +79,23 @@ test.describe('practice', () => {
     await clickNext(page);
 
     await expect(page.getByTestId('result')).toBeVisible();
-    await expect(page.getByTestId('correct')).toHaveText('3 / 5');
-    await expect(page.getByTestId('percent')).toHaveText('60%');
-    await expect(page.getByTestId('points')).toHaveText('360 / 500');
+    await expect(page.getByTestId('correct')).toHaveText('9 / 11');
+    await expect(page.getByTestId('percent')).toHaveText('81,8%');
+    await expect(page.getByTestId('points')).toHaveText('960 / 1100');
     await expect(page.locator('main')).not.toContainText('Jegy');
   });
 
   test('double-clicking "confirm" does not skip the feedback', async ({ page }) => {
-    await start(page, E2E, 'practice', '5');
+    await start(page, E2E, 'practice');
     const id = await currentTargetId(page);
     await selectRegion(page, id);
     await confirmBtn(page).dblclick();
     await expect(page.getByTestId('status')).toContainText('Helyes!');
-    await expect(page.locator('main')).toContainText('Gyakorlás · 1 / 5');
+    await expect(page.locator('main')).toContainText('Gyakorlás · 1 / 27');
   });
 
   test('T13 all 27 regions selectable in a round; Kyiv and Sevastopol after zooming in; 2700/2700', async ({ page }) => {
-    await start(page, E2E, 'practice', 'all');
+    await start(page, E2E, 'practice');
     const seen = new Set<string>();
     for (let i = 0; i < 27; i++) {
       const id = await currentTargetId(page);
@@ -142,32 +153,22 @@ test.describe('assessment', () => {
     await expect(page.getByTestId('grade')).toHaveText('12 / 12-es jegy');
   });
 
-  test('T08/T10 5-minute limit with a selected but unconfirmed answer: timeout after background, N stays 5', async ({ page }) => {
-    await page.clock.install();
-    await start(page, E2E, 'assessment', '5', '5 perc');
-    await expect(page.getByRole('timer')).toHaveText(/0[45]:\d\d/);
-    for (let i = 0; i < 2; i++) {
-      const id = await currentTargetId(page);
-      await selectRegion(page, id);
-      await confirmBtn(page).click();
-    }
-    const id = await currentTargetId(page);
-    await selectRegion(page, id); // selected, never confirmed
-    // Simulate the tab being hidden while time passes, then coming back.
-    await page.evaluate(() => { Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
-    await page.clock.fastForward('06:00');
-    await page.evaluate(() => { Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
-    await expect(page.getByTestId('result')).toBeVisible();
-    await expect(page.locator('main')).toContainText('Lejárt az idő.');
-    await expect(page.getByTestId('correct')).toHaveText('2 / 5');
-    await expect(page.getByTestId('duration')).toHaveText('05:00');
-    await expect(page.getByTestId('grade')).toHaveText('5 / 12-es jegy');
+  test('F4.5: the assessment setup offers question counts but no time limit; the round has no countdown', async ({ page }) => {
+    await openTopic(page, E2E);
+    await page.getByRole('button', { name: /^Számonkérés/ }).click();
+    await expect(page.locator('main')).not.toContainText('Időkorlát');
+    await expect(page.locator('fieldset').first().locator('label')).toHaveText(['5', '12', 'Mindegyik (27)']);
+    await page.locator('label', { hasText: /^5$/ }).click();
+    await page.getByRole('button', { name: 'Indítás' }).click();
+    await mapReady(page);
+    await expect(page.locator('main')).toContainText('Számonkérés · 1 / 5');
+    await expect(page.getByRole('timer')).toHaveCount(0);
   });
 });
 
 test.describe('round controls', () => {
   test('T11/T16 restart and exit dialogs; language and theme switch keep the round; reload returns home with nothing stored', async ({ page }) => {
-    await start(page, E2E, 'practice', '12');
+    await start(page, E2E, 'practice');
     const q1 = await currentTargetId(page);
     const wrong = otherId(q1);
     await selectRegion(page, wrong);
@@ -180,7 +181,7 @@ test.describe('round controls', () => {
     await page.getByLabel('Вигляд', { exact: true }).selectOption('dark');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     expect(await currentTargetId(page)).toBe(q1);
-    await expect(page.locator('main')).toContainText('Практика · 1 / 12');
+    await expect(page.locator('main')).toContainText('Практика · 1 / 27');
     await expect(page.getByTestId('status')).toContainText('Залишилося спроб: 2');
 
     // Restart: cancel keeps everything (Escape = safe choice)
@@ -197,7 +198,7 @@ test.describe('round controls', () => {
     await page.getByRole('button', { name: 'Почати заново' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Нове коло' }).click();
     await mapReady(page);
-    await expect(page.locator('main')).toContainText('Практика · 1 / 12');
+    await expect(page.locator('main')).toContainText('Практика · 1 / 27');
     await expect(page.getByTestId('status')).toContainText('Залишилося спроб: 3');
 
     // Reload: home, only the preference key in storage
@@ -215,7 +216,7 @@ test.describe('round controls', () => {
     expect(JSON.parse(await page.evaluate(() => localStorage.getItem('topogok.preferences.v1')!))).toEqual({ theme: 'dark', locale: 'uk' });
 
     // Exit with confirmation
-    await start(page, E2E, 'practice', '5');
+    await start(page, E2E, 'practice');
     await page.getByRole('button', { name: 'Вийти' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Вийти' }).click();
     await expect(page.locator('#question')).toHaveCount(0);
@@ -223,14 +224,14 @@ test.describe('round controls', () => {
 });
 
 test.describe('tectonics topic', () => {
-  test('practice: only 5/all offered, grey background land is not an answer, all 11 units selectable (1100/1100)', async ({ page }) => {
+  test('assessment offers only 5/all; practice starts at once: grey background land is not an answer, all 11 units selectable (1100/1100)', async ({ page }) => {
     await openTopic(page, E2E, 'tectonics');
     await expect(page.locator('h1')).toHaveText('Ukrajna tektonikai szerkezete');
-    await page.getByRole('button', { name: /^Gyakorlás/ }).click();
+    await page.getByRole('button', { name: /^Számonkérés/ }).click();
     await expect(page.locator('label', { hasText: /^12$/ })).toHaveCount(0);
     await expect(page.locator('label', { hasText: 'Mindegyik (11)' })).toBeVisible();
-    await page.locator('label', { hasText: 'Mindegyik (11)' }).click();
-    await page.getByRole('button', { name: 'Indítás' }).click();
+    await page.getByRole('button', { name: 'Vissza' }).click();
+    await page.getByRole('button', { name: /^Gyakorlás/ }).click();
     await mapReady(page);
     await expect(page.locator('main')).toContainText('A szürke területek nem tartoznak a kérdezett egységekhez.');
 
@@ -263,7 +264,7 @@ test.describe('tectonics topic', () => {
 
   test('assessment: 4/5 → 80%, grade 10, in Ukrainian', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('topogok.preferences.v1', JSON.stringify({ locale: 'uk', theme: 'light' })));
-    await start(page, E2E, 'assessment', '5', undefined, 'tectonics');
+    await start(page, E2E, 'assessment', '5', 'tectonics');
     for (let i = 0; i < 5; i++) {
       const id = await currentTargetId(page);
       await selectRegion(page, i === 0 ? otherId(id) : id);
@@ -282,9 +283,6 @@ test.describe('continents topic', () => {
     await openTopic(page, E2E, 'world');
     await expect(page.locator('h1')).toHaveText('Kontinensek topója');
     await page.getByRole('button', { name: /^Gyakorlás/ }).click();
-    await expect(page.locator('label', { hasText: /^12$/ })).toHaveCount(0);
-    await page.locator('label', { hasText: 'Mindegyik (11)' }).click();
-    await page.getByRole('button', { name: 'Indítás' }).click();
     await mapReady(page);
     await expect(page.locator('main')).toContainText('A szürke területek nem tartoznak a kérdezett egységekhez.');
 
@@ -320,7 +318,7 @@ test.describe('continents topic', () => {
 
   test('assessment in Ukrainian: 4/5 → 80%, grade 10', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('topogok.preferences.v1', JSON.stringify({ locale: 'uk', theme: 'dark' })));
-    await start(page, E2E, 'assessment', '5', undefined, 'world');
+    await start(page, E2E, 'assessment', '5', 'world');
     for (let i = 0; i < 5; i++) {
       const id = await currentTargetId(page);
       await selectRegion(page, i === 0 ? otherId(id) : id);
