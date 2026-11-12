@@ -7,7 +7,7 @@ import { className, fullName, idParam, nameKey, normalizeLogin, passwordInput } 
 
 const uuid = () => crypto.randomUUID();
 
-async function audit(ctx: Ctx, actor: string | null, action: string, targetType: string | null, targetId: string | null, scope: string | null, details?: Record<string, unknown>) {
+export async function audit(ctx: Ctx, actor: string | null, action: string, targetType: string | null, targetId: string | null, scope: string | null, details?: Record<string, unknown>) {
   await ctx.db.prepare('INSERT INTO audit_log (at, actor_id, action, target_type, target_id, teacher_scope, details) VALUES (?, ?, ?, ?, ?, ?, ?)')
     .bind(ctx.now, actor, action, targetType, targetId, scope, details ? JSON.stringify(details) : null).run();
 }

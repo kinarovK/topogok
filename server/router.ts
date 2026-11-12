@@ -1,12 +1,13 @@
 import * as admin from './admin.ts';
 import * as attempts from './attempts.ts';
+import { listSettings, loadSettings, saveSetting } from './topicSettings.ts';
 import { checkCsrf, currentSession, login, logout, meBody, requireSession, saltFor, type Ctx } from './auth.ts';
 import type { Env } from './types.ts';
 import { ApiError, fail, json } from './util.ts';
 import { readBody } from './validate.ts';
 
-export const SCHEMA_VERSION = 2;
-const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts'];
+export const SCHEMA_VERSION = 3;
+const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts', 'topic_settings'];
 
 /** Entry point for every /api/* request (Cloudflare Pages Function and the local test server). */
 export async function handle(request: Request, env: Env, now = Date.now()): Promise<Response> {
@@ -30,7 +31,9 @@ export async function handle(request: Request, env: Env, now = Date.now()): Prom
       case 'GET /api/me': {
         const s = await currentSession(ctx);
         if (!s) return json({ user: null });
-        return json({ user: meBody(s) }, 200, s.extendCookie ? { 'set-cookie': s.extendCookie } : {});
+        // Students get their teacher's question sets with the session (no extra request per round, F4).
+        const topicSettings = s.user.role === 'student' && s.user.teacher_id ? await loadSettings(ctx.db, s.user.teacher_id) : undefined;
+        return json({ user: { ...meBody(s), ...(topicSettings ? { topicSettings } : {}) } }, 200, s.extendCookie ? { 'set-cookie': s.extendCookie } : {});
       }
     }
 
@@ -39,6 +42,9 @@ export async function handle(request: Request, env: Env, now = Date.now()): Prom
     const m = path.match(/^\/api\/(classes|students|teachers)(?:\/([^/]+))?(?:\/(password))?$/);
     if (path === '/api/audit' && request.method === 'GET') return withCookie(await admin.listAudit(ctx, s, q));
     if (path === '/api/attempts' && request.method === 'POST') return withCookie(await attempts.startAttempt(ctx, s, body));
+    if (path === '/api/topic-settings' && request.method === 'GET') return withCookie(await listSettings(ctx, s, q));
+    const ts = path.match(/^\/api\/topic-settings\/([a-z0-9-]+)$/);
+    if (ts && request.method === 'PUT') return withCookie(await saveSetting(ctx, s, ts[1]!, body));
     if (path === '/api/report' && request.method === 'GET') return withCookie(await attempts.report(ctx, s, q));
     const am = path.match(/^\/api\/attempts\/([^/]+)\/finish$/);
     if (am && request.method === 'POST') return withCookie(await attempts.finishAttempt(ctx, s, am[1]!, body));
