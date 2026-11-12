@@ -12,9 +12,7 @@ test('T19 after the first full load everything works offline: both languages, bo
   await page.locator('[data-topic="ukraine-tectonics"]').click();
   await page.getByLabel('Nyelv', { exact: true }).selectOption('uk');
   await page.getByLabel('Вигляд', { exact: true }).selectOption('dark');
-  await page.getByRole('button', { name: /^Практика/ }).click();
-  await page.locator('label', { hasText: /^5$/ }).click();
-  await page.getByRole('button', { name: 'Почати' }).click();
+  await page.getByRole('button', { name: /^Практика/ }).click(); // F4.5: starts at once
   await mapReady(page);
   const map = page.locator('[data-map="main"]');
   const box = (await map.boundingBox())!;
@@ -54,8 +52,7 @@ test.describe('updates', () => {
     await expect(playing.getByText('Az alkalmazás offline is használható.')).toBeVisible({ timeout: 30_000 });
     await playing.reload(); // now controlled by SW A
     await playing.locator('[data-topic="ukraine-administration"]').click();
-    await playing.getByRole('button', { name: /^Gyakorlás/ }).click();
-    await playing.getByRole('button', { name: 'Indítás' }).click();
+    await playing.getByRole('button', { name: /^Gyakorlás/ }).click(); // F4.5: starts at once
     await mapReady(playing);
     const question = await playing.locator('#question').innerText();
     await playing.evaluate(() => { (window as unknown as { marker: number }).marker = 42; });
