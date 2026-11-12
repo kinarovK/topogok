@@ -1,10 +1,12 @@
 import * as admin from './admin.ts';
+import * as attempts from './attempts.ts';
 import { checkCsrf, currentSession, login, logout, meBody, requireSession, saltFor, type Ctx } from './auth.ts';
 import type { Env } from './types.ts';
 import { ApiError, fail, json } from './util.ts';
 import { readBody } from './validate.ts';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
+const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts'];
 
 /** Entry point for every /api/* request (Cloudflare Pages Function and the local test server). */
 export async function handle(request: Request, env: Env, now = Date.now()): Promise<Response> {
@@ -36,6 +38,12 @@ export async function handle(request: Request, env: Env, now = Date.now()): Prom
     const withCookie = (r: Response) => { if (s.extendCookie) r.headers.append('set-cookie', s.extendCookie); return r; };
     const m = path.match(/^\/api\/(classes|students|teachers)(?:\/([^/]+))?(?:\/(password))?$/);
     if (path === '/api/audit' && request.method === 'GET') return withCookie(await admin.listAudit(ctx, s, q));
+    if (path === '/api/attempts' && request.method === 'POST') return withCookie(await attempts.startAttempt(ctx, s, body));
+    if (path === '/api/report' && request.method === 'GET') return withCookie(await attempts.report(ctx, s, q));
+    const am = path.match(/^\/api\/attempts\/([^/]+)\/finish$/);
+    if (am && request.method === 'POST') return withCookie(await attempts.finishAttempt(ctx, s, am[1]!, body));
+    const dm = path.match(/^\/api\/report\/attempts\/([^/]+)$/);
+    if (dm && request.method === 'DELETE') return withCookie(await attempts.deleteAttempt(ctx, s, dm[1]!, body));
     if (m) {
       const [, kind, id, sub] = m;
       const key = `${request.method} ${kind}${id ? '/:id' : ''}${sub ? '/password' : ''}`;
@@ -70,8 +78,8 @@ async function health(env: Env): Promise<Response> {
   let db = false; let schema: number | null = null;
   if (env.DB) {
     try {
-      const r = await env.DB.prepare("SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table' AND name IN ('users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes')").first<{ n: number }>();
-      db = true; schema = r?.n === 6 ? SCHEMA_VERSION : 0;
+      const r = await env.DB.prepare(`SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table' AND name IN (${SCHEMA_TABLES.map(() => '?').join(', ')})`).bind(...SCHEMA_TABLES).first<{ n: number }>();
+      db = true; schema = r?.n === SCHEMA_TABLES.length ? SCHEMA_VERSION : 0;
     } catch { db = false; }
   }
   // Presence and length only — never the values.

@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { api, ApiFailure, type Me } from './api.ts';
+import { discardAllRounds } from './recorder.ts';
 
 /**
  * unknown: still asking the server; guest: no session (or no API, e.g. offline) — the app works as before.
@@ -37,6 +38,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     refresh,
     async login(login, password) { await api.login(login, password); await refresh(); },
     async logout() {
+      discardAllRounds(); // pending saves belong to the user who played them (F3_DESIGN §3)
       try { await api.logout(); } finally {
         try { sessionStorage.clear(); } catch { /* storage may be unavailable */ }
         setState({ status: 'guest', offline: false });

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "data:build": "node scripts/data/build.ts",
-    "data:validate": "node scripts/data/build.ts --check && python3 scripts/data/world/derive.py --no-preview && node scripts/data/world/build.ts --check",
+    "data:validate": "node scripts/data/build.ts --check && python3 scripts/data/world/derive.py --no-preview && node scripts/data/world/build.ts --check && node scripts/data/gen-server-topics.mjs --check",
     "test": "node --test --test-reporter=spec \"tests/unit/**/*.test.ts\"",
     "test:api": "node --test --test-reporter=spec \"tests/api/**/*.test.ts\"",
     "typecheck": "tsc -p .",

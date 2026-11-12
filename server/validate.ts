@@ -40,7 +40,7 @@ export function idParam(v: unknown): string {
 export async function readBody(request: Request): Promise<Record<string, unknown>> {
   if (request.method === 'GET') return {};
   const text = await request.text();
-  if (text.length > 16_384) fail(413, 'too_large');
+  if (text.length > 65_536) fail(413, 'too_large'); // a finished round's event log fits easily
   if (!text) return {};
   try {
     const v = JSON.parse(text) as unknown;

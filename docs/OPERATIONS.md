@@ -96,3 +96,10 @@ Részletes terv: [F2_DESIGN](project/tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN
 
     Visszaállítás után kötelező minden munkamenetet visszavonni: `UPDATE sessions SET revoked_at = <most>`.
 - **Helyi futtatás:** a `node scripts/dev/serve.mjs dist 4176 --api` a valódi API-kódot futtatja memóriabeli SQLite-on. A beállítási kód: `local-setup-code-0123456789`.
+
+## Körök és tanári eredmények (F3)
+
+- Migráció: `0002_attempts.sql` (új `attempts` tábla, `sessions.last_report_at` oszlop); a CI a deploy előtt alkalmazza, a smoke `schema=2`-t vár a `/api/health` válaszban.
+- Új téma vagy adatverzió esetén a `node scripts/data/gen-server-topics.mjs` újragenerálja a `server/topics.generated.ts` fájlt (a szerver ebből ellenőrzi a kérdéseket); a `data:validate` hibát ad, ha elfelejtődik.
+- Terhelés: körönként 2 kérés és 2 írás (+1 olvasás a lezáráskor). 100 diák × napi 10 kör ≈ 2 000 kérés és 2 000 írás naponta, jóval az ingyenes keret alatt.
+- Törölt kör: csak jelölés (`deleted_at`, `delete_reason`), a sor és a naplóbejegyzés megmarad.

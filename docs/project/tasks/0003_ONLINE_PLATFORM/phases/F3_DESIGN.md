@@ -165,3 +165,15 @@ A többi feltétel változatlan.
    - kliens: indítás, lezárás, mentési jelzés;
    - tanári „Eredmények” fül hu és uk nyelven;
    - tesztek.
+
+## 11. Megvalósítás (2026-11-12) és eltérések a tervtől
+
+Ág: `f3/attempts`. Kód: `migrations/0002_attempts.sql`, `server/attempts.ts`, `server/topics.generated.ts` (a `scripts/data/gen-server-topics.mjs` generálja, a `data:validate` ellenőrzi), `src/account/recorder.ts`, `src/features/account/ResultsPanel.tsx`. Tesztek: `tests/api/attempts.test.ts` (7), `tests/e2e/results.spec.ts` (2).
+
+Tudatos eltérések, mindegyik a karcsú cél érdekében:
+
+- **A seedet a böngésző adja**, nem a szerver. Így az indítás valóban nem akasztja meg a játékot (3. pont). A szerver a kapott seedből maga számolja ki és tárolja a kérdéssort, és ezzel játssza újra a kört, tehát a seed ismerete nem ad előnyt: a válaszokat továbbra is a térképen kell megadni.
+- **Egy riport-végpont:** `GET /api/report` egy kérésben adja az összesítést és a körlista első 50 sorát; a további oldalak (`before` kurzor) nem esnek a 10 s-os korlát alá. Törlés: `DELETE /api/report/attempts/:id`.
+- **Határidő:** kérdésenkénti beérkezési idő nélkül a szerver nem tudja kérdésenként eldönteni, melyik válasz jött a határidő után. Az időt a böngésző monoton órája méri, a visszajátszás a korlátnál lezárja a kört (`expired`), a szerver pedig elutasítja, ha a játékidő több, mint az indítás óta eltelt valós idő + 5 s. Ha a lezárás a határidő + 30 s után érkezik (pl. hálózatkiesés miatt), a kör megmarad, de „Késve beérkezett lezárás” jelzést kap a tanári listában.
+- A szabálytalan kör (`invalid`) oka a tanári listában látszik (`illegal_event`, `unknown_feature`, `time_backwards`, `not_finished`, `time_inconsistent`).
+- Nyitott: a visszaállítás próbája a preview-adatbázison (F3-12) a merge után, kézi `backup` futtatással.

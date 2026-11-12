@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useSyncExternalStore } from 'react';
+import type { RoundRecorder } from '../../account/recorder.ts';
 import { useSettings } from '../../app/settings.tsx';
 import { Button } from '../../components/ui.tsx';
 import { formatDuration } from '../../domain/clock.ts';
@@ -6,7 +7,7 @@ import type { GameResult } from '../../domain/types.ts';
 import { formatPercent } from '../../i18n/translator.ts';
 import s from '../../app/app.module.css';
 
-export function ResultScreen({ result, onNewRound, onHome }: { result: GameResult; onNewRound: () => void; onHome: () => void }) {
+export function ResultScreen({ result, recorder, onNewRound, onHome }: { result: GameResult; recorder: RoundRecorder | null; onNewRound: () => void; onHome: () => void }) {
   const { t, locale } = useSettings();
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => { headingRef.current?.focus(); }, []);
@@ -31,11 +32,27 @@ export function ResultScreen({ result, onNewRound, onHome }: { result: GameResul
           </>
         )}
       </dl>
-      <p className={s.note}>{t('result.notSaved')}</p>
+      {recorder ? <SaveIndicator recorder={recorder} /> : <p className={s.note}>{t('result.notSaved')}</p>}
       <div className={s.actions}>
         <Button variant="primary" onClick={onNewRound}>{t('result.newRound')}</Button>
         <Button onClick={onHome}>{t('result.home')}</Button>
       </div>
     </div>
+  );
+}
+
+/** Save state of a logged-in student's round. A round is never shown as saved before the server confirmed it. */
+function SaveIndicator({ recorder }: { recorder: RoundRecorder }) {
+  const { t } = useSettings();
+  const status = useSyncExternalStore(recorder.subscribe, recorder.getStatus);
+  const text = {
+    starting: t('save.pending'), recording: t('save.pending'), pending: t('save.pending'), saved: t('save.saved'),
+    failed: t('save.failed'), rejected: t('save.rejected'), unsaved: t('save.unsaved'), discarded: t('save.discarded'),
+  }[status];
+  return (
+    <p className={s.note} role="status" data-testid="save-status" data-status={status}>
+      {status === 'saved' ? '✓ ' : ''}{text}
+      {status === 'failed' && <> <Button variant="ghost" onClick={() => recorder.retry()}>{t('save.retry')}</Button></>}
+    </p>
   );
 }

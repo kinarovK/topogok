@@ -229,7 +229,56 @@
       "invalid_code": "Érvénytelen vagy lejárt kód.",
       "offline": "Nincs internetkapcsolat.",
       "unauthenticated": "Lejárt a belépés. Lépj be újra.",
-      "generic": "Hiba történt. Próbáld újra."
+      "generic": "Hiba történt. Próbáld újra.",
+      "invalid_reason": "Adj meg indoklást (legalább 3 karakter)."
+    },
+    "results": "Eredmények"
+  },
+  "save": {
+    "pending": "Mentés függőben… (a kapcsolat helyreálltakor automatikusan elküldjük)",
+    "saved": "Mentve",
+    "failed": "Nem sikerült menteni.",
+    "retry": "Újra",
+    "rejected": "A szerver nem fogadta el ezt a kört, ezért nem számít bele az eredményekbe.",
+    "unsaved": "Ez a kör nem lesz mentve (nem sikerült elérni a szervert az indításkor).",
+    "discarded": "Kijelentkezés miatt ez a kör nem lett mentve."
+  },
+  "report": {
+    "title": "Eredmények",
+    "student": "Diák",
+    "allStudents": "Minden diák",
+    "topic": "Téma",
+    "allTopics": "Minden téma",
+    "mode": "Mód",
+    "allModes": "Minden mód",
+    "allStatuses": "Minden állapot",
+    "from": "Ettől",
+    "to": "Eddig",
+    "refresh": "Frissítés",
+    "updated": "Utolsó frissítés: {time}",
+    "wait": "Túl gyakori frissítés. Próbáld újra {seconds} másodperc múlva.",
+    "summary": "Összesítés diákonként",
+    "rounds": "Körök",
+    "counts": "Indított: {started} · befejezett: {finished} · lejárt: {expired} · megszakított: {abandoned} · szabálytalan: {invalid}",
+    "inProgress": "folyamatban: {count}",
+    "time": "Idő: {total} (látható: {visible})",
+    "last": "Legutóbbi",
+    "bestFull": "Legjobb (teljes kör)",
+    "pointsShort": "{points}/{max} pont",
+    "allQuestions": "összes kérdés",
+    "questions": "{count} kérdés",
+    "limit": "{minutes} perc",
+    "incomplete": "Hiányos időadat.",
+    "late": "Késve beérkezett lezárás.",
+    "invalidReason": "Ok: {reason}",
+    "deleteReason": "A törlés indoka",
+    "deleteConfirm": "Törlés",
+    "status": {
+      "finished": "befejezett",
+      "expired": "lejárt",
+      "abandoned": "megszakított",
+      "invalid": "szabálytalan",
+      "in_progress": "folyamatban"
     }
   }
 }

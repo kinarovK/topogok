@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { getTopic, topicEntry, type TopicId } from '../data/topicRegistry.ts';
 import { DataError, type Topic } from '../data/validation.ts';
+import type { RoundRecorder } from '../account/recorder.ts';
 import type { AssessmentConfiguration, GameConfiguration, GameResult, Mode, PracticeConfiguration } from '../domain/types.ts';
 import { GameScreen } from '../features/game/GameScreen.tsx';
 import { HomeScreen, TopicScreen } from '../features/home/HomeScreen.tsx';
@@ -21,7 +22,7 @@ type View =
   | { name: 'topic'; topicId: TopicId }
   | { name: 'setup'; topicId: TopicId; mode: Mode }
   | { name: 'game'; topicId: TopicId; config: GameConfiguration; round: number }
-  | { name: 'results'; topicId: TopicId; config: GameConfiguration; result: GameResult }
+  | { name: 'results'; topicId: TopicId; config: GameConfiguration; result: GameResult; recorder: RoundRecorder | null }
   | { name: 'explore'; topicId: TopicId }
   | { name: 'help' }
   | { name: 'login' }
@@ -115,14 +116,14 @@ export function App() {
       case 'game':
         content = (
           <GameScreen key={view.round} topic={topic!} config={view.config}
-            onFinish={(result) => setView({ name: 'results', topicId: view.topicId, config: view.config, result })}
+            onFinish={(result, recorder) => setView({ name: 'results', topicId: view.topicId, config: view.config, result, recorder })}
             onRestart={() => setView({ name: 'game', topicId: view.topicId, config: view.config, round: Date.now() })}
             onExit={() => setView({ name: 'topic', topicId: view.topicId })}
             onRenderError={() => setRenderError(true)} />
         );
         break;
       case 'results':
-        content = <ResultScreen result={view.result} onNewRound={() => startGame(view.topicId, view.config)} onHome={() => setView({ name: 'home' })} />;
+        content = <ResultScreen result={view.result} recorder={view.recorder} onNewRound={() => startGame(view.topicId, view.config)} onHome={() => setView({ name: 'home' })} />;
         break;
       case 'explore':
         content = <ExploreScreen topic={topic!} onBack={() => setView({ name: 'topic', topicId: view.topicId })} onRenderError={() => setRenderError(true)} />;

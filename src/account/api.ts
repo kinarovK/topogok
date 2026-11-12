@@ -8,6 +8,25 @@ export type Student = { id: string; login: string; fullName: string; status: 'ac
 export type Teacher = { id: string; login: string; fullName: string; status: 'active' | 'disabled'; studentCount: number; createdAt: number; passwordChangedAt: number };
 export type AuditEntry = { id: number; at: number; actor: string | null; action: string; targetType: string | null; targetId: string | null; details: Record<string, unknown> | null };
 
+export type WireEvent = { type: 'SELECT'; t: number; f: string } | { type: 'CONFIRM' | 'REVEAL' | 'NEXT' | 'TIME_CHECK'; t: number };
+export type AttemptStart = { topicId: string; dataVersion: string; mode: 'practice' | 'assessment'; count: number | 'all'; showElapsed?: boolean; timeLimitMinutes?: number | null; seed: number };
+export type AttemptResult = { attemptId: string; status: AttemptStatus; percent: number | null; points: number | null; maxPoints: number | null; correct: number | null; total: number | null; grade: number | null; durationMs: number | null };
+export type AttemptStatus = 'in_progress' | 'started' | 'finished' | 'expired' | 'abandoned' | 'invalid';
+export type ReportFilters = { teacherId?: string | null; classId?: string | null; studentId?: string | null; topicId?: string | null; mode?: string | null; status?: string | null; from?: number | null; to?: number | null };
+export type ReportSummary = {
+  studentId: string; fullName: string; login: string; className: string; mode: 'practice' | 'assessment';
+  started: number; finished: number; expired: number; abandoned: number; invalid: number; inProgress: number;
+  durationMs: number; visibleMs: number; bestFullPercent: number | null; bestFullGrade: number | null;
+  last: { percent: number | null; points: number | null; maxPoints: number | null; correct: number | null; total: number | null; grade: number | null; topicId: string } | null;
+};
+export type ReportAttempt = {
+  id: string; studentId: string; fullName: string; login: string; className: string; topicId: string; mode: 'practice' | 'assessment';
+  count: string; isFull: boolean; timeLimitMinutes: number | null; status: AttemptStatus; startedAt: number; durationMs: number | null; visibleMs: number | null;
+  timingComplete: boolean; lateFinish: boolean; percent: number | null; points: number | null; maxPoints: number | null; correct: number | null; total: number | null;
+  grade: number | null; invalidReason: string | null;
+};
+export type Report = { generatedAt: number; summary: ReportSummary[] | null; attempts: ReportAttempt[]; nextBefore: number | null };
+
 export class ApiFailure extends Error {
   readonly status: number;
   readonly code: string;
@@ -84,5 +103,13 @@ export const api = {
   async setTeacherPassword(id: string, password: string) {
     return call('POST', `/api/teachers/${id}/password`, await passwordPayload(password));
   },
+  startAttempt: (body: AttemptStart) => call<{ attemptId: string }>('POST', '/api/attempts', body),
+  finishAttempt: (id: string, body: { reason: 'completed' | 'quit'; events?: WireEvent[]; visibleMs?: number }) =>
+    call<{ result: AttemptResult }>('POST', `/api/attempts/${id}/finish`, body).then((r) => r.result),
+  report: (f: ReportFilters, before: number | null = null) => call<Report>('GET', `/api/report${qs({
+    teacherId: f.teacherId, classId: f.classId, studentId: f.studentId, topicId: f.topicId, mode: f.mode, status: f.status,
+    from: f.from ? String(f.from) : null, to: f.to ? String(f.to) : null, before: before ? String(before) : null,
+  })}`),
+  deleteAttempt: (teacherId: string | null, id: string, reason: string) => call('DELETE', `/api/report/attempts/${id}`, { ...scope(teacherId), reason }),
   audit: (before: number | null) => call<{ entries: AuditEntry[] }>('GET', `/api/audit${qs({ before: before ? String(before) : null })}`).then((r) => r.entries),
 };
