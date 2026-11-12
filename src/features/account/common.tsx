@@ -1,4 +1,4 @@
-import { useId, useState, type ComponentProps, type ReactNode } from 'react';
+import { useCallback, useId, useState, type ComponentProps, type ReactNode } from 'react';
 import { PASSWORD_MIN_LENGTH } from '../../../shared/kdf.ts';
 import { ApiFailure } from '../../account/api.ts';
 import { useSettings } from '../../app/settings.tsx';
@@ -14,9 +14,10 @@ export function TextInput(props: ComponentProps<'input'>) {
 }
 
 /** Localized message for an API failure or a local validation code. */
+/** Stable per language, so effects that depend on it do not re-run (and re-request) on every render. */
 export function useErrorText() {
   const { t } = useSettings();
-  return (e: unknown): string => {
+  return useCallback((e: unknown): string => {
     const code = e instanceof ApiFailure ? e.code : e instanceof Error ? e.message : 'generic';
     if (code === 'rate_limited') {
       const secs = e instanceof ApiFailure ? e.retryAfterSeconds ?? 60 : 60;
@@ -24,7 +25,7 @@ export function useErrorText() {
     }
     if (code === 'password_short') return t('account.err.password_short', { min: PASSWORD_MIN_LENGTH });
     return code in dictionaries.hu.account.err ? t(`account.err.${code}` as MessageKey) : t('account.err.generic');
-  };
+  }, [t]);
 }
 
 /** Two password fields with the length rule; validate() throws a coded Error for useErrorText. */

@@ -97,6 +97,12 @@ Részletes terv: [F2_DESIGN](project/tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN
     Visszaállítás után kötelező minden munkamenetet visszavonni: `UPDATE sessions SET revoked_at = <most>`.
 - **Helyi futtatás:** a `node scripts/dev/serve.mjs dist 4176 --api` a valódi API-kódot futtatja memóriabeli SQLite-on. A beállítási kód: `local-setup-code-0123456789`.
 
+## Toplista és rekord (F5)
+
+- Migráció: `0004_leaderboard.sql`. A smoke `schema=4`-et vár.
+- A toplista fiókonként percenként egyszer kérhető le (`users.last_leaderboard_at`). A rekord a téma oldalán 1 olvasás.
+- Hogy egy kör toplistás-e, azt a szerver a lekérdezéskor dönti el. Törlés, kizárás, archiválás vagy új időszak után nincs mit újraszámolni.
+
 ## Tanári elemkészletek (F4)
 
 - Migráció: `0003_topic_settings.sql`. A smoke `schema=3`-at vár.

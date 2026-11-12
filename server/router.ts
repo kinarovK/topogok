@@ -1,13 +1,14 @@
 import * as admin from './admin.ts';
 import * as attempts from './attempts.ts';
+import * as board from './leaderboard.ts';
 import { listSettings, loadSettings, saveSetting } from './topicSettings.ts';
 import { checkCsrf, currentSession, login, logout, meBody, requireSession, saltFor, type Ctx } from './auth.ts';
 import type { Env } from './types.ts';
 import { ApiError, fail, json } from './util.ts';
 import { readBody } from './validate.ts';
 
-export const SCHEMA_VERSION = 3;
-const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts', 'topic_settings'];
+export const SCHEMA_VERSION = 4;
+const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts', 'topic_settings', 'lb_periods'];
 
 /** Entry point for every /api/* request (Cloudflare Pages Function and the local test server). */
 export async function handle(request: Request, env: Env, now = Date.now()): Promise<Response> {
@@ -45,6 +46,11 @@ export async function handle(request: Request, env: Env, now = Date.now()): Prom
     if (path === '/api/topic-settings' && request.method === 'GET') return withCookie(await listSettings(ctx, s, q));
     const ts = path.match(/^\/api\/topic-settings\/([a-z0-9-]+)$/);
     if (ts && request.method === 'PUT') return withCookie(await saveSetting(ctx, s, ts[1]!, body));
+    if (path === '/api/leaderboard' && request.method === 'GET') return withCookie(await board.leaderboard(ctx, s, q));
+    if (path === '/api/record' && request.method === 'GET') return withCookie(await board.record(ctx, s, q));
+    if (path === '/api/leaderboard/periods' && request.method === 'POST') return withCookie(await board.newPeriod(ctx, s, body));
+    const lb = path.match(/^\/api\/report\/attempts\/([^/]+)\/leaderboard$/);
+    if (lb && request.method === 'POST') return withCookie(await board.setExcluded(ctx, s, lb[1]!, body));
     if (path === '/api/report' && request.method === 'GET') return withCookie(await attempts.report(ctx, s, q));
     const am = path.match(/^\/api\/attempts\/([^/]+)\/finish$/);
     if (am && request.method === 'POST') return withCookie(await attempts.finishAttempt(ctx, s, am[1]!, body));

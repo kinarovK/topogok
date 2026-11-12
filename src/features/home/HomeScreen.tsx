@@ -5,6 +5,7 @@ import { Button } from '../../components/ui.tsx';
 import { TOPICS, type TopicEntry, type TopicId } from '../../data/topicRegistry.ts';
 import type { MessageKey } from '../../i18n/translator.ts';
 import type { Mode } from '../../domain/types.ts';
+import { RecordLine } from '../leaderboard/Leaderboard.tsx';
 import s from '../../app/app.module.css';
 
 const DESC: Record<TopicId, MessageKey> = {
@@ -43,14 +44,18 @@ export function HomeScreen({ onTopic, onHelp, onLogin, onManage }: { onTopic: (i
 }
 
 /** After a topic: practice, assessment or exploration. */
-export function TopicScreen({ topic, onMode, onExplore, onBack }: { topic: TopicEntry; onMode: (m: Mode) => void; onExplore: () => void; onBack: () => void }) {
+export function TopicScreen({ topic, onMode, onExplore, onLeaderboard, onBack }: { topic: TopicEntry; onMode: (m: Mode) => void; onExplore: () => void; onLeaderboard: () => void; onBack: () => void }) {
   const { t, locale } = useSettings();
+  const { me } = useAccount();
+  // F5: signed-in students and teachers have a leaderboard; students also see their own record.
+  const board = me?.role === 'student' || me?.role === 'teacher';
   return (
     <div className={s.page}>
       <div>
         <h1>{topic.title[locale]}</h1>
         <p className={s.lead}>{t(DESC[topic.id])}</p>
       </div>
+      {me?.role === 'student' && <RecordLine topicId={topic.id} />}
       <h2 className={s.sectionTitle}>{t('home.chooseMode')}</h2>
       <div className={s.modes}>
         <button type="button" className={s.modeCard} onClick={() => onMode('practice')}>
@@ -64,6 +69,7 @@ export function TopicScreen({ topic, onMode, onExplore, onBack }: { topic: Topic
       </div>
       <div className={s.actions}>
         <Button onClick={onExplore}>{t('home.explore')}</Button>
+        {board && <Button onClick={onLeaderboard}>{t('board.title')}</Button>}
         <Button onClick={onBack}>{t('common.back')}</Button>
       </div>
     </div>
