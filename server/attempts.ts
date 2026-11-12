@@ -3,11 +3,13 @@
 // See docs/project/tasks/0003_ONLINE_PLATFORM/phases/F3_DESIGN.md.
 import { TOPICS } from '../src/data/topicRegistry.ts';
 import { limitMs } from '../src/domain/clock.ts';
+import { countOptions } from '../src/domain/questionCounts.ts';
 import { reduce, startGame } from '../src/domain/game.ts';
 import { assessmentResult, practiceResult } from '../src/domain/scoring.ts';
 import type { GameConfiguration, GameEvent, GameState, QuestionCount, TimeLimitMinutes } from '../src/domain/types.ts';
 import type { Ctx, Session } from './auth.ts';
 import { teacherScope } from './admin.ts';
+import { loadSetting } from './topicSettings.ts';
 import { TOPIC_FEATURES } from './topics.generated.ts';
 import { fail, json, sha256 } from './util.ts';
 import { idParam } from './validate.ts';
@@ -25,7 +27,7 @@ type AttemptRow = {
   rules_version: number; seed: number; question_ids: string; status: string; started_at: number; finished_at: number | null;
   duration_ms: number | null; visible_ms: number | null; late_finish: number; percent: number | null; points: number | null;
   max_points: number | null; correct: number | null; total: number | null; grade: number | null; result_hash: string | null;
-  invalid_reason: string | null; deleted_at: number | null;
+  invalid_reason: string | null; deleted_at: number | null; disabled_ids: string | null; restricted: number;
 };
 
 function parseConfig(body: Record<string, unknown>): { config: GameConfiguration; dataVersion: string; ids: readonly string[] } {
@@ -34,7 +36,7 @@ function parseConfig(body: Record<string, unknown>): { config: GameConfiguration
   const ids = TOPIC_FEATURES[topic.id]?.[topic.dataVersion];
   if (!ids || ids.length === 0) return fail(400, 'unknown_topic');
   const count = body['count'] as QuestionCount;
-  if (!topic.counts.includes(count)) fail(400, 'invalid_config');
+  if (!topic.counts.includes(count)) fail(400, 'invalid_config');  // checked again against the teacher's set in startAttempt
   if (body['mode'] === 'practice') {
     return { config: { mode: 'practice', topicId: topic.id, count, showElapsed: body['showElapsed'] === true }, dataVersion: topic.dataVersion, ids };
   }
@@ -61,7 +63,13 @@ export async function startAttempt(ctx: Ctx, s: Session, body: Record<string, un
   const { config, dataVersion, ids } = parseConfig(body);
   const seed = body['seed'];
   if (typeof seed !== 'number' || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) fail(400, 'invalid_config');
-  const game = startGame(config, ids, seed as number);
+  // F4: questions come from the teacher's stored set; the browser only states which version it used.
+  const setting = await loadSetting(ctx.db, s.user.teacher_id!, config.topicId);
+  if ((body['settingsVersion'] ?? 0) !== setting.version) fail(409, 'settings_changed', { setting });
+  const off = new Set(setting.disabled);
+  const enabled = ids.filter((x) => !off.has(x));
+  if (!countOptions(TOPICS.find((t) => t.id === config.topicId)!.counts, enabled.length).includes(config.count)) fail(400, 'invalid_config');
+  const game = startGame(config, enabled, seed as number);
   const questions = game.mode === 'practice' ? game.base.map((t) => t.featureId) : game.answers.map((a) => a.featureId);
   const id = crypto.randomUUID();
   await ctx.db.batch([
@@ -69,10 +77,12 @@ export async function startAttempt(ctx: Ctx, s: Session, body: Record<string, un
     ctx.db.prepare("UPDATE attempts SET status = 'abandoned' WHERE student_id = ? AND status = 'started' AND result_hash IS NULL").bind(s.user.id),
     ctx.db.prepare(
       `INSERT INTO attempts (id, student_id, teacher_id, class_id, topic_id, data_version, mode, question_count, is_full, time_limit_min, show_elapsed,
-        rules_version, seed, question_ids, status, started_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'started', ?)`)
+        rules_version, seed, question_ids, status, started_at, settings_version, restricted, disabled_ids) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'started', ?, ?, ?, ?)`)
       .bind(id, s.user.id, s.user.teacher_id!, s.user.class_id!, config.topicId, dataVersion, config.mode, String(config.count),
-        questions.length === ids.length ? 1 : 0, config.mode === 'assessment' ? config.timeLimitMinutes : null,
-        config.mode === 'practice' && config.showElapsed ? 1 : 0, RULES_VERSION, seed as number, JSON.stringify(questions), ctx.now),
+        // "Full" = every question the teacher allows (owner decision F4 §0/2); `restricted` keeps it off F5's leaderboard.
+        questions.length === enabled.length ? 1 : 0, config.mode === 'assessment' ? config.timeLimitMinutes : null,
+        config.mode === 'practice' && config.showElapsed ? 1 : 0, RULES_VERSION, seed as number, JSON.stringify(questions), ctx.now,
+        setting.version, enabled.length < ids.length ? 1 : 0, setting.disabled.length ? JSON.stringify(setting.disabled) : null),
   ]);
   return json({ attemptId: id }, 201);
 }
@@ -135,7 +145,9 @@ export async function finishAttempt(ctx: Ctx, s: Session, id: string, body: Reco
   }
   const config = configOf(a);
   const ids = TOPIC_FEATURES[a.topic_id]?.[a.data_version] ?? fail(409, 'unknown_topic');
-  const r = replay(config, ids, a.seed, events);
+  // Replay with the set that was valid at the start; a later teacher change does not touch this round (F4-06).
+  const off = new Set(a.disabled_ids ? (JSON.parse(a.disabled_ids) as string[]) : []);
+  const r = replay(config, ids.filter((x) => !off.has(x)), a.seed, events);
   let row: Partial<AttemptRow>;
   if (!r.ok) {
     row = { status: 'invalid', invalid_reason: r.reason };
@@ -230,7 +242,7 @@ export async function report(ctx: Ctx, s: Session, q: URLSearchParams) {
       id: a.id, studentId: a.student_id, fullName: a.full_name, login: a.login, className: a.class_name, topicId: a.topic_id, mode: a.mode,
       count: a.question_count, isFull: a.is_full === 1, timeLimitMinutes: a.time_limit_min, status: a.eff_status, startedAt: a.started_at,
       durationMs: a.duration_ms, visibleMs: a.visible_ms, timingComplete: a.visible_ms !== null, lateFinish: a.late_finish === 1,
-      percent: a.percent, points: a.points, maxPoints: a.max_points, correct: a.correct, total: a.total, grade: a.grade, invalidReason: a.invalid_reason,
+      percent: a.percent, points: a.points, maxPoints: a.max_points, correct: a.correct, total: a.total, grade: a.grade, invalidReason: a.invalid_reason, restricted: a.restricted === 1,
     })),
     nextBefore: rows.length === 50 ? rows[rows.length - 1]!.started_at : null,
   });

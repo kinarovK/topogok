@@ -97,6 +97,11 @@ Részletes terv: [F2_DESIGN](project/tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN
     Visszaállítás után kötelező minden munkamenetet visszavonni: `UPDATE sessions SET revoked_at = <most>`.
 - **Helyi futtatás:** a `node scripts/dev/serve.mjs dist 4176 --api` a valódi API-kódot futtatja memóriabeli SQLite-on. A beállítási kód: `local-setup-code-0123456789`.
 
+## Tanári elemkészletek (F4)
+
+- Migráció: `0003_topic_settings.sql`. A smoke `schema=3`-at vár.
+- Egy tanári mentés 1 írás. A diák körénél nincs új kérés: a beállítás a `/api/me` válaszban érkezik.
+
 ## Körök és tanári eredmények (F3)
 
 - Migráció: `0002_attempts.sql` (új `attempts` tábla, `sessions.last_report_at` oszlop); a CI a deploy előtt alkalmazza, a smoke `schema=2`-t vár a `/api/health` válaszban.

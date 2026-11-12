@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTopicAccess } from '../../account/topicAccess.ts';
+import { countOptions } from '../../domain/questionCounts.ts';
 import { useSettings } from '../../app/settings.tsx';
 import { Button, ChoiceGroup } from '../../components/ui.tsx';
 import { DEFAULT_COUNT, TIME_LIMITS, validateConfig } from '../../domain/config.ts';
@@ -11,11 +13,13 @@ export function SetupScreen({ mode, topic, entry, initial, onStart, onBack }: {
   mode: Mode; topic: Topic; entry: TopicEntry; initial: GameConfiguration | undefined; onStart: (c: GameConfiguration) => void; onBack: () => void;
 }) {
   const { t, locale } = useSettings();
-  const pick = (c: QuestionCount | undefined): QuestionCount => (c !== undefined && entry.counts.includes(c) ? c : entry.counts.includes(DEFAULT_COUNT) ? DEFAULT_COUNT : 'all');
+  const access = useTopicAccess(topic)!;
+  const total = access.enabled.length;
+  const counts = countOptions(entry.counts, total);
+  const pick = (c: QuestionCount | undefined): QuestionCount => (c !== undefined && counts.includes(c) ? c : counts.includes(DEFAULT_COUNT) ? DEFAULT_COUNT : 'all');
   const [count, setCount] = useState<QuestionCount>(() => pick(initial?.count));
   const [showElapsed, setShowElapsed] = useState(initial?.mode === 'practice' ? initial.showElapsed : false);
   const [limit, setLimit] = useState<TimeLimitMinutes>(initial?.mode === 'assessment' ? initial.timeLimitMinutes : null);
-  const total = topic.regions.length;
 
   const start = () => {
     const raw: PracticeConfiguration | AssessmentConfiguration = mode === 'practice'
@@ -32,9 +36,10 @@ export function SetupScreen({ mode, topic, entry, initial, onStart, onBack }: {
         <div>
           <p className={s.topicLine}>{t('setup.topic')}</p>
           <p><strong>{topic.manifest.title[locale]}</strong></p>
+          {access.restricted && <p className={s.topicLine} data-testid="teacher-selection">{t('setup.teacherSelection', { count: total, total: topic.regions.length })}</p>}
         </div>
         <ChoiceGroup legend={t('setup.count')} name="count" value={count} onChange={setCount}
-          options={entry.counts.map((c) => ({ value: c, label: c === 'all' ? t('setup.all', { count: total }) : String(c) }))} />
+          options={counts.map((c) => ({ value: c, label: c === 'all' ? t('setup.all', { count: total }) : String(c) }))} />
         {mode === 'practice' ? (
           <label className={s.toggle}>
             <input type="checkbox" checked={showElapsed} onChange={(e) => setShowElapsed(e.target.checked)} />

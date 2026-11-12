@@ -45,7 +45,8 @@
     "start": "Indítás",
     "rulesTitle": "Szabályok",
     "rulesPractice": "Kérdésenként legfeljebb 3 próbálkozás: 100, 60 vagy 30 pont. A „Mutasd meg” 0 pontot ér. A hibázott feladatok a végén egyszer újra előkerülnek; ez nem változtat a pontszámon.",
-    "rulesAssessment": "Kérdésenként egy válasz, a kijelölés a véglegesítésig módosítható. Nincs visszalépés, kihagyás és helyességi visszajelzés. Lejáratkor a meg nem válaszolt kérdések hibásnak számítanak. Az idő nem számít bele a jegybe."
+    "rulesAssessment": "Kérdésenként egy válasz, a kijelölés a véglegesítésig módosítható. Nincs visszalépés, kihagyás és helyességi visszajelzés. Lejáratkor a meg nem válaszolt kérdések hibásnak számítanak. Az idő nem számít bele a jegybe.",
+    "teacherSelection": "Tanárod {count} elemet jelölt ki a {total}-ból."
   },
   "game": {
     "find": "Keresd meg: {name}",
@@ -230,9 +231,13 @@
       "offline": "Nincs internetkapcsolat.",
       "unauthenticated": "Lejárt a belépés. Lépj be újra.",
       "generic": "Hiba történt. Próbáld újra.",
-      "invalid_reason": "Adj meg indoklást (legalább 3 karakter)."
+      "invalid_reason": "Adj meg indoklást (legalább 3 karakter).",
+      "nothing_enabled": "Legalább egy elemet hagyj bekapcsolva.",
+      "unknown_feature": "Ismeretlen elem.",
+      "settings_conflict": "Közben máshol módosították a beállítást."
     },
-    "results": "Eredmények"
+    "results": "Eredmények",
+    "topics": "Témák"
   },
   "save": {
     "pending": "Mentés függőben… (a kapcsolat helyreálltakor automatikusan elküldjük)",
@@ -241,7 +246,8 @@
     "retry": "Újra",
     "rejected": "A szerver nem fogadta el ezt a kört, ezért nem számít bele az eredményekbe.",
     "unsaved": "Ez a kör nem lesz mentve (nem sikerült elérni a szervert az indításkor).",
-    "discarded": "Kijelentkezés miatt ez a kör nem lett mentve."
+    "discarded": "Kijelentkezés miatt ez a kör nem lett mentve.",
+    "outdated": "A tanárod közben módosította a kérdezhető elemeket, ezért ez a kör nem lesz mentve. A következő kör már az új beállítással indul."
   },
   "report": {
     "title": "Eredmények",
@@ -279,6 +285,16 @@
       "abandoned": "megszakított",
       "invalid": "szabálytalan",
       "in_progress": "folyamatban"
-    }
+    },
+    "restricted": "szűkített elemkészlet"
+  },
+  "topics": {
+    "topicsHint": "Jelöld be, mire kérdezzen rá a játék. A beállítás minden diákodra hat, gyakorlásra és számonkérésre is; a futó körökre nem.",
+    "selected": "{count} / {total} kérdezhető",
+    "all": "Mind",
+    "none": "Egyik sem",
+    "save": "Mentés",
+    "saved": "Mentve.",
+    "conflict": "Közben máshol módosították, betöltöttük a mentett állapotot. Ellenőrizd, és mentsd újra."
   }
 }

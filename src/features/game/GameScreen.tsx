@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useAccount } from '../../account/account.tsx';
 import { RoundRecorder } from '../../account/recorder.ts';
+import { useTopicAccess } from '../../account/topicAccess.ts';
 import { useSettings } from '../../app/settings.tsx';
 import { Button, ConfirmDialog } from '../../components/ui.tsx';
 import type { Topic } from '../../data/validation.ts';
@@ -26,7 +27,7 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
   const { t, locale } = useSettings();
   const [game, setGame] = useState<GameState | null>(null);
   const gameRef = useRef<GameState | null>(null);
-  const { me } = useAccount();
+  const { me, refresh } = useAccount();
   const recordFor = me?.role === 'student' ? me.id : null;
   const [recorder, setRecorder] = useState<RoundRecorder | null>(null);
   const recorderRef = useRef<RoundRecorder | null>(null);
@@ -37,7 +38,9 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
   const finished = useRef(false);
   const feedbackSince = useRef(0);
 
-  const ids = useMemo(() => topic.regions.map((r) => r.id), [topic]);
+  // F4: a logged-in student is asked only about the features the teacher enabled; the rest stay grey.
+  const access = useTopicAccess(topic)!;
+  const ids = access.enabled;
   const names = useMemo(() => new Map(topic.regions.map((r) => [r.id, r.properties.names])), [topic]);
   const viewBounds = topic.manifest.bounds;
   const maxBounds = useMemo(() => padBounds(topic.manifest.bounds, 0.6), [topic]);
@@ -64,11 +67,11 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
     setGame(g);
     // Logged-in students: the round is saved (F3). The start request runs in the background.
     if (recordFor) {
-      const r = new RoundRecorder(config, topicEntry(topic.manifest.id).dataVersion, seed);
+      const r = new RoundRecorder(config, topicEntry(topic.manifest.id).dataVersion, seed, access.version, () => { void refresh(); });
       recorderRef.current = r;
       setRecorder(r);
     }
-  }, [config, ids, recordFor, topic]);
+  }, [config, ids, recordFor, topic, access.version, refresh]);
 
   // Leaving the round in any way (exit, restart, error, logout) closes it on the server as abandoned.
   useEffect(() => () => { const r = recorderRef.current; if (r && !r.isClosed) r.finish('quit'); }, []);
@@ -185,7 +188,7 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
       </section>
 
       <div className={s.mapArea}>
-        <MapView topic={topic} name="main" ariaLabel={t('game.map')} viewBounds={viewBounds} maxBounds={maxBounds}
+        <MapView topic={topic} name="main" disabledIds={access.disabled} ariaLabel={t('game.map')} viewBounds={viewBounds} maxBounds={maxBounds}
           selection={game?.selection ?? null} feedback={feedbackMemo} onSelect={onSelect} onReady={onMapReady}
           onError={onRenderError} resetKey={resetKey} />
       </div>
@@ -202,6 +205,7 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
         )}
         {config.mode === 'assessment' && <p className="visually-hidden" aria-live="polite">{announcement}</p>}
         {saveStatus === 'unsaved' && <p className={s.note} data-testid="round-unsaved">{t('save.unsaved')}</p>}
+        {saveStatus === 'outdated' && <p className={s.note} data-testid="round-unsaved">{t('save.outdated')}</p>}
         {topicEntry(topic.manifest.id).partialCoverage && <p className={s.note}>{t('game.greyHint')}</p>}
         <div className={s.stickyActions}>
           {inFeedback ? (
