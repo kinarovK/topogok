@@ -34,5 +34,7 @@ export default defineConfig({
     { command: 'node scripts/dev/serve.mjs dist-e2e 4178 --api', port: 4178, reuseExistingServer: false },
     // F5 (leaderboard) on its own database.
     { command: 'node scripts/dev/serve.mjs dist-e2e 4179 --api', port: 4179, reuseExistingServer: false },
+    // F6 (page-leave signals and review) on its own database.
+    { command: 'node scripts/dev/serve.mjs dist-e2e 4181 --api', port: 4181, reuseExistingServer: false },
   ],
 });

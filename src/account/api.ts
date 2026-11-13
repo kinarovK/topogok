@@ -1,3 +1,4 @@
+import type { IntegrityLog } from '../../shared/integrity.ts';
 // Browser client for /api/*. Same origin, cookie session (HttpOnly; the page never sees the token).
 import { deriveKey, passwordPayload } from '../../shared/kdf.ts';
 
@@ -11,7 +12,7 @@ export type AuditEntry = { id: number; at: number; actor: string | null; action:
 
 export type WireEvent = { type: 'SELECT'; t: number; f: string } | { type: 'CONFIRM' | 'REVEAL' | 'NEXT' | 'TIME_CHECK'; t: number };
 export type AttemptStart = { topicId: string; dataVersion: string; mode: 'practice' | 'assessment'; count: number | 'all'; showElapsed?: boolean; timeLimitMinutes?: number | null; seed: number; settingsVersion?: number };
-export type AttemptResult = { attemptId: string; status: AttemptStatus; percent: number | null; points: number | null; maxPoints: number | null; correct: number | null; total: number | null; grade: number | null; durationMs: number | null };
+export type AttemptResult = { attemptId: string; status: AttemptStatus; reviewStatus: 'pending' | 'approved' | 'rejected' | null; percent: number | null; points: number | null; maxPoints: number | null; correct: number | null; total: number | null; grade: number | null; durationMs: number | null };
 export type AttemptStatus = 'in_progress' | 'started' | 'finished' | 'expired' | 'abandoned' | 'invalid';
 export type ReportFilters = { teacherId?: string | null; classId?: string | null; studentId?: string | null; topicId?: string | null; mode?: string | null; status?: string | null; from?: number | null; to?: number | null };
 export type ReportSummary = {
@@ -26,6 +27,8 @@ export type ReportAttempt = {
   timingComplete: boolean; lateFinish: boolean; percent: number | null; points: number | null; maxPoints: number | null; correct: number | null; total: number | null;
   grade: number | null; invalidReason: string | null; restricted: boolean;
   leaderboardCandidate: boolean; lbExcluded: boolean; lbExcludeReason: string | null; reviewStatus: 'pending' | 'approved' | 'rejected' | null;
+  reviewReason: string | null; integrityVersion: number;
+  integrity: { hiddenCount: number; hiddenMs: number; blurCount: number; blurMs: number; offlineCount: number; offlineMs: number; log: IntegrityLog | null } | null;
 };
 export type BoardRow = { rank: number; studentId: string; fullName: string; correct: number; total: number; percent: number; durationMs: number };
 export type Board = { generatedAt: number; periodStart: number | null; rows: BoardRow[]; myStudentId: string | null };
@@ -116,12 +119,14 @@ export const api = {
   saveTopicSetting: (teacherId: string | null, topicId: string, disabled: string[], baseVersion: number) =>
     call<{ setting: TopicSetting }>('PUT', `/api/topic-settings/${topicId}`, { ...scope(teacherId), disabled, baseVersion }).then((r) => r.setting),
   leaderboard: (topicId: string, teacherId: string | null) => call<Board>('GET', `/api/leaderboard${qs({ topicId, teacherId })}`),
-  record: (topicId: string) => call<{ record: PersonalRecord | null }>('GET', `/api/record${qs({ topicId })}`).then((r) => r.record),
+  record: (topicId: string) => call<{ record: PersonalRecord | null; pendingReview: boolean }>('GET', `/api/record${qs({ topicId })}`),
   newPeriod: (teacherId: string | null, topicId: string) => call('POST', '/api/leaderboard/periods', { ...scope(teacherId), topicId, confirm: true }),
+  review: (teacherId: string | null, id: string, decision: 'approved' | 'rejected', reason: string) =>
+    call('POST', `/api/report/attempts/${id}/review`, { ...scope(teacherId), decision, reason }),
   setLeaderboardExcluded: (teacherId: string | null, id: string, excluded: boolean, reason = '') =>
     call('POST', `/api/report/attempts/${id}/leaderboard`, { ...scope(teacherId), excluded, ...(excluded ? { reason } : {}) }),
   startAttempt: (body: AttemptStart) => call<{ attemptId: string }>('POST', '/api/attempts', body),
-  finishAttempt: (id: string, body: { reason: 'completed' | 'quit'; events?: WireEvent[]; visibleMs?: number }) =>
+  finishAttempt: (id: string, body: { reason: 'completed' | 'quit'; events?: WireEvent[]; visibleMs?: number; integrity?: IntegrityLog }) =>
     call<{ result: AttemptResult }>('POST', `/api/attempts/${id}/finish`, body).then((r) => r.result),
   report: (f: ReportFilters, before: number | null = null) => call<Report>('GET', `/api/report${qs({
     teacherId: f.teacherId, classId: f.classId, studentId: f.studentId, topicId: f.topicId, mode: f.mode, status: f.status,

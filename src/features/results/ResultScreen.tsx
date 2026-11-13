@@ -53,6 +53,7 @@ function SaveIndicator({ recorder }: { recorder: RoundRecorder }) {
     <p className={s.note} role="status" data-testid="save-status" data-status={status}>
       {status === 'saved' ? '✓ ' : ''}{text}
       {status === 'failed' && <> <Button variant="ghost" onClick={() => recorder.retry()}>{t('save.retry')}</Button></>}
+      {status === 'saved' && recorder.result?.reviewStatus === 'pending' && <><br /><span data-testid="review-pending">{t('save.reviewPending')}</span></>}
     </p>
   );
 }

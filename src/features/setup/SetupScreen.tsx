@@ -43,6 +43,7 @@ export function SetupScreen({ topic, entry, initial, onStart, onBack }: {
         <p className={s.topicLine} data-testid="board-eligibility">
           {me?.role !== 'student' ? t('setup.boardGuest') : access.restricted ? t('setup.boardRestricted') : count !== 'all' ? t('setup.boardNotAll') : t('setup.boardYes')}
         </p>
+        {me?.role === 'student' && <p className={s.topicLine} data-testid="integrity-info">{t('setup.integrityInfo')}</p>}
         <section>
           <h2 className="visually-hidden">{t('setup.rulesTitle')}</h2>
           <p className={s.rules}>{t('setup.rulesAssessment')}</p>

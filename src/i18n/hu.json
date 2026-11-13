@@ -44,7 +44,8 @@
     "boardYes": "Ez a kör felkerülhet a toplistára (teljes térkép, időkorlát nélkül).",
     "boardNotAll": "Ez a kör nem kerül a toplistára: csak a „Mindegyik” kör számít.",
     "boardRestricted": "Ez a kör nem kerül a toplistára, mert a tanárod szűkítette a kérdezhető elemeket.",
-    "boardGuest": "Toplista csak bejelentkezett diákoknak van."
+    "boardGuest": "Toplista csak bejelentkezett diákoknak van.",
+    "integrityInfo": "A számonkérés alatt az alkalmazás feljegyzi, ha elhagyod az oldalt, az ablak nem aktív, vagy megszakad a kapcsolat; ezt a tanárod látja. Kamerát, mikrofont vagy más ablakot nem figyel."
   },
   "game": {
     "find": "Keresd meg: {name}",
@@ -246,7 +247,8 @@
     "rejected": "A szerver nem fogadta el ezt a kört, ezért nem számít bele az eredményekbe.",
     "unsaved": "Ez a kör nem lesz mentve (nem sikerült elérni a szervert az indításkor).",
     "discarded": "Kijelentkezés miatt ez a kör nem lett mentve.",
-    "outdated": "A tanárod közben módosította a kérdezhető elemeket, ezért ez a kör nem lesz mentve. A következő kör már az új beállítással indul."
+    "outdated": "A tanárod közben módosította a kérdezhető elemeket, ezért ez a kör nem lesz mentve. A következő kör már az új beállítással indul.",
+    "reviewPending": "Mivel a kör alatt elhagytad az oldalt (vagy nem volt ellenőrizhető), a toplistára kerülés a tanár jóváhagyására vár. A jegyed ettől nem változik."
   },
   "report": {
     "title": "Eredmények",
@@ -318,6 +320,30 @@
     "excluded": "kizárva a toplistából",
     "excludeReason": "A kizárás indoka",
     "candidate": "toplistás",
-    "chooseTopic": "Válassz témát…"
+    "chooseTopic": "Válassz témát…",
+    "pendingReview": "Egy eredményed tanári jóváhagyásra vár."
+  },
+  "integrity": {
+    "returned": "Elhagytad az oldalt ({seconds} mp). Ezt a tanárod látni fogja. A számonkérés folytatódik, az idő közben is telt.",
+    "blur": "Az ablak egy ideig nem volt aktív. Ez csak tájékoztatás.",
+    "offline": "Megszakadt az internetkapcsolat. A számonkérés folytatható, a mentés később történik.",
+    "online": "Helyreállt az internetkapcsolat.",
+    "close": "Bezárás"
+  },
+  "review": {
+    "title": "Oldalelhagyás",
+    "summary": "Oldal elhagyva: {hidden}× ({hiddenTime}) · nem aktív ablak: {blur}× ({blurTime}) · kapcsolat: {offline}× ({offlineTime})",
+    "noData": "Nincs oldalelhagyási adat (F6 előtti kör vagy régi alkalmazásverzió).",
+    "pending": "jóváhagyásra vár",
+    "approved": "jóváhagyva",
+    "rejected": "elutasítva",
+    "approve": "Jóváhagyás",
+    "reject": "Elutasítás",
+    "reason": "Indoklás",
+    "details": "Részletek",
+    "hidden": "Oldal elhagyva",
+    "blur": "Nem aktív ablak",
+    "offline": "Nincs kapcsolat",
+    "interval": "{from} – {to}"
   }
 }
