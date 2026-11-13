@@ -2,6 +2,7 @@
 // The round never waits for the network: if the start fails, the round goes on as a guest round.
 // Pending saves live only in memory (no localStorage) and are dropped on logout.
 import type { GameConfiguration, GameEvent } from '../domain/types.ts';
+import type { IntegrityLog } from '../../shared/integrity.ts';
 import { api, ApiFailure, type AttemptResult, type WireEvent } from './api.ts';
 
 export type SaveStatus =
@@ -31,7 +32,7 @@ export class RoundRecorder {
   private readonly events: WireEvent[] = [];
   private readonly attemptId: Promise<string | null>;
   private closed = false;
-  private finishBody: { reason: 'completed' | 'quit'; events?: WireEvent[]; visibleMs?: number } | null = null;
+  private finishBody: { reason: 'completed' | 'quit'; events?: WireEvent[]; visibleMs?: number; integrity?: IntegrityLog } | null = null;
   private delay = 2_000;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private visibleMs = 0;
@@ -73,11 +74,11 @@ export class RoundRecorder {
     else this.events.push(w);
   }
 
-  finish(reason: 'completed' | 'quit'): void {
+  finish(reason: 'completed' | 'quit', integrity?: IntegrityLog): void {
     if (this.closed) return;
     this.closed = true;
     this.stopVisible();
-    this.finishBody = reason === 'completed' ? { reason, events: this.events, visibleMs: Math.round(this.visibleMs) } : { reason };
+    this.finishBody = reason === 'completed' ? { reason, events: this.events, visibleMs: Math.round(this.visibleMs), ...(integrity ? { integrity } : {}) } : { reason };
     if (this.status === 'unsaved' || this.status === 'outdated' || this.status === 'discarded') return;
     this.set('pending');
     void this.send();

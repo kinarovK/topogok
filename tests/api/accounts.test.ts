@@ -139,7 +139,7 @@ test('without a database or pepper the API answers 503 and health says so', asyn
   const h = await noDb.call('GET', '/api/health');
   assert.deepEqual([h.status, h.data['ok'], h.data['db']], [200, false, false]);
   const ok = await new Browser(env, { now: Date.now() }).call('GET', '/api/health');
-  assert.deepEqual([ok.data['ok'], ok.data['schema']], [true, 4]);
+  assert.deepEqual([ok.data['ok'], ok.data['schema']], [true, 5]);
 });
 
 test('recovery: a one-time code resets the superadmin password and revokes old sessions', async () => {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useAccount } from '../../account/account.tsx';
+import { IntegrityTracker, type IntegrityNotice } from '../../account/integrity.ts';
 import { RoundRecorder } from '../../account/recorder.ts';
 import { useTopicAccess } from '../../account/topicAccess.ts';
 import { useSettings } from '../../app/settings.tsx';
@@ -31,6 +32,8 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
   const recordFor = me?.role === 'student' ? me.id : null;
   const [recorder, setRecorder] = useState<RoundRecorder | null>(null);
   const recorderRef = useRef<RoundRecorder | null>(null);
+  const trackerRef = useRef<IntegrityTracker | null>(null);
+  const [notice, setNotice] = useState<IntegrityNotice | null>(null);
   const clockRef = useRef<Clock | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [dialog, setDialog] = useState<'restart' | 'exit' | null>(null);
@@ -70,11 +73,13 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
       const r = new RoundRecorder(config, topicEntry(topic.manifest.id).dataVersion, seed, access.version, () => { void refresh(); });
       recorderRef.current = r;
       setRecorder(r);
+      // F6: page-leave signals during a saved assessment (sent with the finish request).
+      if (config.mode === 'assessment') trackerRef.current = new IntegrityTracker(setNotice);
     }
   }, [config, ids, recordFor, topic, access.version, refresh]);
 
   // Leaving the round in any way (exit, restart, error, logout) closes it on the server as abandoned.
-  useEffect(() => () => { const r = recorderRef.current; if (r && !r.isClosed) r.finish('quit'); }, []);
+  useEffect(() => () => { trackerRef.current?.stop(); const r = recorderRef.current; if (r && !r.isClosed) r.finish('quit'); }, []);
   const saveStatus = useSyncExternalStore(recorder?.subscribe ?? noSubscribe, recorder?.getStatus ?? noStatus);
 
   // Deadline checks: timer tick plus every return to the page.
@@ -106,7 +111,7 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
   useEffect(() => {
     if (!game || game.phase !== 'finished' || finished.current) return;
     finished.current = true;
-    recorderRef.current?.finish('completed');
+    recorderRef.current?.finish('completed', trackerRef.current?.finish());
     onFinish(game.mode === 'practice' ? practiceResult(game) : assessmentResult(game), recorderRef.current);
   }, [game, onFinish]);
 
@@ -206,6 +211,16 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
         {config.mode === 'assessment' && <p className="visually-hidden" aria-live="polite">{announcement}</p>}
         {saveStatus === 'unsaved' && <p className={s.note} data-testid="round-unsaved">{t('save.unsaved')}</p>}
         {saveStatus === 'outdated' && <p className={s.note} data-testid="round-unsaved">{t('save.outdated')}</p>}
+        {notice && (
+          // F6-02: a warning only; the clock keeps running and nothing is scored differently.
+          <div className={notice.kind === 'hidden' ? s.leaveWarning : s.note} role={notice.kind === 'hidden' ? 'alert' : 'status'} data-testid="integrity-notice" data-kind={notice.kind}>
+            <span>
+              {notice.kind === 'hidden' ? t('integrity.returned', { seconds: Math.max(1, Math.round(notice.ms / 1000)) })
+                : notice.kind === 'blur' ? t('integrity.blur') : notice.kind === 'offline' ? t('integrity.offline') : t('integrity.online')}
+            </span>
+            <button type="button" className={s.noticeClose} onClick={() => setNotice(null)} aria-label={t('integrity.close')}>×</button>
+          </div>
+        )}
         {topicEntry(topic.manifest.id).partialCoverage && <p className={s.note}>{t('game.greyHint')}</p>}
         <div className={s.stickyActions}>
           {inFeedback ? (

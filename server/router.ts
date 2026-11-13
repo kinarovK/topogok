@@ -7,8 +7,8 @@ import type { Env } from './types.ts';
 import { ApiError, fail, json } from './util.ts';
 import { readBody } from './validate.ts';
 
-export const SCHEMA_VERSION = 4;
-const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts', 'topic_settings', 'lb_periods'];
+export const SCHEMA_VERSION = 5;
+const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts', 'topic_settings', 'lb_periods', 'schema_meta'];
 
 /** Entry point for every /api/* request (Cloudflare Pages Function and the local test server). */
 export async function handle(request: Request, env: Env, now = Date.now()): Promise<Response> {
@@ -49,6 +49,8 @@ export async function handle(request: Request, env: Env, now = Date.now()): Prom
     if (path === '/api/leaderboard' && request.method === 'GET') return withCookie(await board.leaderboard(ctx, s, q));
     if (path === '/api/record' && request.method === 'GET') return withCookie(await board.record(ctx, s, q));
     if (path === '/api/leaderboard/periods' && request.method === 'POST') return withCookie(await board.newPeriod(ctx, s, body));
+    const rv = path.match(/^\/api\/report\/attempts\/([^/]+)\/review$/);
+    if (rv && request.method === 'POST') return withCookie(await board.review(ctx, s, rv[1]!, body));
     const lb = path.match(/^\/api\/report\/attempts\/([^/]+)\/leaderboard$/);
     if (lb && request.method === 'POST') return withCookie(await board.setExcluded(ctx, s, lb[1]!, body));
     if (path === '/api/report' && request.method === 'GET') return withCookie(await attempts.report(ctx, s, q));
@@ -91,7 +93,12 @@ async function health(env: Env): Promise<Response> {
   if (env.DB) {
     try {
       const r = await env.DB.prepare(`SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table' AND name IN (${SCHEMA_TABLES.map(() => '?').join(', ')})`).bind(...SCHEMA_TABLES).first<{ n: number }>();
-      db = true; schema = r?.n === SCHEMA_TABLES.length ? SCHEMA_VERSION : 0;
+      db = true; schema = 0;
+      if (r?.n === SCHEMA_TABLES.length) {
+        // Since F6 the migrations record their version (column-only changes are not visible as tables).
+        const meta = await env.DB.prepare("SELECT value FROM schema_meta WHERE key = 'version'").first<{ value: string }>();
+        schema = Number(meta?.value ?? 0);
+      }
     } catch { db = false; }
   }
   // Presence and length only — never the values.

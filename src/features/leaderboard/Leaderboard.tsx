@@ -91,7 +91,11 @@ export function RecordLine({ topicId }: { topicId: string }) {
   useEffect(() => {
     let alive = true;
     api.record(topicId).then(
-      (r) => { if (alive) setState({ topicId, text: r ? t('board.record', { correct: r.correct, total: r.total, percent: formatPercent(locale, r.percent), time: formatDuration(r.durationMs) }) : t('board.noRecord') }); },
+      ({ record: r, pendingReview }) => {
+        if (!alive) return;
+        const text = r ? t('board.record', { correct: r.correct, total: r.total, percent: formatPercent(locale, r.percent), time: formatDuration(r.durationMs) }) : t('board.noRecord');
+        setState({ topicId, text: pendingReview ? `${text} ${t('board.pendingReview')}` : text });
+      },
       () => { if (alive) setState(null); },
     );
     return () => { alive = false; };

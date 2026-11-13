@@ -192,3 +192,9 @@
   background: var(--background);
   border-top: 1px solid var(--border);
 }
+
+.intervals {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}

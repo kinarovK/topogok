@@ -84,7 +84,10 @@ export async function record(ctx: Ctx, s: Session, q: URLSearchParams) {
   const topicId = topicParam(q);
   const from = await periodStart(ctx.db, s.user.teacher_id!, topicId);
   const mine = rank(await eligibleRows(ctx.db, s.user.teacher_id!, topicId, from, s.user.id))[0];
-  return json({ record: mine ? { correct: mine.correct, total: mine.total, percent: mine.percent, durationMs: mine.durationMs } : null });
+  // F6: tell the student when a round waits for the teacher's review (no history, just the fact).
+  const pending = await ctx.db.prepare(`SELECT COUNT(*) AS n FROM attempts a WHERE a.student_id = ? AND a.topic_id = ? AND a.review_status = 'pending' AND ${CANDIDATE_SQL} AND a.started_at >= ?`)
+    .bind(s.user.id, topicId, from).first<{ n: number }>();
+  return json({ record: mine ? { correct: mine.correct, total: mine.total, percent: mine.percent, durationMs: mine.durationMs } : null, pendingReview: (pending?.n ?? 0) > 0 });
 }
 
 /** POST /api/leaderboard/periods {topicId, confirm: true} — starts a new competition period; history stays. */
@@ -110,5 +113,19 @@ export async function setExcluded(ctx: Ctx, s: Session, id: string, body: Record
     await ctx.db.prepare('UPDATE attempts SET lb_excluded_at = NULL, lb_excluded_by = NULL, lb_exclude_reason = NULL WHERE id = ?').bind(a.id).run();
     await audit(ctx, s.user.id, 'attempt.leaderboard_include', 'attempt', a.id, teacherId);
   } else fail(400, 'invalid_request');
+  return json({ ok: true });
+}
+
+/** POST /api/report/attempts/:id/review {decision, reason} — F6: approve or reject a round that needs review. */
+export async function review(ctx: Ctx, s: Session, id: string, body: Record<string, unknown>) {
+  const teacherId = await teacherScope(ctx, s, body['teacherId']);
+  const decision = body['decision'];
+  if (decision !== 'approved' && decision !== 'rejected') return fail(400, 'invalid_request');
+  const reason = typeof body['reason'] === 'string' ? body['reason'].normalize('NFC').replace(/\s+/g, ' ').trim() : '';
+  if (reason.length < 3 || reason.length > 200) fail(400, 'invalid_reason');
+  const a = (await ctx.db.prepare('SELECT id FROM attempts WHERE id = ? AND teacher_id = ? AND deleted_at IS NULL AND review_status IS NOT NULL')
+    .bind(idParam(id), teacherId).first<{ id: string }>()) ?? fail(404, 'not_found');
+  await ctx.db.prepare('UPDATE attempts SET review_status = ?, review_by = ?, review_at = ?, review_reason = ? WHERE id = ?').bind(decision, s.user.id, ctx.now, reason, a.id).run();
+  await audit(ctx, s.user.id, `attempt.review_${decision}`, 'attempt', a.id, teacherId, { reason });
   return json({ ok: true });
 }

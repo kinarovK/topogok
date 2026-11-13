@@ -167,6 +167,10 @@ function AttemptItem({ a, topicName, scope, open, onOpen, onDeleted, onUpdate }:
   const { t, locale } = useSettings();
   const [reason, setReason] = useState('');
   const [excluding, setExcluding] = useState(false);
+  const [reviewing, setReviewing] = useState<'approved' | 'rejected' | null>(null);
+  const [reviewReason, setReviewReason] = useState('');
+  const [details, setDetails] = useState(false);
+  const ig = a.integrity;
   const [lbReason, setLbReason] = useState('');
   const action = useAction();
   const scored = a.status === 'finished' || a.status === 'expired';
@@ -206,7 +210,33 @@ function AttemptItem({ a, topicName, scope, open, onOpen, onDeleted, onUpdate }:
           {a.invalidReason && ` ${t('report.invalidReason', { reason: a.invalidReason })}`}
         </span>
       )}
+      {a.mode === 'assessment' && (a.status === 'finished' || a.status === 'expired') && (
+        <div className={s.meta} data-testid="integrity">
+          {ig ? t('review.summary', {
+            hidden: ig.hiddenCount, hiddenTime: formatDuration(ig.hiddenMs), blur: ig.blurCount, blurTime: formatDuration(ig.blurMs),
+            offline: ig.offlineCount, offlineTime: formatDuration(ig.offlineMs),
+          }) : t('review.noData')}
+          {a.reviewStatus && (
+            <div>
+              <span className={s.badge} data-testid="review-status">{t(`review.${a.reviewStatus}`)}</span>
+              {a.reviewReason && ` ${t('report.invalidReason', { reason: a.reviewReason })}`}
+            </div>
+          )}
+          {ig?.log && (ig.hiddenCount + ig.blurCount + ig.offlineCount > 0) && (
+            <> <Button variant="ghost" onClick={() => setDetails((x) => !x)} aria-expanded={details}>{t('review.details')}</Button></>
+          )}
+          {details && ig?.log && (
+            <ul className={s.intervals}>
+              {(['hidden', 'blur', 'offline'] as const).flatMap((k) => ig.log![k].map(([from, to]) => (
+                <li key={`${k}${from}`}>{t(`review.${k}`)}: {t('review.interval', { from: formatDuration(from), to: formatDuration(to) })}</li>
+              )))}
+            </ul>
+          )}
+        </div>
+      )}
       <div className={s.itemActions}>
+        {a.reviewStatus && a.reviewStatus !== 'approved' && <Button onClick={() => setReviewing(reviewing === 'approved' ? null : 'approved')}>{t('review.approve')}</Button>}
+        {a.reviewStatus && a.reviewStatus !== 'rejected' && <Button onClick={() => setReviewing(reviewing === 'rejected' ? null : 'rejected')}>{t('review.reject')}</Button>}
         {a.leaderboardCandidate && !a.lbExcluded && <Button onClick={() => setExcluding((x) => !x)}>{t('board.exclude')}</Button>}
         {a.lbExcluded && (
           <Button onClick={() => void action.run(async () => { await api.setLeaderboardExcluded(scope, a.id, false); onUpdate({ lbExcluded: false, lbExcludeReason: null }); })}>
@@ -215,6 +245,16 @@ function AttemptItem({ a, topicName, scope, open, onOpen, onDeleted, onUpdate }:
         )}
         <Button onClick={onOpen}>{t('account.delete')}</Button>
       </div>
+      {reviewing && (
+        <form className={s.toolbar} onSubmit={(e) => {
+          e.preventDefault();
+          const decision = reviewing;
+          void action.run(async () => { await api.review(scope, a.id, decision, reviewReason); setReviewing(null); onUpdate({ reviewStatus: decision, reviewReason: reviewReason.trim() }); });
+        }}>
+          <Field label={t('review.reason')}><TextInput value={reviewReason} maxLength={200} onChange={(e) => setReviewReason(e.target.value)} /></Field>
+          <Button type="submit" variant="primary" disabled={action.busy || reviewReason.trim().length < 3}>{t(reviewing === 'approved' ? 'review.approve' : 'review.reject')}</Button>
+        </form>
+      )}
       {excluding && !a.lbExcluded && (
         <form className={s.toolbar} onSubmit={(e) => {
           e.preventDefault();
