@@ -1,6 +1,11 @@
 # Aktív feladat
 
-**F4 – Tanári kérdezhető elemkészletek:** a design a [F4_DESIGN.md](tasks/0003_ONLINE_PLATFORM/phases/F4_DESIGN.md) fájlban van, tulajdonosi jóváhagyásra vár (docs PR).
+**F4, F4.5, F5, F6:** megvalósítva a `staging` ágon, egyetlen PR-ban várnak a `main`-be (tulajdonosi döntés, 2026-11-13, [DECISIONS.md](tasks/0003_ONLINE_PLATFORM/DECISIONS.md)). A specifikált fázisok ezzel elkészültek.
+
+Nyitott, nem fejlesztési pontok:
+- valódi Android-, iOS- és asztali próba (F6-09, és az F1 óta nyitott telefonos próba);
+- visszaállítási próba a mentésből (F3-12);
+- a tankönyvi adatok felhasználási engedélye.
 
 **F3 – Próbálkozások mentése és tanári panel:** kiadva (PR #9, 2026-11-12).
 
