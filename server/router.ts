@@ -1,12 +1,14 @@
 import * as admin from './admin.ts';
 import * as attempts from './attempts.ts';
+import * as board from './leaderboard.ts';
+import { listSettings, loadSettings, saveSetting } from './topicSettings.ts';
 import { checkCsrf, currentSession, login, logout, meBody, requireSession, saltFor, type Ctx } from './auth.ts';
 import type { Env } from './types.ts';
 import { ApiError, fail, json } from './util.ts';
 import { readBody } from './validate.ts';
 
-export const SCHEMA_VERSION = 2;
-const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts'];
+export const SCHEMA_VERSION = 5;
+const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts', 'topic_settings', 'lb_periods', 'schema_meta'];
 
 /** Entry point for every /api/* request (Cloudflare Pages Function and the local test server). */
 export async function handle(request: Request, env: Env, now = Date.now()): Promise<Response> {
@@ -30,7 +32,9 @@ export async function handle(request: Request, env: Env, now = Date.now()): Prom
       case 'GET /api/me': {
         const s = await currentSession(ctx);
         if (!s) return json({ user: null });
-        return json({ user: meBody(s) }, 200, s.extendCookie ? { 'set-cookie': s.extendCookie } : {});
+        // Students get their teacher's question sets with the session (no extra request per round, F4).
+        const topicSettings = s.user.role === 'student' && s.user.teacher_id ? await loadSettings(ctx.db, s.user.teacher_id) : undefined;
+        return json({ user: { ...meBody(s), ...(topicSettings ? { topicSettings } : {}) } }, 200, s.extendCookie ? { 'set-cookie': s.extendCookie } : {});
       }
     }
 
@@ -39,6 +43,16 @@ export async function handle(request: Request, env: Env, now = Date.now()): Prom
     const m = path.match(/^\/api\/(classes|students|teachers)(?:\/([^/]+))?(?:\/(password))?$/);
     if (path === '/api/audit' && request.method === 'GET') return withCookie(await admin.listAudit(ctx, s, q));
     if (path === '/api/attempts' && request.method === 'POST') return withCookie(await attempts.startAttempt(ctx, s, body));
+    if (path === '/api/topic-settings' && request.method === 'GET') return withCookie(await listSettings(ctx, s, q));
+    const ts = path.match(/^\/api\/topic-settings\/([a-z0-9-]+)$/);
+    if (ts && request.method === 'PUT') return withCookie(await saveSetting(ctx, s, ts[1]!, body));
+    if (path === '/api/leaderboard' && request.method === 'GET') return withCookie(await board.leaderboard(ctx, s, q));
+    if (path === '/api/record' && request.method === 'GET') return withCookie(await board.record(ctx, s, q));
+    if (path === '/api/leaderboard/periods' && request.method === 'POST') return withCookie(await board.newPeriod(ctx, s, body));
+    const rv = path.match(/^\/api\/report\/attempts\/([^/]+)\/review$/);
+    if (rv && request.method === 'POST') return withCookie(await board.review(ctx, s, rv[1]!, body));
+    const lb = path.match(/^\/api\/report\/attempts\/([^/]+)\/leaderboard$/);
+    if (lb && request.method === 'POST') return withCookie(await board.setExcluded(ctx, s, lb[1]!, body));
     if (path === '/api/report' && request.method === 'GET') return withCookie(await attempts.report(ctx, s, q));
     const am = path.match(/^\/api\/attempts\/([^/]+)\/finish$/);
     if (am && request.method === 'POST') return withCookie(await attempts.finishAttempt(ctx, s, am[1]!, body));
@@ -79,7 +93,12 @@ async function health(env: Env): Promise<Response> {
   if (env.DB) {
     try {
       const r = await env.DB.prepare(`SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table' AND name IN (${SCHEMA_TABLES.map(() => '?').join(', ')})`).bind(...SCHEMA_TABLES).first<{ n: number }>();
-      db = true; schema = r?.n === SCHEMA_TABLES.length ? SCHEMA_VERSION : 0;
+      db = true; schema = 0;
+      if (r?.n === SCHEMA_TABLES.length) {
+        // Since F6 the migrations record their version (column-only changes are not visible as tables).
+        const meta = await env.DB.prepare("SELECT value FROM schema_meta WHERE key = 'version'").first<{ value: string }>();
+        schema = Number(meta?.value ?? 0);
+      }
     } catch { db = false; }
   }
   // Presence and length only — never the values.

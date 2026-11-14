@@ -1,6 +1,6 @@
 # F6 – Oldalelhagyás és utólagos tanári felülvizsgálat
 
-Állapot: specifikációtervezet. Függőség: F3–F5. Közös szerződés: [task.md](../task.md).
+Állapot: **megvalósítva a `staging` ágban** ([F6_DESIGN.md](F6_DESIGN.md)); a valódi eszközös próba (F6-09) nyitott. Korábban: specifikációtervezet. Függőség: F3–F5. Közös szerződés: [task.md](../task.md).
 
 ## Cél és korlát
 

@@ -47,12 +47,13 @@ function SaveIndicator({ recorder }: { recorder: RoundRecorder }) {
   const status = useSyncExternalStore(recorder.subscribe, recorder.getStatus);
   const text = {
     starting: t('save.pending'), recording: t('save.pending'), pending: t('save.pending'), saved: t('save.saved'),
-    failed: t('save.failed'), rejected: t('save.rejected'), unsaved: t('save.unsaved'), discarded: t('save.discarded'),
+    failed: t('save.failed'), rejected: t('save.rejected'), unsaved: t('save.unsaved'), outdated: t('save.outdated'), discarded: t('save.discarded'),
   }[status];
   return (
     <p className={s.note} role="status" data-testid="save-status" data-status={status}>
       {status === 'saved' ? '✓ ' : ''}{text}
       {status === 'failed' && <> <Button variant="ghost" onClick={() => recorder.retry()}>{t('save.retry')}</Button></>}
+      {status === 'saved' && recorder.result?.reviewStatus === 'pending' && <><br /><span data-testid="review-pending">{t('save.reviewPending')}</span></>}
     </p>
   );
 }

@@ -3,16 +3,21 @@
 // See docs/project/tasks/0003_ONLINE_PLATFORM/phases/F3_DESIGN.md.
 import { TOPICS } from '../src/data/topicRegistry.ts';
 import { limitMs } from '../src/domain/clock.ts';
+import { countOptions } from '../src/domain/questionCounts.ts';
 import { reduce, startGame } from '../src/domain/game.ts';
 import { assessmentResult, practiceResult } from '../src/domain/scoring.ts';
 import type { GameConfiguration, GameEvent, GameState, QuestionCount, TimeLimitMinutes } from '../src/domain/types.ts';
 import type { Ctx, Session } from './auth.ts';
 import { teacherScope } from './admin.ts';
+import { INTEGRITY_VERSION, normalize, parseLog, summarize } from '../shared/integrity.ts';
+import { CANDIDATE_SQL, fullSet } from './leaderboard.ts';
+import { loadSetting } from './topicSettings.ts';
 import { TOPIC_FEATURES } from './topics.generated.ts';
 import { fail, json, sha256 } from './util.ts';
 import { idParam } from './validate.ts';
 
-export const RULES_VERSION = 1;
+import { RULES_VERSION } from './rules.ts';
+export { RULES_VERSION };
 const ABANDON_AFTER = 6 * 3_600_000;
 const WALL_TOLERANCE = 5_000;
 const DEADLINE_GRACE = 30_000;
@@ -25,7 +30,10 @@ type AttemptRow = {
   rules_version: number; seed: number; question_ids: string; status: string; started_at: number; finished_at: number | null;
   duration_ms: number | null; visible_ms: number | null; late_finish: number; percent: number | null; points: number | null;
   max_points: number | null; correct: number | null; total: number | null; grade: number | null; result_hash: string | null;
-  invalid_reason: string | null; deleted_at: number | null;
+  invalid_reason: string | null; deleted_at: number | null; disabled_ids: string | null; restricted: number;
+  lb_excluded_at: number | null; lb_exclude_reason: string | null; review_status: string | null; integrity_version: number;
+  hidden_count: number | null; hidden_ms: number | null; blur_count: number | null; blur_ms: number | null; offline_count: number | null; offline_ms: number | null;
+  integrity_json: string | null; review_reason: string | null;
 };
 
 function parseConfig(body: Record<string, unknown>): { config: GameConfiguration; dataVersion: string; ids: readonly string[] } {
@@ -34,7 +42,7 @@ function parseConfig(body: Record<string, unknown>): { config: GameConfiguration
   const ids = TOPIC_FEATURES[topic.id]?.[topic.dataVersion];
   if (!ids || ids.length === 0) return fail(400, 'unknown_topic');
   const count = body['count'] as QuestionCount;
-  if (!topic.counts.includes(count)) fail(400, 'invalid_config');
+  if (!topic.counts.includes(count)) fail(400, 'invalid_config');  // checked again against the teacher's set in startAttempt
   if (body['mode'] === 'practice') {
     return { config: { mode: 'practice', topicId: topic.id, count, showElapsed: body['showElapsed'] === true }, dataVersion: topic.dataVersion, ids };
   }
@@ -61,7 +69,13 @@ export async function startAttempt(ctx: Ctx, s: Session, body: Record<string, un
   const { config, dataVersion, ids } = parseConfig(body);
   const seed = body['seed'];
   if (typeof seed !== 'number' || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) fail(400, 'invalid_config');
-  const game = startGame(config, ids, seed as number);
+  // F4: questions come from the teacher's stored set; the browser only states which version it used.
+  const setting = await loadSetting(ctx.db, s.user.teacher_id!, config.topicId);
+  if ((body['settingsVersion'] ?? 0) !== setting.version) fail(409, 'settings_changed', { setting });
+  const off = new Set(setting.disabled);
+  const enabled = ids.filter((x) => !off.has(x));
+  if (!countOptions(TOPICS.find((t) => t.id === config.topicId)!.counts, enabled.length).includes(config.count)) fail(400, 'invalid_config');
+  const game = startGame(config, enabled, seed as number);
   const questions = game.mode === 'practice' ? game.base.map((t) => t.featureId) : game.answers.map((a) => a.featureId);
   const id = crypto.randomUUID();
   await ctx.db.batch([
@@ -69,10 +83,12 @@ export async function startAttempt(ctx: Ctx, s: Session, body: Record<string, un
     ctx.db.prepare("UPDATE attempts SET status = 'abandoned' WHERE student_id = ? AND status = 'started' AND result_hash IS NULL").bind(s.user.id),
     ctx.db.prepare(
       `INSERT INTO attempts (id, student_id, teacher_id, class_id, topic_id, data_version, mode, question_count, is_full, time_limit_min, show_elapsed,
-        rules_version, seed, question_ids, status, started_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'started', ?)`)
+        rules_version, seed, question_ids, status, started_at, settings_version, restricted, disabled_ids) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'started', ?, ?, ?, ?)`)
       .bind(id, s.user.id, s.user.teacher_id!, s.user.class_id!, config.topicId, dataVersion, config.mode, String(config.count),
-        questions.length === ids.length ? 1 : 0, config.mode === 'assessment' ? config.timeLimitMinutes : null,
-        config.mode === 'practice' && config.showElapsed ? 1 : 0, RULES_VERSION, seed as number, JSON.stringify(questions), ctx.now),
+        // "Full" = every question the teacher allows (owner decision F4 §0/2); `restricted` keeps it off F5's leaderboard.
+        questions.length === enabled.length ? 1 : 0, config.mode === 'assessment' ? config.timeLimitMinutes : null,
+        config.mode === 'practice' && config.showElapsed ? 1 : 0, RULES_VERSION, seed as number, JSON.stringify(questions), ctx.now,
+        setting.version, enabled.length < ids.length ? 1 : 0, setting.disabled.length ? JSON.stringify(setting.disabled) : null),
   ]);
   return json({ attemptId: id }, 201);
 }
@@ -111,7 +127,7 @@ export function replay(config: GameConfiguration, ids: readonly string[], seed: 
 }
 
 const resultOut = (a: AttemptRow) => ({
-  attemptId: a.id, status: a.status, percent: a.percent, points: a.points, maxPoints: a.max_points, correct: a.correct, total: a.total,
+  attemptId: a.id, status: a.status, reviewStatus: a.review_status, percent: a.percent, points: a.points, maxPoints: a.max_points, correct: a.correct, total: a.total,
   grade: a.grade, durationMs: a.duration_ms,
 });
 
@@ -135,7 +151,9 @@ export async function finishAttempt(ctx: Ctx, s: Session, id: string, body: Reco
   }
   const config = configOf(a);
   const ids = TOPIC_FEATURES[a.topic_id]?.[a.data_version] ?? fail(409, 'unknown_topic');
-  const r = replay(config, ids, a.seed, events);
+  // Replay with the set that was valid at the start; a later teacher change does not touch this round (F4-06).
+  const off = new Set(a.disabled_ids ? (JSON.parse(a.disabled_ids) as string[]) : []);
+  const r = replay(config, ids.filter((x) => !off.has(x)), a.seed, events);
   let row: Partial<AttemptRow>;
   if (!r.ok) {
     row = { status: 'invalid', invalid_reason: r.reason };
@@ -154,13 +172,34 @@ export async function finishAttempt(ctx: Ctx, s: Session, id: string, body: Reco
         percent: Math.round(result.percent * 100) / 100, total: result.total,
         ...(result.mode === 'practice' ? { points: result.points, max_points: result.maxPoints, correct: result.firstTryCorrect } : { correct: result.correct, grade: result.grade }),
       };
+      // F6: page-leave signals of an assessment, normalised on the server (merged, clamped, no double counting).
+      if (config.mode === 'assessment') {
+        const log = parseLog(body['integrity']);
+        const candidate = row.status === 'finished' && config.timeLimitMinutes === null && a.restricted === 0 && a.is_full === 1
+          && (fullSet(a.topic_id)?.(a.question_ids) ?? false);
+        if (log) {
+          const n = normalize(log, result.durationMs);
+          const sum = summarize(n);
+          Object.assign(row, {
+            integrity_version: INTEGRITY_VERSION, integrity_json: JSON.stringify(n),
+            hidden_count: sum.hiddenCount, hidden_ms: sum.hiddenMs, blur_count: sum.blurCount, blur_ms: sum.blurMs, offline_count: sum.offlineCount, offline_ms: sum.offlineMs,
+            review_status: candidate && sum.hiddenCount > 0 ? 'pending' : null,
+          });
+        } else {
+          // No signals (e.g. an old cached app): not verifiable, so a leaderboard candidate waits for the teacher.
+          row.review_status = candidate ? 'pending' : null;
+        }
+      }
     }
   }
   await ctx.db.prepare(
     `UPDATE attempts SET status = ?, finished_at = ?, duration_ms = ?, visible_ms = ?, late_finish = ?, percent = ?, points = ?, max_points = ?,
-      correct = ?, total = ?, grade = ?, invalid_reason = ?, result_hash = ? WHERE id = ? AND result_hash IS NULL`)
+      correct = ?, total = ?, grade = ?, invalid_reason = ?, result_hash = ?, integrity_version = ?, integrity_json = ?, hidden_count = ?, hidden_ms = ?,
+      blur_count = ?, blur_ms = ?, offline_count = ?, offline_ms = ?, review_status = ? WHERE id = ? AND result_hash IS NULL`)
     .bind(row.status!, ctx.now, row.duration_ms ?? null, row.visible_ms ?? null, row.late_finish ?? 0, row.percent ?? null, row.points ?? null,
-      row.max_points ?? null, row.correct ?? null, row.total ?? null, row.grade ?? null, row.invalid_reason ?? null, hash, a.id).run();
+      row.max_points ?? null, row.correct ?? null, row.total ?? null, row.grade ?? null, row.invalid_reason ?? null, hash,
+      row.integrity_version ?? 0, row.integrity_json ?? null, row.hidden_count ?? null, row.hidden_ms ?? null, row.blur_count ?? null, row.blur_ms ?? null,
+      row.offline_count ?? null, row.offline_ms ?? null, row.review_status ?? null, a.id).run();
   const stored = (await ctx.db.prepare('SELECT * FROM attempts WHERE id = ?').bind(a.id).first<AttemptRow>())!;
   if (stored.result_hash !== hash) fail(409, 'already_closed'); // a concurrent, different finish won
   return json({ result: resultOut(stored) });
@@ -214,9 +253,9 @@ export async function report(ctx: Ctx, s: Session, q: URLSearchParams) {
 
   const before = cursor ? Number(cursor) : Number.MAX_SAFE_INTEGER;
   const { results: rows } = await ctx.db.prepare(
-    `SELECT a.*, ${eff} AS eff_status, u.full_name, u.login, c.name AS class_name FROM attempts a JOIN users u ON u.id = a.student_id
+    `SELECT a.*, ${eff} AS eff_status, (${CANDIDATE_SQL}) AS lb_candidate, u.full_name, u.login, c.name AS class_name FROM attempts a JOIN users u ON u.id = a.student_id
      JOIN classes c ON c.id = a.class_id WHERE ${where} AND (? IS NULL OR ${eff} = ?) AND a.started_at < ?
-     ORDER BY a.started_at DESC LIMIT 50`).bind(...args, status, status, before).all<AttemptRow & { eff_status: string; full_name: string; login: string; class_name: string }>();
+     ORDER BY a.started_at DESC LIMIT 50`).bind(...args, status, status, before).all<AttemptRow & { eff_status: string; lb_candidate: number; full_name: string; login: string; class_name: string }>();
 
   return json({
     generatedAt: ctx.now,
@@ -230,7 +269,13 @@ export async function report(ctx: Ctx, s: Session, q: URLSearchParams) {
       id: a.id, studentId: a.student_id, fullName: a.full_name, login: a.login, className: a.class_name, topicId: a.topic_id, mode: a.mode,
       count: a.question_count, isFull: a.is_full === 1, timeLimitMinutes: a.time_limit_min, status: a.eff_status, startedAt: a.started_at,
       durationMs: a.duration_ms, visibleMs: a.visible_ms, timingComplete: a.visible_ms !== null, lateFinish: a.late_finish === 1,
-      percent: a.percent, points: a.points, maxPoints: a.max_points, correct: a.correct, total: a.total, grade: a.grade, invalidReason: a.invalid_reason,
+      percent: a.percent, points: a.points, maxPoints: a.max_points, correct: a.correct, total: a.total, grade: a.grade, invalidReason: a.invalid_reason, restricted: a.restricted === 1,
+      leaderboardCandidate: a.lb_candidate === 1 && (fullSet(a.topic_id)?.(a.question_ids) ?? false), lbExcluded: a.lb_excluded_at !== null, lbExcludeReason: a.lb_exclude_reason,
+      reviewStatus: a.review_status, reviewReason: a.review_reason, integrityVersion: a.integrity_version,
+      integrity: a.integrity_version > 0 ? {
+        hiddenCount: a.hidden_count, hiddenMs: a.hidden_ms, blurCount: a.blur_count, blurMs: a.blur_ms, offlineCount: a.offline_count, offlineMs: a.offline_ms,
+        log: a.integrity_json ? JSON.parse(a.integrity_json) as unknown : null,
+      } : null,
     })),
     nextBefore: rows.length === 50 ? rows[rows.length - 1]!.started_at : null,
   });

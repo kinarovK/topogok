@@ -97,6 +97,23 @@ Részletes terv: [F2_DESIGN](project/tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN
     Visszaállítás után kötelező minden munkamenetet visszavonni: `UPDATE sessions SET revoked_at = <most>`.
 - **Helyi futtatás:** a `node scripts/dev/serve.mjs dist 4176 --api` a valódi API-kódot futtatja memóriabeli SQLite-on. A beállítási kód: `local-setup-code-0123456789`.
 
+## Oldalelhagyási jelzések (F6)
+
+- Migráció: `0005_integrity.sql` (csak oszlopok és a `schema_meta` tábla). A health innentől a `schema_meta.version` értékét adja vissza, a smoke `schema=5`-öt vár.
+- A jelzések a lezáró kéréssel érkeznek, nincs új kérés. A szerver összefésüli és összegzi őket, a normalizált lista legfeljebb 200 intervallum.
+- Valódi telefonos és asztali próba még nincs (F6-09), lásd [F6_DESIGN.md](project/tasks/0003_ONLINE_PLATFORM/phases/F6_DESIGN.md) 5. pont.
+
+## Toplista és rekord (F5)
+
+- Migráció: `0004_leaderboard.sql`. A smoke `schema=4`-et vár.
+- A toplista fiókonként percenként egyszer kérhető le (`users.last_leaderboard_at`). A rekord a téma oldalán 1 olvasás.
+- Hogy egy kör toplistás-e, azt a szerver a lekérdezéskor dönti el. Törlés, kizárás, archiválás vagy új időszak után nincs mit újraszámolni.
+
+## Tanári elemkészletek (F4)
+
+- Migráció: `0003_topic_settings.sql`. A smoke `schema=3`-at vár.
+- Egy tanári mentés 1 írás. A diák körénél nincs új kérés: a beállítás a `/api/me` válaszban érkezik.
+
 ## Körök és tanári eredmények (F3)
 
 - Migráció: `0002_attempts.sql` (új `attempts` tábla, `sessions.last_report_at` oszlop); a CI a deploy előtt alkalmazza, a smoke `schema=2`-t vár a `/api/health` válaszban.

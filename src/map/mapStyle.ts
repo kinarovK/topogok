@@ -5,14 +5,14 @@ import type { CountryFeature, RegionFeature } from '../data/validation.ts';
 /** Map colours; values mirror src/styles/tokens.css. */
 export const MAP_COLORS: Record<ResolvedTheme, {
   background: string; country: string; countryLine: string; region: string; ocean: string; regionLine: string;
-  selected: string; selectedLine: string; wrong: string; wrongLine: string; correct: string; correctLine: string;
+  disabled: string; selected: string; selectedLine: string; wrong: string; wrongLine: string; correct: string; correctLine: string;
 }> = {
   light: {
-    background: '#EDF2F6', country: '#D3D7DD', countryLine: '#3D4756', region: '#E5DFD2', ocean: '#C7DDF0', regionLine: '#66717F',
+    background: '#EDF2F6', country: '#D3D7DD', countryLine: '#3D4756', region: '#E5DFD2', ocean: '#C7DDF0', regionLine: '#66717F', disabled: '#C4C9D0',
     selected: '#9FC5FF', selectedLine: '#1855B6', wrong: '#F4B3AE', wrongLine: '#A32222', correct: '#A9DDB7', correctLine: '#176238',
   },
   dark: {
-    background: '#111E2B', country: '#2B3543', countryLine: '#D5DCE5', region: '#414B59', ocean: '#1E3A55', regionLine: '#A5B0BD',
+    background: '#111E2B', country: '#2B3543', countryLine: '#D5DCE5', region: '#414B59', ocean: '#1E3A55', regionLine: '#A5B0BD', disabled: '#252D38',
     selected: '#315C91', selectedLine: '#8FB8FF', wrong: '#703C42', wrongLine: '#FFB4AB', correct: '#285C45', correctLine: '#A0E7B5',
   },
 };
@@ -24,7 +24,8 @@ const state = (name: string) => ['boolean', ['feature-state', name], false] as c
 export function fillColor(theme: ResolvedTheme) {
   const c = MAP_COLORS[theme];
   const base = ['case', ['==', ['get', 'kind'], 'ocean'], c.ocean, c.region];
-  return ['case', state('correct'), c.correct, state('wrong'), c.wrong, state('selected'), c.selected, base] as unknown as string;
+  // F4: an area the teacher switched off is neutral grey and never highlighted.
+  return ['case', state('disabled'), c.disabled, state('correct'), c.correct, state('wrong'), c.wrong, state('selected'), c.selected, base] as unknown as string;
 }
 
 export function highlightLineColor(theme: ResolvedTheme) {

@@ -59,7 +59,7 @@ for (const locale of ['hu', 'uk'] as const) {
       await shot(page, `${tag}-01-home`);
 
       // practice: wrong answer feedback, then the right answer
-      await start(page, E2E, 'practice', '5');
+      await start(page, E2E, 'practice');
       await dismissBanner(page);
       const id = await currentTargetId(page);
       await selectRegion(page, otherId(id));
@@ -77,7 +77,7 @@ for (const locale of ['hu', 'uk'] as const) {
       await shot(page, `${tag}-04-kyiv-zoomed`);
 
       // assessment with timer, a neutral selection, then results
-      await start(page, E2E, 'assessment', '5', locale === 'hu' ? '10 perc' : '10 хв');
+      await start(page, E2E, 'assessment', '5');
       const a = await currentTargetId(page);
       await selectRegion(page, a);
       await checkLayout(page);
@@ -108,7 +108,7 @@ for (const sz of sizes) {
     await page.goto(E2E);
     await checkLayout(page);
     await shot(page, `${sz.name}-01-home`);
-    await start(page, E2E, 'practice', '12');
+    await start(page, E2E, 'practice');
     await dismissBanner(page);
     await controlsClear(page);
     const id = await currentTargetId(page);
@@ -141,7 +141,7 @@ test('explore + help screenshots; no About page', async ({ page }) => {
 test('tectonics screenshots hu-light and uk-dark', async ({ page }) => {
   for (const [locale, theme] of [['hu', 'light'], ['uk', 'dark']] as const) {
     await prefs(page, locale, theme);
-    await start(page, E2E, 'practice', '5', undefined, 'tectonics');
+    await start(page, E2E, 'practice', 'all', 'tectonics');
     await dismissBanner(page);
     const id = await currentTargetId(page);
     await selectRegion(page, otherId(id));
@@ -161,7 +161,7 @@ test('tectonics screenshots hu-light and uk-dark', async ({ page }) => {
 test('continents screenshots: desktop hu-light practice + uk-dark explore, phone explore', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await prefs(page, 'hu', 'light');
-  await start(page, E2E, 'practice', '5', undefined, 'world');
+  await start(page, E2E, 'practice', 'all', 'world');
   await dismissBanner(page);
   const id = await currentTargetId(page);
   await selectRegion(page, otherId(id));

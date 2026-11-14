@@ -30,5 +30,11 @@ export default defineConfig({
     { command: 'node scripts/dev/serve.mjs dist 4176 --api', port: 4176, reuseExistingServer: false },
     // E2E build + the real API (results E2E: a student plays rounds on the map, the teacher reads them).
     { command: 'node scripts/dev/serve.mjs dist-e2e 4177 --api', port: 4177, reuseExistingServer: false },
+    // F4 (teacher question sets) on its own database.
+    { command: 'node scripts/dev/serve.mjs dist-e2e 4178 --api', port: 4178, reuseExistingServer: false },
+    // F5 (leaderboard) on its own database.
+    { command: 'node scripts/dev/serve.mjs dist-e2e 4179 --api', port: 4179, reuseExistingServer: false },
+    // F6 (page-leave signals and review) on its own database.
+    { command: 'node scripts/dev/serve.mjs dist-e2e 4181 --api', port: 4181, reuseExistingServer: false },
   ],
 });

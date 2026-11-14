@@ -1,6 +1,6 @@
 # F5 – Teljes térképes toplista és személyes rekord
 
-Állapot: specifikációtervezet. Függőség: F3–F4. Közös, elsőbbséget élvező ranglistaszerződés: [task.md, 7. szakasz](../task.md).
+Állapot: **megvalósítva a `staging` ágban** ([F5_DESIGN.md](F5_DESIGN.md)). Korábban: specifikációtervezet. Függőség: F3–F4. Közös, elsőbbséget élvező ranglistaszerződés: [task.md, 7. szakasz](../task.md).
 
 ## Eredmény
 

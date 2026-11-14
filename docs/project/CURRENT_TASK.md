@@ -1,6 +1,13 @@
 # Aktív feladat
 
-**F3 – Próbálkozások mentése és tanári panel:** megvalósítva a `f3/attempts` ágon, PR-jóváhagyásra vár ([F3_DESIGN.md](tasks/0003_ONLINE_PLATFORM/phases/F3_DESIGN.md) 11. pont). F4 csak külön jóváhagyás után indul.
+**F4, F4.5, F5, F6:** megvalósítva a `staging` ágon, egyetlen PR-ban várnak a `main`-be (tulajdonosi döntés, 2026-11-13, [DECISIONS.md](tasks/0003_ONLINE_PLATFORM/DECISIONS.md)). A specifikált fázisok ezzel elkészültek.
+
+Nyitott, nem fejlesztési pontok:
+- valódi Android-, iOS- és asztali próba (F6-09, és az F1 óta nyitott telefonos próba);
+- visszaállítási próba a mentésből (F3-12);
+- a tankönyvi adatok felhasználási engedélye.
+
+**F3 – Próbálkozások mentése és tanári panel:** kiadva (PR #9, 2026-11-12).
 
 **F2 – Fiókok és jogosultságok:** kiadva.
 
