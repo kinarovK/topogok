@@ -1,7 +1,9 @@
 import type { QuestionCount } from '../domain/types.ts';
 import { loadTopic, type LocalizedText, type Topic } from './validation.ts';
 
-export type TopicId = 'ukraine-administration' | 'ukraine-tectonics' | 'world-continents' | 'test-mixed';
+export type TopicId = 'ukraine-administration' | 'ukraine-tectonics' | 'world-continents'
+  | 'continent-africa' | 'continent-antarctica' | 'continent-australia-oceania' | 'continent-eurasia' | 'continent-north-america' | 'continent-south-america'
+  | 'test-mixed';
 
 export type TopicEntry = {
   id: TopicId;
@@ -31,6 +33,37 @@ const BASE_TOPICS: readonly TopicEntry[] = [
     id: 'world-continents', dataVersion: '2026.11.11.1',
     title: { hu: 'Kontinensek topója', uk: 'Материки та океани' },
     featureCount: 11, counts: [5, 'all'], partialCoverage: true,
+  },
+  // One question set per continent (scripts/data/continents/topics.ts): areas, seas, lines and points.
+  {
+    id: 'continent-africa', dataVersion: '2026.11.16.1',
+    title: { hu: 'Afrika', uk: 'Африка' },
+    featureCount: 24, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+  },
+  {
+    id: 'continent-eurasia', dataVersion: '2026.11.16.1',
+    title: { hu: 'Eurázsia', uk: 'Євразія' },
+    featureCount: 59, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+  },
+  {
+    id: 'continent-north-america', dataVersion: '2026.11.16.1',
+    title: { hu: 'Észak-Amerika', uk: 'Північна Америка' },
+    featureCount: 26, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+  },
+  {
+    id: 'continent-south-america', dataVersion: '2026.11.16.1',
+    title: { hu: 'Dél-Amerika', uk: 'Південна Америка' },
+    featureCount: 26, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+  },
+  {
+    id: 'continent-australia-oceania', dataVersion: '2026.11.16.1',
+    title: { hu: 'Ausztrália és Óceánia', uk: 'Австралія та Океанія' },
+    featureCount: 18, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+  },
+  {
+    id: 'continent-antarctica', dataVersion: '2026.11.16.1',
+    title: { hu: 'Antarktisz', uk: 'Антарктида' },
+    featureCount: 11, counts: [5, 'all'], partialCoverage: true, mixed: true,
   },
 ];
 

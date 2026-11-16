@@ -12,6 +12,12 @@ const DESC: Record<TopicId, MessageKey> = {
   'ukraine-administration': 'home.topicAdminDesc',
   'ukraine-tectonics': 'home.topicTectonicsDesc',
   'world-continents': 'home.topicWorldDesc',
+  'continent-africa': 'home.topicContinentDesc',
+  'continent-antarctica': 'home.topicContinentDesc',
+  'continent-australia-oceania': 'home.topicContinentDesc',
+  'continent-eurasia': 'home.topicContinentDesc',
+  'continent-north-america': 'home.topicContinentDesc',
+  'continent-south-america': 'home.topicContinentDesc',
   'test-mixed': 'home.topicMixedDesc',
 };
 

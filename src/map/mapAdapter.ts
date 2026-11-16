@@ -4,7 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import type { ResolvedTheme } from '../app/settings.tsx';
 import type { Bounds, CountryFeature, RegionFeature, RegionKind } from '../data/validation.ts';
 import { DEFAULT_TAP_BUFFER, distanceToPath, pickTarget, type NearCandidate, type ScreenPoint } from './hitTest.ts';
-import { geometryBounds } from './labelPoint.ts';
+import { geometryArea, geometryBounds } from './labelPoint.ts';
 import { buildStyle, fillColor, highlightLineColor, LAYER_LINES, LAYER_POINTS, LAYER_REGIONS_FILL, MAP_COLORS, thinColor } from './mapStyle.ts';
 
 // The worker is bundled from our own origin (CSP worker-src 'self'), not derived from the chunk URL.
@@ -57,6 +57,7 @@ export function padBounds([w, s, e, n]: Bounds, ratio: number): Bounds {
 
 export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
   const kinds = new Map<string, RegionKind>(o.regions.map((r) => [r.id, r.properties.kind]));
+  const sizes = new Map<string, number>(o.regions.map((r) => [r.id, geometryArea(r.geometry)]));
   const disabled = o.disabledIds ?? new Set<string>();
   const allowed = new Set([...kinds.keys()].filter((id) => !disabled.has(id)));
   // Lines and points of mixed topics, with their full geometry for exact screen distances.
@@ -127,7 +128,7 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
   map.on('error', (e) => { if (!ready) o.onError(e.error); });
   const pick = (pt: ScreenPoint): string | null => {
     const areas = map.queryRenderedFeatures([pt.x, pt.y], { layers: [LAYER_REGIONS_FILL] })
-      .map((f) => ({ id: String(f.properties?.['id'] ?? ''), kind: kinds.get(String(f.properties?.['id'] ?? '')) ?? 'oblast' }));
+      .map((f) => { const id = String(f.properties?.['id'] ?? ''); return { id, kind: kinds.get(id) ?? 'oblast', area: sizes.get(id) }; });
     const buffer = bufferPx();
     const near: NearCandidate[] = [];
     for (const f of thin) {

@@ -106,3 +106,12 @@ export function geometryBounds(g: FeatureGeometry): [number, number, number, num
   for (const [x, y] of pts) { w = Math.min(w, x); e = Math.max(e, x); s = Math.min(s, y); n = Math.max(n, y); }
   return [w, s, e, n];
 }
+
+/** Planar area of an area feature in Web Mercator units (outer rings minus holes); 0 for lines and points. */
+export function geometryArea(g: FeatureGeometry): number {
+  if (g.type !== 'Polygon' && g.type !== 'MultiPolygon') return 0;
+  const merc = ([x, y]: Position): [number, number] => [x, Math.log(Math.tan(Math.PI / 4 + (Math.max(-85, Math.min(85, y)) * Math.PI) / 360))];
+  const ring = (r: Position[]) => { let s = 0; for (let i = 0; i < r.length - 1; i++) { const [ax, ay] = merc(r[i]!); const [bx, by] = merc(r[i + 1]!); s += ax * by - bx * ay; } return Math.abs(s) / 2; };
+  const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
+  return polys.reduce((sum, poly) => sum + ring(poly[0]!) - poly.slice(1).reduce((h, r) => h + ring(r), 0), 0);
+}

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "data:build": "node scripts/data/build.ts",
-    "data:validate": "node scripts/data/build.ts --check && python3 scripts/data/world/derive.py --no-preview && node scripts/data/world/build.ts --check && node scripts/data/gen-server-topics.mjs --check",
+    "data:validate": "node scripts/data/build.ts --check && python3 scripts/data/world/derive.py --no-preview && node scripts/data/world/build.ts --check && node scripts/data/topic.ts scripts/data/continents/topics.ts --check && node scripts/data/gen-server-topics.mjs --check",
     "test": "node --test --test-reporter=spec \"tests/unit/**/*.test.ts\"",
     "test:api": "node --test --test-reporter=spec \"tests/api/**/*.test.ts\"",
     "typecheck": "tsc -p .",
@@ -24,7 +24,8 @@
     "check": "npm run lint && npm run typecheck && npm test && npm run data:validate && npm run build",
     "data:tectonics": "python3 scripts/data/tectonics/vectorize.py && node scripts/data/tectonics/build.ts",
     "data:world": "python3 scripts/data/world/derive.py && node scripts/data/world/build.ts",
-    "data:topic": "node scripts/data/topic.ts"
+    "data:topic": "node scripts/data/topic.ts",
+    "data:continents": "python3 scripts/data/world/derive.py --no-preview && node scripts/data/topic.ts scripts/data/continents/topics.ts && node scripts/data/gen-server-topics.mjs"
   },
   "dependencies": {
     "maplibre-gl": "6.16.0",

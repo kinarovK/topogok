@@ -57,3 +57,14 @@ Elvárt: minden sorban `valid = 1`. Ha nem, a csomag nem adható ki, és a hibá
   Hiba esetén nem készül csomag.
 - **Kimenet:** `public/data/<id>/<adatverzió>/`, valamint `reports/<id>-validation.{json,md}` (rétegenként a típus és a darabszám). `--check`: összeveti a commitolt csomaggal, `--out <mappa>`: máshová ír.
 - **Tesztadat:** a `scripts/data/fixtures/make-mixed.ts` egy mesterséges témát készít (mappa és GeoPackage, azonos tartalommal). Ez csak az E2E-buildbe kerül (`test-mixed`), a felhasználóknak nem jelenik meg.
+
+## Kontinensek (6 téma egy GeoPackage-ből) – `npm run data:continents`
+
+- **Forrás:** `sources/continents/foldrajz_07_osztaly.gpkg` (a tulajdonos fájlja; forráslink és licenc nincs megadva, ezért `unverified`). A rétegek neve `<kontinens>_<réteg>`, pl. `afrika_teruletek`; a `layerPrefix` választja ki egy téma rétegeit.
+- **Leíró:** `scripts/data/continents/topics.ts` – egy fájl hat témát ír le (a CLI tömböt is elfogad).
+- **Háttér:** csak az adott kontinens a világtéma szárazföldjéből (`build/world/world_continents.shp`, `data:world` készíti; `backgroundIds`). A háttér csak rajz: a tüskéket eltávolítja, a javíthatatlan sokszöget figyelmeztetéssel kihagyja.
+- **Vetület:** a kontinensre középre állított ferde tengelyű Hammer-vetület (`center`), az Antarktisznál a Déli-sark van középen.
+- **Víz:** a `tengerek` és `oceanok` réteg, valamint a `waterIds` listában szereplő tavak és öblök vízszínnel jelennek meg.
+- **Vonalak:** az egymáshoz ~1 km-en belül csatlakozó darabokat (pl. két pontból álló szakaszokra bontott folyó) egyesíti, így a folyó nem szakadozik.
+- **Pontok:** a durva háttérről 3°-on belül lelógó pont (pl. Erebus, Horn-fok) csak figyelmeztetés, a pont így is látszik.
+- **Átfedő területeknél** a kliens a kisebb területet választja (pl. tenger az óceánon belül).
