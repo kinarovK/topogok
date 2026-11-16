@@ -238,11 +238,13 @@
       "invalid_reason": "Adj meg indoklást (legalább 3 karakter).",
       "nothing_enabled": "Legalább egy elemet hagyj bekapcsolva.",
       "unknown_feature": "Ismeretlen elem.",
-      "settings_conflict": "Közben máshol módosították a beállítást."
+      "settings_conflict": "Közben máshol módosították a beállítást.",
+      "invalid_setting": "Az érték a megengedett tartományon kívül esik."
     },
     "results": "Eredmények",
     "topics": "Témák",
-    "leaderboard": "Toplista"
+    "leaderboard": "Toplista",
+    "settings": "Beállítások"
   },
   "save": {
     "pending": "Mentés függőben… (a kapcsolat helyreálltakor automatikusan elküldjük)",
@@ -350,5 +352,12 @@
     "blur": "Nem aktív ablak",
     "offline": "Nincs kapcsolat",
     "interval": "{from} – {to}"
+  },
+  "appSettings": {
+    "tapTitle": "Kattintási puffer (folyók, pontok)",
+    "tapHint": "Ennyi képernyő-képponton belül számít találatnak a koppintás vagy kattintás egy folyó vagy pont közelében. Távolabb a terület jelölődik ki. A változás minden felhasználónál a következő betöltéskor érvényes.",
+    "touch": "Érintőképernyő ({min}–{max} px)",
+    "mouse": "Egér ({min}–{max} px)",
+    "defaults": "Alapértékek"
   }
 }

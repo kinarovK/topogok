@@ -1,3 +1,4 @@
+import { applyAppSettings, type AppSettings } from '../app/appSettings.ts';
 import type { IntegrityLog } from '../../shared/integrity.ts';
 // Browser client for /api/*. Same origin, cookie session (HttpOnly; the page never sees the token).
 import { deriveKey, passwordPayload } from '../../shared/kdf.ts';
@@ -79,7 +80,9 @@ const qs = (params: Record<string, string | null | undefined>) => {
 };
 
 export const api = {
-  me: () => call<{ user: Me | null }>('GET', '/api/me').then((r) => r.user),
+  // The response also carries the global app settings (0005: tap buffer), applied for every visitor.
+  me: () => call<{ user: Me | null; app?: AppSettings }>('GET', '/api/me').then((r) => { applyAppSettings(r.app); return r.user; }),
+  saveAppSettings: (s: AppSettings) => call<{ app: AppSettings }>('PUT', '/api/app-settings', s).then((r) => { applyAppSettings(r.app); return r.app; }),
   async login(login: string, password: string) {
     const { salt, iterations } = await call<{ salt: string; iterations: number }>('POST', '/api/auth/salt', { login });
     const key = await deriveKey(password, salt, iterations);
