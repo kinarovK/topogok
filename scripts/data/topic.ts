@@ -22,12 +22,16 @@ export type TopicConfig = {
   title: LocalizedText;
   /** Source path relative to the repository root (folder, .gpkg, .shp or .geojson). */
   source: string;
+  /** Only layers whose name starts with this prefix (one GeoPackage holding several topics); the prefix is dropped. */
+  layerPrefix?: string;
   /** Optional per-layer field renames when a source does not follow id / name_hu / name_uk. */
   fields?: Record<string, { id?: string; name_hu?: string; name_uk?: string }>;
   /** Optional per-layer titles for the teacher's checklist (default: the layer name). */
   layerTitles?: Record<string, LocalizedText>;
   /** Area layers whose features must not overlap each other (e.g. countries). */
   coverage?: string[];
+  /** Area simplification tolerance in degrees, per layer (default 0.01°); detailed coastlines would exceed the size budget. */
+  simplifyAreas?: Record<string, number>;
   /** Line simplification tolerance in degrees, per layer (default 0.005°). */
   simplify?: Record<string, number>;
   provenance: { source: string | null; sourceUrl: string | null; license: string | null; licenseUrl: string | null; status: 'unverified' | 'verified' };
@@ -41,6 +45,26 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const BACKGROUND = /^(hatter|háttér|background)$/i;
 const MAX_GZIP_BYTES = 1_500_000;
 const DEFAULT_TOLERANCE = 0.005;
+const DEFAULT_AREA_TOLERANCE = 0.01;
+
+/**
+ * Simplifies every ring (closed, so both ends stay). Rings that collapse below 4 positions are dropped unless they
+ * are a polygon's outer ring; a polygon whose outer ring collapses (a tiny islet) is dropped while another remains.
+ */
+export function simplifyPolygons(polys: PolygonCoords[], tol: number): PolygonCoords[] {
+  if (tol <= 0) return polys;
+  const ring = (r: Pos[]) => { const open = simplifyLine(r.slice(0, -1).concat([r[0]!]), tol); return open; };
+  const out: PolygonCoords[] = [];
+  for (const poly of polys) {
+    const outer = ring(poly[0]!);
+    if (outer.length < 4) continue;
+    out.push([outer, ...poly.slice(1).map(ring).filter((h) => h.length >= 4)]);
+  }
+  if (out.length) return out;
+  // Keep at least the largest original polygon so that no feature disappears.
+  const size = (p: PolygonCoords) => p[0]!.length;
+  return [polys.reduce((a, b) => (size(b) > size(a) ? b : a))];
+}
 const ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 const round = (v: number) => Math.round(v * 1e6) / 1e6;
@@ -93,7 +117,10 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
   const check = (id: string, ok: boolean, detail: string) => { checks.push({ id, status: ok ? 'pass' : 'fail', detail }); return ok; };
   const srcPath = isAbsolute(config.source) ? config.source : join(sourceRoot, config.source);
   let layers: SourceLayer[] = [];
-  try { layers = readSource(srcPath); check('source', true, `${layers.length} layer(s): ${layers.map((l) => l.name).join(', ')}`); }
+  try {
+    layers = readSource(srcPath);
+    if (config.layerPrefix) layers = layers.filter((l) => l.name.startsWith(config.layerPrefix!)).map((l) => ({ ...l, name: l.name.slice(config.layerPrefix!.length) }));
+    check('source', true, `${layers.length} layer(s): ${layers.map((l) => l.name).join(', ')}`); }
   catch (e) { check('source', false, String(e instanceof Error ? e.message : e)); }
 
   const background = layers.filter((l) => BACKGROUND.test(l.name));
@@ -128,13 +155,21 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
         if (pts.length !== 1) { problems.push(`${where}: a point element must be exactly one point (got ${pts.length})`); continue; }
         geometry = { type: 'Point', coordinates: [round(pts[0]![0]), round(pts[0]![1])] }; geomType = 'point';
       } else if (g.type === 'LineString' || g.type === 'MultiLineString') {
-        const parts = (g.type === 'LineString' ? [g.coordinates] : g.coordinates)
+        const all = (g.type === 'LineString' ? [g.coordinates] : g.coordinates)
           .map((l) => dedupe(simplifyLine(dedupe(l), tol).map((p): Pos => [round(p[0]), round(p[1])])));
-        if (parts.some((l) => l.length < 2)) { problems.push(`${where}: a line part has fewer than 2 distinct points`); continue; }
+        // Tiny parts that vanish when simplified are dropped; a line needs at least one real part.
+        const parts = all.filter((l) => l.length >= 2);
+        if (!parts.length) { problems.push(`${where}: a line part has fewer than 2 distinct points`); continue; }
         geometry = parts.length === 1 ? { type: 'LineString', coordinates: parts[0]! } : { type: 'MultiLineString', coordinates: parts }; geomType = 'line';
       } else {
-        const polys = polysOf(g).map((poly) => rewind(poly.map((ring) => ring.map((p): Pos => [round(p[0]), round(p[1])]))));
-        const issues = polys.flatMap((poly) => validatePolygon(id, poly));
+        // Simplification can make a ring cross itself; then the tolerance is halved until the result is valid.
+        let tolA = config.simplifyAreas?.[layer.name] ?? DEFAULT_AREA_TOLERANCE;
+        let polys: PolygonCoords[] = []; let issues: ReturnType<typeof validatePolygon> = [];
+        for (let attempt = 0; attempt < 8; attempt++, tolA = attempt === 7 ? 0 : tolA / 2) {
+          polys = simplifyPolygons(polysOf(g), tolA).map((poly) => rewind(poly.map((ring) => dedupe(ring.map((p): Pos => [round(p[0]), round(p[1])])))));
+          issues = polys.flatMap((poly) => validatePolygon(id, poly));
+          if (!issues.length || tolA === 0) break;
+        }
         if (issues.length) { problems.push(`${where}: ${issues.slice(0, 3).map((x) => `${x.code} ${x.detail}`).join('; ')}`); continue; }
         geometry = polys.length === 1 ? { type: 'Polygon', coordinates: polys[0]! } : { type: 'MultiPolygon', coordinates: polys }; geomType = 'area';
       }
