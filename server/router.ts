@@ -1,14 +1,15 @@
 import * as admin from './admin.ts';
 import * as attempts from './attempts.ts';
 import * as board from './leaderboard.ts';
+import { loadAppSettings, saveAppSettings } from './appSettings.ts';
 import { listSettings, loadSettings, saveSetting } from './topicSettings.ts';
 import { checkCsrf, currentSession, login, logout, meBody, requireSession, saltFor, type Ctx } from './auth.ts';
 import type { Env } from './types.ts';
 import { ApiError, fail, json } from './util.ts';
 import { readBody } from './validate.ts';
 
-export const SCHEMA_VERSION = 5;
-const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts', 'topic_settings', 'lb_periods', 'schema_meta'];
+export const SCHEMA_VERSION = 6;
+const SCHEMA_TABLES = ['users', 'classes', 'sessions', 'login_throttle', 'audit_log', 'recovery_codes', 'attempts', 'topic_settings', 'lb_periods', 'schema_meta', 'app_settings'];
 
 /** Entry point for every /api/* request (Cloudflare Pages Function and the local test server). */
 export async function handle(request: Request, env: Env, now = Date.now()): Promise<Response> {
@@ -31,10 +32,11 @@ export async function handle(request: Request, env: Env, now = Date.now()): Prom
       case 'POST /api/setup': return await admin.setup(ctx, body);
       case 'GET /api/me': {
         const s = await currentSession(ctx);
-        if (!s) return json({ user: null });
+        const app = await loadAppSettings(ctx.db);
+        if (!s) return json({ user: null, app });
         // Students get their teacher's question sets with the session (no extra request per round, F4).
         const topicSettings = s.user.role === 'student' && s.user.teacher_id ? await loadSettings(ctx.db, s.user.teacher_id) : undefined;
-        return json({ user: { ...meBody(s), ...(topicSettings ? { topicSettings } : {}) } }, 200, s.extendCookie ? { 'set-cookie': s.extendCookie } : {});
+        return json({ user: { ...meBody(s), ...(topicSettings ? { topicSettings } : {}) }, app }, 200, s.extendCookie ? { 'set-cookie': s.extendCookie } : {});
       }
     }
 
@@ -43,6 +45,7 @@ export async function handle(request: Request, env: Env, now = Date.now()): Prom
     const m = path.match(/^\/api\/(classes|students|teachers)(?:\/([^/]+))?(?:\/(password))?$/);
     if (path === '/api/audit' && request.method === 'GET') return withCookie(await admin.listAudit(ctx, s, q));
     if (path === '/api/attempts' && request.method === 'POST') return withCookie(await attempts.startAttempt(ctx, s, body));
+    if (path === '/api/app-settings' && request.method === 'PUT') return withCookie(await saveAppSettings(ctx, s, body));
     if (path === '/api/topic-settings' && request.method === 'GET') return withCookie(await listSettings(ctx, s, q));
     const ts = path.match(/^\/api\/topic-settings\/([a-z0-9-]+)$/);
     if (ts && request.method === 'PUT') return withCookie(await saveSetting(ctx, s, ts[1]!, body));

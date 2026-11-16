@@ -10,9 +10,10 @@ import { Field, TextInput, formatDate, useAction, usePasswordFields } from './co
 import { ResultsPanel } from './ResultsPanel.tsx';
 import { TopicsPanel } from './TopicsPanel.tsx';
 import { BoardPanel } from './BoardPanel.tsx';
+import { SettingsPanel } from './SettingsPanel.tsx';
 import s from './account.module.css';
 
-type Tab = 'students' | 'classes' | 'topics' | 'results' | 'leaderboard' | 'teachers' | 'audit';
+type Tab = 'students' | 'classes' | 'topics' | 'results' | 'leaderboard' | 'teachers' | 'audit' | 'settings';
 
 export function ManageScreen({ onBack }: { onBack: () => void }) {
   const { t } = useSettings();
@@ -28,7 +29,7 @@ export function ManageScreen({ onBack }: { onBack: () => void }) {
   useEffect(() => { loadTeachers().catch(() => undefined); }, [loadTeachers]);
   if (!me || me.role === 'student') return null;
   const scope = isAdmin ? teacherId : null;
-  const tabs: Tab[] = isAdmin ? ['teachers', 'students', 'classes', 'topics', 'results', 'leaderboard', 'audit'] : ['students', 'classes', 'topics', 'results', 'leaderboard'];
+  const tabs: Tab[] = isAdmin ? ['teachers', 'students', 'classes', 'topics', 'results', 'leaderboard', 'audit', 'settings'] : ['students', 'classes', 'topics', 'results', 'leaderboard'];
   const scoped = tab === 'students' || tab === 'classes' || tab === 'topics' || tab === 'results' || tab === 'leaderboard';
   return (
     <div className={app.page}>
@@ -49,6 +50,7 @@ export function ManageScreen({ onBack }: { onBack: () => void }) {
         : tab === 'topics' ? <TopicsPanel key={scope ?? 'own'} scope={scope} />
         : tab === 'leaderboard' ? <BoardPanel key={scope ?? 'own'} scope={scope} /> : <ResultsPanel key={scope ?? 'own'} scope={scope} />)}
       {tab === 'audit' && isAdmin && <AuditPanel />}
+      {tab === 'settings' && isAdmin && <SettingsPanel />}
       <div className={app.actions}><Button onClick={onBack}>{t('common.back')}</Button></div>
     </div>
   );

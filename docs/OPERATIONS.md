@@ -97,6 +97,12 @@ Részletes terv: [F2_DESIGN](project/tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN
     Visszaállítás után kötelező minden munkamenetet visszavonni: `UPDATE sessions SET revoked_at = <most>`.
 - **Helyi futtatás:** a `node scripts/dev/serve.mjs dist 4176 --api` a valódi API-kódot futtatja memóriabeli SQLite-on. A beállítási kód: `local-setup-code-0123456789`.
 
+## Vegyes témák és kattintási puffer (0005)
+
+- Migráció: `0006_app_settings.sql`. A smoke `schema=6`-ot vár.
+- A kattintási puffert a szuperadmin a „Beállítások” fülön állítja (érintés 8–48 px, egér 4–30 px). A változás naplózott, és a következő betöltéskor minden felhasználónál érvényes.
+- Új vegyes téma: `npm run data:topic -- scripts/data/<téma>/topic.ts`, utána `node scripts/data/gen-server-topics.mjs`, majd a téma felvétele a `src/data/topicRegistry.ts`-be. Lásd: [scripts/data/README.md](../scripts/data/README.md).
+
 ## Oldalelhagyási jelzések (F6)
 
 - Migráció: `0005_integrity.sql` (csak oszlopok és a `schema_meta` tábla). A health innentől a `schema_meta.version` értékét adja vissza, a smoke `schema=5`-öt vár.

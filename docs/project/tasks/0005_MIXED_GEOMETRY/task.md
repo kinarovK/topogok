@@ -1,6 +1,6 @@
 # 0005 – Vegyes elemtípusok: terület, vonal (folyó) és pont egy térképen
 
-Dátum: 2026-11-16. Állapot: **terv, a tulajdonos döntéseivel (9. pont) frissítve, jóváhagyásra (docs PR)**.
+Dátum: 2026-11-16. Állapot: **megvalósítva a `staging` ágban (10. pont)**; a valódi Afrika-tartalom külön feladat.
 
 ## Tulajdonosi kérés (2026-11-16)
 
@@ -179,3 +179,46 @@ Egy ágon, `staging` + egy PR módszerrel, ahogy F4–F6:
    - Egy geodatabase (GeoPackage-be alakítva) egy kérdéssor, geometriatípustól függetlenül.
    - A mezőnevek `id`, `name_hu`, `name_uk`.
 4. **A típus nem jelenik meg** a kérdésben: „Keresd meg: Nílus”.
+
+## 10. Megvalósítás (2026-11-16)
+
+Ágak: `m1/mixed-data`, `m2/mixed-map`, `m3/settings`, mind a `staging`-be merge-elve.
+
+- **M1 – adat:**
+  - `scripts/data/shapefile.ts`: pont, vonal, Z/M változatok;
+  - `scripts/data/wkb.ts`, `scripts/data/gpkg.ts`: GeoPackage a `node:sqlite` modullal;
+  - `scripts/data/sources.ts`: a konvenció;
+  - `scripts/data/topic.ts`: építő, ellenőrzés, jelentés;
+  - parancs: `npm run data:topic -- <topic.ts>`, lásd a `scripts/data/README.md`-t.
+
+  A mappa (SHP + GeoJSON) és a GeoPackage ugyanabból a tartalomból bájtra azonos csomagot ad (unit teszt).
+- **M2 – térkép:**
+  - folyóréteg körvonallal, pontréteg kiemelő gyűrűvel;
+  - pufferes választás: `src/map/hitTest.ts` (`pickTarget`, `distanceToPath`), `src/map/mapAdapter.ts`;
+  - „Mutasd meg”: a nézeten kívüli vonal vagy pont a nézetbe úszik.
+- **M3 – beállítás:**
+  - `migrations/0006_app_settings.sql`;
+  - `server/appSettings.ts` (`PUT /api/app-settings`, csak szuperadmin, határok, napló);
+  - a `/api/me` vendégnek is visszaadja;
+  - „Beállítások” fül;
+  - a tanári „Témák” lista rétegenként csoportosít.
+- **Teszttéma:**
+  - `test-mixed`: 2 ország, 3 folyó (kettő 0,6°-ra egymástól), 3 pont;
+  - csak az E2E-buildbe kerül; a kiadási build ellenőrzése hibát ad, ha tesztadat kerülne bele.
+
+**Eltérések a tervtől:**
+- **Feliratok:** a folyónév nem a vonal mentén görbül, hanem a vonal felezőpontján áll, a pontnév pedig a pont fölött. A meglévő HTML-feliratozás így ütközéskezeléssel együtt működik, és nem kell betűkészletet letölteni.
+- **E2E:** a vegyes kör mentése és a toplista nincs külön E2E-vel lefedve. A szerver ezekben csak azonosítókkal dolgozik, ezt az eddigi API-tesztek lefedik. Egy valódi vegyes témánál a `TOPIC_FEATURES` generátor az új téma azonosítóit ugyanúgy felveszi.
+
+**Tesztek:**
+- unit:
+  - `tests/unit/mixedData.test.ts`;
+  - `tests/unit/tapBuffer.test.ts`;
+- API: `tests/api/appSettings.test.ts`;
+- E2E:
+  - `tests/e2e/mixed.spec.ts`: 15 px-ről találat, 40 px-ről a terület; teljes vegyes kör;
+  - `tests/e2e/tapSettings.spec.ts`: a szuperadmin által növelt puffer, csoportosított lista.
+
+**Nyitott:**
+- a pufferérték finomhangolása valódi eszközön (a felületről állítható);
+- az első valódi vegyes téma a tulajdonos adataiból.
