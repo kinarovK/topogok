@@ -28,3 +28,32 @@ Elvárt: minden sorban `valid = 1`. Ha nem, a csomag nem adható ki, és a hibá
 ## Adatverzió
 
 `config.ts`: `DATA_VERSION = '2026.11.05.1'`. Új bemenetnél új verzió kell, a régi könyvtár maradhat a korábbi kliensek miatt.
+
+## Vegyes témák (terület, vonal, pont) – `npm run data:topic -- <topic.ts>`
+
+Általános, konvenció alapú építő a vegyes témákhoz ([0005_MIXED_GEOMETRY](../../docs/project/tasks/0005_MIXED_GEOMETRY/task.md)).
+
+- **Forrás:**
+  - egy mappa: benne minden `.shp` / `.geojson` fájl egy réteg;
+  - vagy egy `.gpkg`: minden táblája egy réteg;
+  - vagy egyetlen fájl.
+
+  A téma összes rétege egy kérdéssorba kerül, a geometriatípustól függetlenül.
+- **Geodatabase:** a QGIS-szel települt GDAL alakítja GeoPackage-be:
+  ```bat
+  "C:\Program Files\QGIS 4.2.2\bin\ogr2ogr.exe" -f GPKG afrika.gpkg afrika.gdb
+  ```
+- **Mezők:** `id`, `name_hu`, `name_uk`. Ha a forrásban más a mezőnév, a téma leírójában (`fields`) rétegenként átnevezhető. Ha nincs `id`, a program képez egyet (`réteg-sorszám`).
+- **Háttér:** a `hatter` (vagy `background`) réteg nem kérdezhető. Ha nincs ilyen, a kérdezett területek adják a hátteret.
+- **CRS:** csak földrajzi WGS 84; más esetben hibaüzenet, nincs csendes átvetítés.
+- **Ellenőrzés:**
+  - egyedi azonosító, hu/uk név;
+  - területnél OGC-szabályok;
+  - vonalnál legalább 2 különböző pont (egyszerűsítés után is);
+  - pontnál, hogy a háttéren van;
+  - lefedő rétegnél az átfedés;
+  - méretkeret (1,5 MB tömörítve).
+
+  Hiba esetén nem készül csomag.
+- **Kimenet:** `public/data/<id>/<adatverzió>/`, valamint `reports/<id>-validation.{json,md}` (rétegenként a típus és a darabszám). `--check`: összeveti a commitolt csomaggal, `--out <mappa>`: máshová ír.
+- **Tesztadat:** a `scripts/data/fixtures/make-mixed.ts` egy mesterséges témát készít (mappa és GeoPackage, azonos tartalommal). Ez csak az E2E-buildbe kerül (`test-mixed`), a felhasználóknak nem jelenik meg.
