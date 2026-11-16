@@ -5,7 +5,7 @@ import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } 
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { partsToPolygons, pointInRing, validatePolygon, type Ring } from '../../scripts/data/geometry.ts';
-import { DataError, loadTopic, sha256Hex, validateManifest, validateRegions } from '../../src/data/validation.ts';
+import { DataError, loadTopic, sha256Hex, validateManifest, validateRegions, type PolygonGeometry } from '../../src/data/validation.ts';
 
 const root = resolve(import.meta.dirname, '../..');
 const pkg = join(root, 'public/data/ukraine-administration/2026.11.05.1');
@@ -170,7 +170,8 @@ test('continents package: 6 continents + 5 oceans with hu/uk names, Natural Eart
   for (const r of topic.regions) {
     const p = r.properties.label;
     assert.ok(p, `${r.id} has a label point`);
-    const polys = r.geometry.type === 'Polygon' ? [r.geometry.coordinates] : r.geometry.coordinates;
+    const g = r.geometry as PolygonGeometry;
+    const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
     assert.ok(polys.some((poly) => pointInRing(p as [number, number], poly[0] as [number, number][]) && !poly.slice(1).some((h) => pointInRing(p as [number, number], h as [number, number][]))), `${r.id} label point inside`);
   }
 });

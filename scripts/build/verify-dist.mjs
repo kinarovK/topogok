@@ -21,7 +21,10 @@ if (forbidden.length) errors.push(`forbidden files in build: ${forbidden.join(',
 const sw = readFileSync(join(dir, 'sw.js'), 'utf8');
 const precached = new Set([...sw.matchAll(/url:"([^"]+)"/g)].map((m) => m[1]));
 const notPrecached = ['sw.js', '_headers', '_routes.json', 'registerSW.js'];
-const missing = files.filter((f) => !notPrecached.includes(f) && !/^workbox-[\w-]+\.js$/.test(f) && !precached.has(f));
+// The synthetic test topic (0005) is added to the E2E build after bundling; it must never be in a release build.
+const testData = files.filter((f) => f.startsWith('data/test-'));
+if (testData.length && !/dist-e2e\/?$/.test(dir)) errors.push(`test topic data in a release build: ${testData.join(', ')}`);
+const missing = files.filter((f) => !notPrecached.includes(f) && !/^workbox-[\w-]+\.js$/.test(f) && !precached.has(f) && !f.startsWith('data/test-'));
 if (missing.length) errors.push(`not in precache: ${missing.join(', ')}`);
 for (const must of ['index.html', 'manifest.webmanifest']) if (!precached.has(must)) errors.push(`precache lacks ${must}`);
 if (![...precached].some((u) => /maplibre-gl-worker.*\.mjs$/.test(u))) errors.push('precache lacks the MapLibre worker');

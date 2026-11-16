@@ -4,9 +4,21 @@ export type LocalizedNumber = { hu: number; uk: number };
 export type Bounds = [number, number, number, number];
 export type Position = [number, number];
 export type PolygonGeometry = { type: 'Polygon'; coordinates: Position[][] } | { type: 'MultiPolygon'; coordinates: Position[][][] };
-export const REGION_KINDS = ['oblast', 'autonomous-republic', 'city', 'tectonic-unit', 'continent', 'ocean'] as const;
+/** Lines and points of mixed topics (0005): rivers, extreme points, cities. */
+export type LineGeometry = { type: 'LineString'; coordinates: Position[] } | { type: 'MultiLineString'; coordinates: Position[][] };
+export type PointGeometry = { type: 'Point'; coordinates: Position };
+export type FeatureGeometry = PolygonGeometry | LineGeometry | PointGeometry;
+export type GeomType = 'area' | 'line' | 'point';
+export const REGION_KINDS = ['oblast', 'autonomous-republic', 'city', 'tectonic-unit', 'continent', 'ocean', 'generic'] as const;
 export type RegionKind = (typeof REGION_KINDS)[number];
-export type RegionFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText; kind: RegionKind; label?: Position; labelMinZoom?: LocalizedNumber; labelWidth?: LocalizedNumber }; geometry: PolygonGeometry };
+export type RegionFeature = {
+  type: 'Feature'; id: string;
+  properties: { id: string; names: LocalizedText; kind: RegionKind; geomType?: GeomType; layer?: string; label?: Position; labelMinZoom?: LocalizedNumber; labelWidth?: LocalizedNumber };
+  geometry: FeatureGeometry;
+};
+/** Geometry type of a question feature; packages from before 0005 carry areas only. */
+export const geomTypeOf = (r: RegionFeature): GeomType => r.properties.geomType ?? 'area';
+export type LayerGroup = { id: string; title: LocalizedText; geomTypes: GeomType[] };
 /** Background land: the country outline for country topics, all land for the world topic. */
 export type CountryFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText }; geometry: PolygonGeometry };
 
@@ -16,7 +28,7 @@ export type Provenance = {
   status: 'unverified' | 'verified'; ownerStatement?: { hu: string; uk: string };
 };
 export type TopicManifest = {
-  schemaVersion: 1; id: string; dataVersion: string; title: LocalizedText; geometryKind: 'polygon'; featureCount: number;
+  schemaVersion: 1; id: string; dataVersion: string; title: LocalizedText; geometryKind: 'polygon' | 'mixed'; featureCount: number; groups?: LayerGroup[];
   bounds: Bounds; layers: { background: { path: string; sha256: string }; questions: { path: string; sha256: string } };
   insets: Inset[]; provenance: Provenance;
 };
@@ -39,7 +51,8 @@ export function validateManifest(v: unknown, expected: { id: string; dataVersion
   if (v['id'] !== expected.id) throw bad('wrong topic id');
   if (v['dataVersion'] !== expected.dataVersion) throw bad(`dataVersion ${String(v['dataVersion'])} != app ${expected.dataVersion}`);
   if (!isText(v['title'])) throw bad('title');
-  if (v['geometryKind'] !== 'polygon') throw bad('geometryKind');
+  if (v['geometryKind'] !== 'polygon' && v['geometryKind'] !== 'mixed') throw bad('geometryKind');
+  if (v['groups'] !== undefined && !(Array.isArray(v['groups']) && v['groups'].every((g) => isObj(g) && typeof g['id'] === 'string' && isText(g['title']) && Array.isArray(g['geomTypes'])))) throw bad('groups');
   if (typeof v['featureCount'] !== 'number' || v['featureCount'] < 1) throw bad('featureCount');
   if (!isBounds(v['bounds'])) throw bad('bounds');
   const layers = v['layers'];
@@ -57,12 +70,20 @@ export function validateManifest(v: unknown, expected: { id: string; dataVersion
   return v as unknown as TopicManifest;
 }
 
-function validGeometry(g: unknown): g is PolygonGeometry {
+const isPos = (p: unknown) => Array.isArray(p) && p.length >= 2 && Number.isFinite(p[0]) && Number.isFinite(p[1]);
+const isPath = (r: unknown, min: number) => Array.isArray(r) && r.length >= min && r.every(isPos);
+
+function validGeometry(g: unknown, geomType: GeomType = 'area'): g is FeatureGeometry {
   if (!isObj(g)) return false;
-  const ring = (r: unknown) => Array.isArray(r) && r.length >= 4 && r.every((p) => Array.isArray(p) && p.length >= 2 && Number.isFinite(p[0]) && Number.isFinite(p[1]));
-  const poly = (p: unknown) => Array.isArray(p) && p.length >= 1 && p.every(ring);
-  if (g['type'] === 'Polygon') return poly(g['coordinates']);
-  if (g['type'] === 'MultiPolygon') return Array.isArray(g['coordinates']) && g['coordinates'].length >= 1 && g['coordinates'].every(poly);
+  const poly = (p: unknown) => Array.isArray(p) && p.length >= 1 && p.every((r) => isPath(r, 4));
+  const c = g['coordinates'];
+  if (geomType === 'point') return g['type'] === 'Point' && isPos(c);
+  if (geomType === 'line') {
+    if (g['type'] === 'LineString') return isPath(c, 2);
+    return g['type'] === 'MultiLineString' && Array.isArray(c) && c.length >= 1 && c.every((l) => isPath(l, 2));
+  }
+  if (g['type'] === 'Polygon') return poly(c);
+  if (g['type'] === 'MultiPolygon') return Array.isArray(c) && c.length >= 1 && c.every(poly);
   return false;
 }
 
@@ -80,7 +101,10 @@ export function validateRegions(v: unknown, manifest: TopicManifest): RegionFeat
     ids.add(f['id']);
     if (!isText(props['names'])) throw bad(`names for ${f['id']}`);
     if (!(REGION_KINDS as readonly string[]).includes(props['kind'] as string)) throw bad(`kind for ${f['id']}`);
-    if (!validGeometry(f['geometry'])) throw bad(`geometry for ${f['id']}`);
+    const geomType = props['geomType'] ?? 'area';
+    if (geomType !== 'area' && geomType !== 'line' && geomType !== 'point') throw bad(`geomType for ${f['id']}`);
+    if (props['layer'] !== undefined && typeof props['layer'] !== 'string') throw bad(`layer for ${f['id']}`);
+    if (!validGeometry(f['geometry'], geomType)) throw bad(`geometry for ${f['id']}`);
     const label = props['label'];
     for (const key of ['labelMinZoom', 'labelWidth']) {
       const v = props[key];
@@ -96,7 +120,7 @@ export function validateCountry(v: unknown): CountryFeature {
   const bad = (m: string) => new DataError('invalid', `country: ${m}`);
   if (!isObj(v) || v['type'] !== 'FeatureCollection' || !Array.isArray(v['features']) || v['features'].length !== 1) throw bad('expected one feature');
   const f = v['features'][0] as unknown;
-  if (!isObj(f) || typeof f['id'] !== 'string' || f['id'] === '' || !validGeometry(f['geometry'])) throw bad('feature');
+  if (!isObj(f) || typeof f['id'] !== 'string' || f['id'] === '' || !validGeometry(f['geometry'], 'area')) throw bad('feature');
   return f as unknown as CountryFeature;
 }
 
