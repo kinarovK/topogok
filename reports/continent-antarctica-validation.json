@@ -1,6 +1,6 @@
 {
   "topicId": "continent-antarctica",
-  "dataVersion": "2026.11.16.3",
+  "dataVersion": "2026.11.17.1",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [

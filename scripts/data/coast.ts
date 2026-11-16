@@ -24,6 +24,13 @@ export type CoastConfig = {
   /** Island groups: the drawn outline ∩ the land grown by `islandBuffer` degrees, so small islands stay visible and tappable. */
   islandIds?: string[];
   islandBuffer?: number;
+  /**
+   * Relief units (plains, mountains, highlands, basins, deserts) must not overlap: each land cell belongs to one of
+   * them – the listed `priorityIds` first, then the smaller unit. Outline features (peninsulas, islands, matched by
+   * `outlineIds` or `outlinePattern` on the id) keep their full shape and may contain relief units. `cuts` lets an
+   * outline (a mountain system containing its ranges) still cut back the listed neighbours.
+   */
+  partition?: { outlineIds?: string[]; outlinePattern?: RegExp; priorityIds?: string[]; cuts?: Record<string, string[]> };
 };
 
 /** Grows the filled cells by a radius of `r` cells (each cell joins when its nearest seed is close enough). */
@@ -64,7 +71,9 @@ function window(src: Mask, grid: Grid): Mask {
   return out;
 }
 
-export type Coast = { base: PolygonCoords[]; clip: (id: string, layer: string, polys: PolygonCoords[]) => PolygonCoords[] | null };
+export type ClipItem = { id: string; layer: string; polys: PolygonCoords[] };
+/** `clipAll` gives each area's new polygons, or null for an area kept as drawn. */
+export type Coast = { base: PolygonCoords[]; clipAll: (items: ClipItem[]) => Map<string, PolygonCoords[] | null> };
 
 /** `extent`: every question polygon of the topic, so the grid covers all of them. */
 export function prepareCoast(cfg: CoastConfig, resolvePath: (p: string) => string, extent: PolygonCoords[]): Coast {
@@ -105,13 +114,47 @@ export function prepareCoast(cfg: CoastConfig, resolvePath: (p: string) => strin
   }
   const base = trace(continent, tol, 4);
 
-  const clip = (id: string, layer: string, polys: PolygonCoords[]): PolygonCoords[] | null => {
-    if (cfg.keepIds?.includes(id)) return null;
-    const sea = cfg.seaLayers?.includes(layer) || cfg.seaIds?.includes(id);
-    const sub = makeGrid(bboxOf(polys), cell, cell * 2);
-    const area = fill(emptyMask(sub), polys);
-    if (cfg.islandIds?.includes(id)) return trace(combine(area, dilate(window(land, sub), Math.round((cfg.islandBuffer ?? 0.4) / cell)), 'and'), tol * 2);
-    return trace(combine(area, window(land, sub), sea ? 'andNot' : 'and'), tol);
+  const clipAll = (items: ClipItem[]): Map<string, PolygonCoords[] | null> => {
+    const out = new Map<string, PolygonCoords[] | null>();
+    const kind = (x: ClipItem) => cfg.keepIds?.includes(x.id) ? 'keep'
+      : cfg.islandIds?.includes(x.id) ? 'island'
+      : cfg.seaLayers?.includes(x.layer) || cfg.seaIds?.includes(x.id) ? 'sea'
+      : !cfg.partition || cfg.partition.outlineIds?.includes(x.id) || cfg.partition.outlinePattern?.test(x.id) ? 'outline' : 'relief';
+    // Cells already given to a lake or a relief unit.
+    const claimed = emptyMask(grid);
+    const claim = (m: Mask) => {
+      const dx = Math.round((m.grid.lon0 - grid.lon0) / cell); const dy = Math.round((grid.lat0 - m.grid.lat0) / cell);
+      for (let y = 0; y < m.grid.h; y++) for (let x = 0; x < m.grid.w; x++) {
+        const gx = x + dx, gy = y + dy;
+        if (m.data[y * m.grid.w + x] && gx >= 0 && gy >= 0 && gx < grid.w && gy < grid.h) claimed.data[gy * grid.w + gx] = 1;
+      }
+    };
+    const relief: Array<{ item: ClipItem; mask: Mask; cells: number }> = [];
+    const cutters = new Map<string, Mask>();
+    for (const [cutter, targets] of Object.entries(cfg.partition?.cuts ?? {})) {
+      const c = items.find((x) => x.id === cutter);
+      if (c) for (const t of targets) { const m = cutters.get(t) ?? emptyMask(grid); const sub = makeGrid(bboxOf(c.polys), cell, cell * 2); const f = fill(emptyMask(sub), c.polys); cutters.set(t, m); const dx = Math.round((sub.lon0 - grid.lon0) / cell); const dy = Math.round((grid.lat0 - sub.lat0) / cell); for (let y = 0; y < sub.h; y++) for (let xx = 0; xx < sub.w; xx++) { const gx = xx + dx, gy = y + dy; if (f.data[y * sub.w + xx] && gx >= 0 && gy >= 0 && gx < grid.w && gy < grid.h) m.data[gy * grid.w + gx] = 1; } }
+    }
+    for (const x of items) {
+      const k = kind(x);
+      const sub = makeGrid(bboxOf(x.polys), cell, cell * 2);
+      const area = fill(emptyMask(sub), x.polys);
+      if (k === 'keep') { out.set(x.id, null); claim(area); continue; }
+      if (k === 'island') { out.set(x.id, trace(combine(area, dilate(window(land, sub), Math.round((cfg.islandBuffer ?? 0.4) / cell)), 'and'), tol * 2)); continue; }
+      let m = combine(area, window(land, sub), k === 'sea' ? 'andNot' : 'and');
+      const cut = cutters.get(x.id); if (cut) m = combine(m, window(cut, sub), 'andNot');
+      if (k === 'relief') { let n = 0; for (const v of m.data) n += v; relief.push({ item: x, mask: m, cells: n }); continue; }
+      out.set(x.id, trace(m, tol));
+    }
+    const prio = cfg.partition?.priorityIds ?? [];
+    const rank = (r: (typeof relief)[number]) => (prio.includes(r.item.id) ? prio.indexOf(r.item.id) - prio.length : 0);
+    relief.sort((a, b) => rank(a) - rank(b) || a.cells - b.cells || (a.item.id < b.item.id ? -1 : 1));
+    for (const r of relief) {
+      const m = combine(r.mask, window(claimed, r.mask.grid), 'andNot');
+      claim(m);
+      out.set(r.item.id, trace(m, tol));
+    }
+    return out;
   };
-  return { base, clip };
+  return { base, clipAll };
 }
