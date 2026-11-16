@@ -1,9 +1,18 @@
-// Minimal, dependency-free ESRI Shapefile (Polygon) + dBase reader.
+// Minimal, dependency-free ESRI Shapefile + dBase reader: Point, PolyLine, Polygon and their Z/M variants
+// (Z and M values are dropped).
 // Reads only; never writes the source files.
 import { readFileSync } from 'node:fs';
 
 export type Ring = Array<[number, number]>;
-export type ShapeRecord = { recordNumber: number; parts: Ring[] };
+export type ShapeRecord = { recordNumber: number; parts: Ring[]; point?: [number, number] };
+
+/** Base shape kind of an SHP shape type code (Z/M variants map to their 2D base). */
+export function shapeKind(type: number): 'point' | 'line' | 'polygon' | null {
+  if (type === 1 || type === 11 || type === 21) return 'point';
+  if (type === 3 || type === 13 || type === 23) return 'line';
+  if (type === 5 || type === 15 || type === 25) return 'polygon';
+  return null;
+}
 export type DbfField = { name: string; type: string; length: number; decimals: number };
 export type DbfTable = { fields: DbfField[]; records: Array<Record<string, string | number | null>> };
 
@@ -25,7 +34,13 @@ export function readShp(path: string): { shapeType: number; bbox: number[]; reco
     if (type === 0) {
       records.push({ recordNumber, parts: [] });
     } else {
-      if (type !== 5) throw new Error(`${path}: record ${recordNumber} has unsupported shape type ${type}`);
+      const kind = shapeKind(type);
+      if (!kind || kind !== shapeKind(shapeType)) throw new Error(`${path}: record ${recordNumber} has unsupported shape type ${type}`);
+      if (kind === 'point') {
+        records.push({ recordNumber, parts: [], point: [buf.readDoubleLE(c + 4), buf.readDoubleLE(c + 12)] });
+        off = c + contentBytes;
+        continue;
+      }
       const numParts = buf.readInt32LE(c + 36);
       const numPoints = buf.readInt32LE(c + 40);
       const partsStart = c + 44;
@@ -43,7 +58,9 @@ export function readShp(path: string): { shapeType: number; bbox: number[]; reco
         }
         parts.push(ring);
       }
-      if (pointsStart + numPoints * 16 !== c + contentBytes) throw new Error(`${path}: record ${recordNumber} length mismatch`);
+      // 2D records end with the points; Z/M records carry extra ranges and arrays after them.
+      const end = pointsStart + numPoints * 16;
+      if (type === 3 || type === 5 ? end !== c + contentBytes : end > c + contentBytes) throw new Error(`${path}: record ${recordNumber} length mismatch`);
       records.push({ recordNumber, parts });
     }
     off = c + contentBytes;
