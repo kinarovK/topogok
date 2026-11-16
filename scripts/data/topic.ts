@@ -12,6 +12,7 @@ import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import { pointInRing, validatePolygon, type PolygonCoords } from './geometry.ts';
+import { projectLine, projectPoint, projectPolygons, type ProjectionConfig } from './projection.ts';
 import { readSource, type SourceLayer } from './sources.ts';
 import type { Geometry, Pos } from './wkb.ts';
 
@@ -22,6 +23,10 @@ export type TopicConfig = {
   title: LocalizedText;
   /** Source path relative to the repository root (folder, .gpkg, .shp or .geojson). */
   source: string;
+  /** Map base when the source has no "hatter" layer: another source (e.g. world land), relative to the repo root. */
+  background?: string;
+  /** World-map style projection (pre-projected like the world topic); without it the map is Web Mercator. */
+  projection?: ProjectionConfig;
   /** Only layers whose name starts with this prefix (one GeoPackage holding several topics); the prefix is dropped. */
   layerPrefix?: string;
   /** Optional per-layer field renames when a source does not follow id / name_hu / name_uk. */
@@ -123,7 +128,11 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
     check('source', true, `${layers.length} layer(s): ${layers.map((l) => l.name).join(', ')}`); }
   catch (e) { check('source', false, String(e instanceof Error ? e.message : e)); }
 
-  const background = layers.filter((l) => BACKGROUND.test(l.name));
+  let background = layers.filter((l) => BACKGROUND.test(l.name));
+  if (!background.length && config.background) {
+    try { background = readSource(isAbsolute(config.background) ? config.background : join(sourceRoot, config.background)); }
+    catch (e) { check('background-source', false, String(e instanceof Error ? e.message : e)); }
+  }
   const questionLayers = layers.filter((l) => !BACKGROUND.test(l.name));
   const features: OutFeature[] = [];
   const problems: string[] = [];
@@ -196,7 +205,10 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
   // Points must lie on the base map.
   const inBase = (p: Pos) => basePolys.some((poly) => pointInRing(p, poly[0]!) && !poly.slice(1).some((h) => pointInRing(p, h)));
   const strayPoints = features.filter((x) => x.geometry.type === 'Point' && basePolys.length && !inBase(x.geometry.coordinates)).map((x) => x.id);
-  check('points-on-map', strayPoints.length === 0, strayPoints.length ? `outside the base map: ${strayPoints.join(', ')}` : 'all points lie on the base map');
+  // A coarse base may miss a cape or an islet: points just off it are reported, points far away are errors.
+  const near = (p: Pos) => [[0, 0], [0.5, 0], [-0.5, 0], [0, 0.5], [0, -0.5]].some(([dx, dy]) => inBase([p[0] + dx!, p[1] + dy!]));
+  const farPoints = strayPoints.filter((id) => !near((features.find((x) => x.id === id)!.geometry as { coordinates: Pos }).coordinates));
+  check('points-on-map', farPoints.length === 0, strayPoints.length ? `off the base map: ${strayPoints.join(', ')}${farPoints.length ? ` (far: ${farPoints.join(', ')})` : ' (within 0.5°: accepted)'}` : 'all points lie on the base map');
 
   // Coverage layers: no two features overlap (sampled on a grid scaled to the bounds).
   for (const layer of config.coverage ?? []) {
@@ -211,9 +223,29 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
     check(`coverage-${layer}`, polys.length > 0 && overlaps === 0, polys.length ? `${overlaps} overlapping sample point(s)` : 'layer has no areas');
   }
 
-  const sorted = [...features].sort((a, b) => (a.properties.layer < b.properties.layer ? -1 : a.properties.layer > b.properties.layer ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  // Validation ran on lon/lat; the package stores display coordinates when a world projection is used.
+  const pj = config.projection;
+  const r6 = (p: Pos): Pos => [round(p[0]), round(p[1])];
+  const projectGeometry = (g: Geometry): Geometry => {
+    if (!pj) return g;
+    if (g.type === 'Point') return { type: 'Point', coordinates: r6(projectPoint(pj, g.coordinates)) };
+    if (g.type === 'LineString' || g.type === 'MultiLineString') {
+      const parts = (g.type === 'LineString' ? [g.coordinates] : g.coordinates).flatMap((l) => projectLine(pj, l)).map((l) => dedupe(l.map(r6)));
+      return parts.length === 1 ? { type: 'LineString', coordinates: parts[0]! } : { type: 'MultiLineString', coordinates: parts };
+    }
+    const polys = projectPolygons(pj, polysOf(g)).map((poly) => poly.map((ring) => dedupe(ring.map(r6))));
+    return polys.length === 1 ? { type: 'Polygon', coordinates: polys[0]! } : { type: 'MultiPolygon', coordinates: polys };
+  };
+  const sorted = [...features].sort((a, b) => (a.properties.layer < b.properties.layer ? -1 : a.properties.layer > b.properties.layer ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    .map((f) => (pj ? { ...f, geometry: projectGeometry(f.geometry) } : f));
+  const outBase = pj ? projectPolygons(pj, basePolys).map((poly) => poly.map((ring) => dedupe(ring.map(r6)))) : basePolys;
   const regions = JSON.stringify({ type: 'FeatureCollection', features: sorted }) + '\n';
-  const country = JSON.stringify({ type: 'FeatureCollection', features: [{ type: 'Feature', id: 'base', properties: { id: 'base', names: config.title }, geometry: { type: 'MultiPolygon', coordinates: basePolys } }] }) + '\n';
+  const country = JSON.stringify({ type: 'FeatureCollection', features: [{ type: 'Feature', id: 'base', properties: { id: 'base', names: config.title }, geometry: { type: 'MultiPolygon', coordinates: outBase } }] }) + '\n';
+  const outBounds = pj ? (() => {
+    const b = [Infinity, Infinity, -Infinity, -Infinity];
+    for (const f of sorted) for (const [x, y] of allPositions(f.geometry)) { b[0] = Math.min(b[0]!, x); b[1] = Math.min(b[1]!, y); b[2] = Math.max(b[2]!, x); b[3] = Math.max(b[3]!, y); }
+    return b.map(round) as [number, number, number, number];
+  })() : bounds;
   const gz = gzipSync(regions).length + gzipSync(country).length;
   check('size', gz <= MAX_GZIP_BYTES, `${(gz / 1024).toFixed(0)} KiB gzipped (limit ${(MAX_GZIP_BYTES / 1024).toFixed(0)} KiB)`);
 
@@ -225,7 +257,7 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
   const mixed = features.some((x) => x.properties.geomType !== 'area');
   const manifest = JSON.stringify({
     schemaVersion: 1, id: config.id, dataVersion: config.dataVersion, title: config.title, geometryKind: mixed ? 'mixed' : 'polygon',
-    featureCount: features.length, bounds,
+    featureCount: features.length, bounds: outBounds,
     layers: { background: { path: 'country.geojson', sha256: sha(country) }, questions: { path: 'regions.geojson', sha256: sha(regions) } },
     groups, insets: [], provenance: config.provenance,
   }) + '\n';
