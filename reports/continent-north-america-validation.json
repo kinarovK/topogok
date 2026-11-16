@@ -1,6 +1,6 @@
 {
   "topicId": "continent-north-america",
-  "dataVersion": "2026.11.16.3",
+  "dataVersion": "2026.11.17.1",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -17,7 +17,7 @@
     {
       "id": "features",
       "status": "pass",
-      "detail": "23 question features"
+      "detail": "24 question features"
     },
     {
       "id": "background",
@@ -32,7 +32,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "312 KiB gzipped (limit 1465 KiB)"
+      "detail": "319 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -57,18 +57,18 @@
       "geomTypes": [
         "line"
       ],
-      "count": 4,
+      "count": 5,
       "skippedEmpty": 0
     }
   ],
   "totals": {
     "area": 17,
-    "line": 4,
+    "line": 5,
     "point": 2
   },
   "bytes": {
-    "regions": 257360,
+    "regions": 276520,
     "country": 559541,
-    "gzipped": 319259
+    "gzipped": 326767
   }
 }

@@ -219,6 +219,10 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
     catch (e) { check('background-source', false, String(e instanceof Error ? e.message : e)); }
   }
   const questionLayers = layers.filter((l) => !BACKGROUND.test(l.name));
+  // Coastline clipping needs every area at once (relief units are cut against each other).
+  const clippedAreas = coast?.clipAll(questionLayers.flatMap((l) => l.features
+    .filter((x) => x.geometry && (x.geometry.type === 'Polygon' || x.geometry.type === 'MultiPolygon'))
+    .map((x) => ({ id: String(x.props[config.fields?.[l.name]?.id ?? 'id'] ?? '').trim(), layer: l.name, polys: polysOf(x.geometry!) }))));
   const features: OutFeature[] = [];
   const problems: string[] = [];
   const layerStats: Array<{ layer: string; geomTypes: GeomType[]; count: number; skippedEmpty: number }> = [];
@@ -259,7 +263,7 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
         // Simplification can make a ring cross itself; then the tolerance is halved until the result is valid.
         let tolA = config.simplifyAreas?.[layer.name] ?? DEFAULT_AREA_TOLERANCE;
         let polys: PolygonCoords[] = []; let issues: ReturnType<typeof validatePolygon> = [];
-        const clipped = coast ? coast.clip(id, layer.name, polysOf(g)) : null;
+        const clipped = clippedAreas?.get(id) ?? null;
         if (clipped && !clipped.length) { problems.push(`${where}: nothing left after clipping to the coastline`); continue; }
         const source = clipped ?? polysOf(g);
         for (let attempt = 0; attempt < 8; attempt++, tolA = attempt === 7 ? 0 : tolA / 2) {

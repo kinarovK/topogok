@@ -3,7 +3,7 @@
 // The central meridian moves the map's cut away from the topic, so nothing is torn at ±180°.
 import type { Pos } from './wkb.ts';
 
-export type ProjectionName = 'robinson' | 'mollweide' | 'hammer' | 'laea' | 'lcc' | 'albers';
+export type ProjectionName = 'robinson' | 'mollweide' | 'hammer' | 'laea' | 'lcc' | 'albers' | 'miller';
 /**
  * centralMeridian: the map's middle meridian (the cut moves to the opposite side).
  * center: oblique aspect – this lon/lat becomes the middle of the map (e.g. [0, -90] puts the South Pole in the
@@ -41,6 +41,8 @@ function cubic(col: number, lat: number): number {
 function planeXY(cfg: ProjectionConfig, lon: number, lat: number): [number, number] {
   const l = lon * RAD; const p = lat * RAD;
   switch (cfg.name) {
+    // Miller cylindrical: straight parallels and meridians, as on many school wall maps of Eurasia.
+    case 'miller': return [l, 1.25 * Math.log(Math.tan(Math.PI / 4 + 0.4 * Math.max(-89.9 * RAD, Math.min(89.9 * RAD, p))))];
     case 'laea': {
       const k = Math.sqrt(2 / Math.max(1e-12, 1 + Math.cos(p) * Math.cos(l)));
       return [k * Math.cos(p) * Math.sin(l), k * Math.sin(p)];

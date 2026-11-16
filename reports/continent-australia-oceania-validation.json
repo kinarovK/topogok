@@ -1,6 +1,6 @@
 {
   "topicId": "continent-australia-oceania",
-  "dataVersion": "2026.11.16.3",
+  "dataVersion": "2026.11.17.1",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -12,17 +12,17 @@
     {
       "id": "coast",
       "status": "pass",
-      "detail": "C-AU cut from shp/ne_50m_land.shp: 164 polygon(s)"
+      "detail": "C-AU cut from shp/ne_50m_land.shp: 137 polygon(s)"
     },
     {
       "id": "features",
       "status": "pass",
-      "detail": "18 question features"
+      "detail": "13 question features"
     },
     {
       "id": "background",
       "status": "pass",
-      "detail": "base layer \"coast C-AU\" (164 polygon(s))"
+      "detail": "base layer \"coast C-AU\" (137 polygon(s))"
     },
     {
       "id": "points-on-map",
@@ -32,7 +32,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "131 KiB gzipped (limit 1465 KiB)"
+      "detail": "93 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -57,18 +57,18 @@
       "geomTypes": [
         "area"
       ],
-      "count": 15,
+      "count": 10,
       "skippedEmpty": 0
     }
   ],
   "totals": {
-    "area": 17,
+    "area": 12,
     "line": 0,
     "point": 1
   },
   "bytes": {
-    "regions": 215103,
-    "country": 122025,
-    "gzipped": 134063
+    "regions": 125081,
+    "country": 114588,
+    "gzipped": 94791
   }
 }

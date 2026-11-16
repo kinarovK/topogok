@@ -1,6 +1,6 @@
 {
   "topicId": "continent-south-america",
-  "dataVersion": "2026.11.16.3",
+  "dataVersion": "2026.11.17.1",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -12,7 +12,7 @@
     {
       "id": "coast",
       "status": "pass",
-      "detail": "C-SA cut from shp/ne_50m_land.shp: 76 polygon(s)"
+      "detail": "C-SA cut from shp/ne_10m_land.shp: 282 polygon(s)"
     },
     {
       "id": "features",
@@ -22,7 +22,7 @@
     {
       "id": "background",
       "status": "pass",
-      "detail": "base layer \"coast C-SA\" (76 polygon(s))"
+      "detail": "base layer \"coast C-SA\" (282 polygon(s))"
     },
     {
       "id": "points-on-map",
@@ -32,7 +32,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "132 KiB gzipped (limit 1465 KiB)"
+      "detail": "291 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -57,7 +57,7 @@
       "geomTypes": [
         "area"
       ],
-      "count": 12,
+      "count": 13,
       "skippedEmpty": 0
     },
     {
@@ -65,18 +65,18 @@
       "geomTypes": [
         "line"
       ],
-      "count": 5,
+      "count": 4,
       "skippedEmpty": 0
     }
   ],
   "totals": {
-    "area": 13,
-    "line": 5,
+    "area": 14,
+    "line": 4,
     "point": 5
   },
   "bytes": {
-    "regions": 240568,
-    "country": 108235,
-    "gzipped": 135339
+    "regions": 332666,
+    "country": 481668,
+    "gzipped": 298284
   }
 }
