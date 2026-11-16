@@ -1,6 +1,6 @@
 {
   "topicId": "continent-eurasia",
-  "dataVersion": "2026.11.16.2",
+  "dataVersion": "2026.11.16.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -10,6 +10,11 @@
       "detail": "3 layer(s): tengerek, teruletek, vonalak"
     },
     {
+      "id": "coast",
+      "status": "pass",
+      "detail": "C-EA cut from shp/ne_50m_land.shp: 597 polygon(s)"
+    },
+    {
       "id": "features",
       "status": "pass",
       "detail": "59 question features"
@@ -17,7 +22,7 @@
     {
       "id": "background",
       "status": "pass",
-      "detail": "base layer \"world_continents\" (48 polygon(s))"
+      "detail": "base layer \"coast C-EA\" (597 polygon(s))"
     },
     {
       "id": "points-on-map",
@@ -27,7 +32,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "236 KiB gzipped (limit 1465 KiB)"
+      "detail": "531 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -62,8 +67,8 @@
     "point": 0
   },
   "bytes": {
-    "regions": 515327,
-    "country": 95290,
-    "gzipped": 241383
+    "regions": 755263,
+    "country": 652588,
+    "gzipped": 543413
   }
 }

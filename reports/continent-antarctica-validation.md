@@ -1,4 +1,4 @@
-# Adatellenőrzés: continent-antarctica 2026.11.16.2
+# Adatellenőrzés: continent-antarctica 2026.11.16.3
 
 Eredmény: **sikeres**
 
@@ -10,12 +10,13 @@ Eredmény: **sikeres**
 | teruletek | area | 3 |
 | vonalak | line | 1 |
 
-Összesen: terület 8, vonal 1, pont 2; tömörítve 109 KiB.
+Összesen: terület 8, vonal 1, pont 2; tömörítve 251 KiB.
 
 | Ellenőrzés | Eredmény | Részlet |
 |---|---|---|
 | source | OK | 5 layer(s): oceanok, pontok, tengerek, teruletek, vonalak |
+| coast | OK | C-AN cut from shp/ne_50m_land.shp: 107 polygon(s) |
 | features | OK | 11 question features |
-| background | OK | base layer "world_continents" (8 polygon(s)) |
-| points-on-map | FIGYELEM | off the coarse base map, within 3° of land (drawn anyway): erebus |
-| size | OK | 109 KiB gzipped (limit 1465 KiB) |
+| background | OK | base layer "coast C-AN" (107 polygon(s)) |
+| points-on-map | OK | all points lie on the base map |
+| size | OK | 251 KiB gzipped (limit 1465 KiB) |

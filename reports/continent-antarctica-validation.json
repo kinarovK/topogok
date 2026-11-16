@@ -1,6 +1,6 @@
 {
   "topicId": "continent-antarctica",
-  "dataVersion": "2026.11.16.2",
+  "dataVersion": "2026.11.16.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -10,6 +10,11 @@
       "detail": "5 layer(s): oceanok, pontok, tengerek, teruletek, vonalak"
     },
     {
+      "id": "coast",
+      "status": "pass",
+      "detail": "C-AN cut from shp/ne_50m_land.shp: 107 polygon(s)"
+    },
+    {
       "id": "features",
       "status": "pass",
       "detail": "11 question features"
@@ -17,17 +22,17 @@
     {
       "id": "background",
       "status": "pass",
-      "detail": "base layer \"world_continents\" (8 polygon(s))"
+      "detail": "base layer \"coast C-AN\" (107 polygon(s))"
     },
     {
       "id": "points-on-map",
-      "status": "warn",
-      "detail": "off the coarse base map, within 3° of land (drawn anyway): erebus"
+      "status": "pass",
+      "detail": "all points lie on the base map"
     },
     {
       "id": "size",
       "status": "pass",
-      "detail": "109 KiB gzipped (limit 1465 KiB)"
+      "detail": "251 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -78,8 +83,8 @@
     "point": 2
   },
   "bytes": {
-    "regions": 255900,
-    "country": 37946,
-    "gzipped": 111971
+    "regions": 480338,
+    "country": 194424,
+    "gzipped": 257058
   }
 }

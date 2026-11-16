@@ -11,6 +11,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync 
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
+import { prepareCoast, type Coast, type CoastConfig } from './coast.ts';
 import { pointInRing, validatePolygon, type PolygonCoords } from './geometry.ts';
 import { projectLine, projectPoint, projectPolygons, type ProjectionConfig } from './projection.ts';
 import { readSource, type SourceLayer } from './sources.ts';
@@ -35,6 +36,10 @@ export type TopicConfig = {
   layerPrefix?: string;
   /** Optional per-layer field renames when a source does not follow id / name_hu / name_uk. */
   fields?: Record<string, { id?: string; name_hu?: string; name_uk?: string }>;
+  /** Coastline clipping and a detailed one-continent base map (continent topics); replaces `background`. */
+  coast?: CoastConfig;
+  /** Source features left out of the topic (e.g. countries kept in the source for a later topic). */
+  excludeIds?: string[];
   /** Area layers drawn as water (seas, oceans) instead of land. */
   waterLayers?: string[];
   /** Single area features drawn as water although their layer is land (a lake or bay among the regions). */
@@ -190,8 +195,17 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
     check('source', true, `${layers.length} layer(s): ${layers.map((l) => l.name).join(', ')}`); }
   catch (e) { check('source', false, String(e instanceof Error ? e.message : e)); }
 
+  if (config.excludeIds?.length) layers = layers.map((l) => ({ ...l, features: l.features.filter((x) => !config.excludeIds!.includes(String(x.props[config.fields?.[l.name]?.id ?? 'id'] ?? ''))) }));
+  let coast: Coast | null = null;
+  if (config.coast) {
+    try {
+      const extent = layers.flatMap((l) => l.features.flatMap((x) => (x.geometry ? polysOf(x.geometry) : [])));
+      coast = prepareCoast(config.coast, (p) => (isAbsolute(p) ? p : join(sourceRoot, p)), extent);
+      check('coast', coast.base.length > 0, `${config.coast.continent} cut from ${config.coast.land}: ${coast.base.length} polygon(s)`);
+    } catch (e) { check('coast', false, String(e instanceof Error ? e.message : e)); }
+  }
   let background = layers.filter((l) => BACKGROUND.test(l.name));
-  if (!background.length && config.background) {
+  if (!background.length && config.background && !coast) {
     try {
       background = readSource(isAbsolute(config.background) ? config.background : join(sourceRoot, config.background));
       const keep = config.backgroundIds;
@@ -245,8 +259,11 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
         // Simplification can make a ring cross itself; then the tolerance is halved until the result is valid.
         let tolA = config.simplifyAreas?.[layer.name] ?? DEFAULT_AREA_TOLERANCE;
         let polys: PolygonCoords[] = []; let issues: ReturnType<typeof validatePolygon> = [];
+        const clipped = coast ? coast.clip(id, layer.name, polysOf(g)) : null;
+        if (clipped && !clipped.length) { problems.push(`${where}: nothing left after clipping to the coastline`); continue; }
+        const source = clipped ?? polysOf(g);
         for (let attempt = 0; attempt < 8; attempt++, tolA = attempt === 7 ? 0 : tolA / 2) {
-          polys = simplifyPolygons(polysOf(g), tolA).map((poly) => rewind(poly.map((ring) => dedupe(ring.map((p): Pos => [round(p[0]), round(p[1])])))));
+          polys = simplifyPolygons(source, tolA).map((poly) => rewind(poly.map((ring) => dedupe(ring.map((p): Pos => [round(p[0]), round(p[1])])))));
           issues = polys.flatMap((poly) => validatePolygon(id, poly));
           if (!issues.length || tolA === 0) break;
         }
@@ -265,7 +282,7 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
   // The base is only drawn, never asked: spikes from near-duplicate vertices are removed, and a polygon that stays
   // invalid is left out with a warning instead of failing the whole topic.
   const bgTol = config.simplifyBackground ?? DEFAULT_AREA_TOLERANCE;
-  const bgRaw: PolygonCoords[] = background.flatMap((l) => l.features.flatMap((x) => (x.geometry ? polysOf(x.geometry) : [])));
+  const bgRaw: PolygonCoords[] = coast ? coast.base : background.flatMap((l) => l.features.flatMap((x) => (x.geometry ? polysOf(x.geometry) : [])));
   const bgPolys: PolygonCoords[] = []; const bgDropped: string[] = [];
   for (const [i, raw] of bgRaw.entries()) {
     let tol = bgTol; let poly: PolygonCoords = []; let ok = false;
@@ -278,7 +295,7 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
     if (ok && poly.length) bgPolys.push(poly); else if (!ok) bgDropped.push(`polygon ${i}`);
   }
   const basePolys = bgPolys.length ? bgPolys : features.filter((x) => x.properties.geomType === 'area').flatMap((x) => polysOf(x.geometry));
-  check('background', basePolys.length > 0, bgPolys.length ? `base layer "${background.map((l) => l.name).join(', ')}" (${bgPolys.length} polygon(s))` : basePolys.length ? 'no base layer: the asked areas form the background' : 'no base layer and no areas: add a "hatter" layer');
+  check('background', basePolys.length > 0, bgPolys.length ? `base layer "${coast ? `coast ${config.coast!.continent}` : background.map((l) => l.name).join(', ')}" (${bgPolys.length} polygon(s))` : basePolys.length ? 'no base layer: the asked areas form the background' : 'no base layer and no areas: add a "hatter" layer');
   if (bgDropped.length) warn('background-geometry', `invalid base polygon(s) left out: ${bgDropped.join(', ')}`);
 
   const all = [...features.flatMap((x) => allPositions(x.geometry)), ...basePolys.flat(2)];

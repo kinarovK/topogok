@@ -1,6 +1,6 @@
 {
   "topicId": "continent-south-america",
-  "dataVersion": "2026.11.16.2",
+  "dataVersion": "2026.11.16.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -10,14 +10,19 @@
       "detail": "4 layer(s): pontok, tengerek, teruletek, vonalak"
     },
     {
+      "id": "coast",
+      "status": "pass",
+      "detail": "C-SA cut from shp/ne_50m_land.shp: 76 polygon(s)"
+    },
+    {
       "id": "features",
       "status": "pass",
-      "detail": "26 question features"
+      "detail": "23 question features"
     },
     {
       "id": "background",
       "status": "pass",
-      "detail": "base layer \"world_continents\" (4 polygon(s))"
+      "detail": "base layer \"coast C-SA\" (76 polygon(s))"
     },
     {
       "id": "points-on-map",
@@ -27,7 +32,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "173 KiB gzipped (limit 1465 KiB)"
+      "detail": "132 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -52,7 +57,7 @@
       "geomTypes": [
         "area"
       ],
-      "count": 15,
+      "count": 12,
       "skippedEmpty": 0
     },
     {
@@ -65,13 +70,13 @@
     }
   ],
   "totals": {
-    "area": 16,
+    "area": 13,
     "line": 5,
     "point": 5
   },
   "bytes": {
-    "regions": 447578,
-    "country": 15092,
-    "gzipped": 177094
+    "regions": 240568,
+    "country": 108235,
+    "gzipped": 135339
   }
 }

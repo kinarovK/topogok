@@ -62,8 +62,9 @@ Elvárt: minden sorban `valid = 1`. Ha nem, a csomag nem adható ki, és a hibá
 
 - **Forrás:** `sources/continents/foldrajz_07_osztaly.gpkg` (a tulajdonos fájlja; forráslink és licenc nincs megadva, ezért `unverified`). A rétegek neve `<kontinens>_<réteg>`, pl. `afrika_teruletek`; a `layerPrefix` választja ki egy téma rétegeit.
 - **Leíró:** `scripts/data/continents/topics.ts` – egy fájl hat témát ír le (a CLI tömböt is elfogad).
-- **Háttér:** csak az adott kontinens a világtéma szárazföldjéből (`build/world/world_continents.shp`, `data:world` készíti; `backgroundIds`). A háttér csak rajz: a tüskéket eltávolítja, a javíthatatlan sokszöget figyelmeztetéssel kihagyja.
-- **Vetület:** a kontinensre középre állított ferde tengelyű Hammer-vetület (`center`), az Antarktisznál a Déli-sark van középen.
+- **Háttér és partvonal:** az adott kontinens a Natural Earth 1:50m szárazföldből (`shp/ne_50m_land.*`, közkincs, v4.1.0), a `scripts/data/coast.ts` vágja ki. A szigeteket és a szárazföld darabjait a legközelebbi 1:110m-es kontinenshez (`build/world/world_continents.shp`) sorolja, így Afrika és Eurázsia, illetve a két Amerika határa ezt követi. A szárazföldi területeket a partvonalra vágja, a tengereket (`tengerek`, `oceanok`, öblök) a vízre; a tavak és a Nagy-korallzátony változatlanok. A szigetcsoportokból (Polinézia, Mikronézia, Melanézia, Kis-Antillák) a szigetek maradnak, ~45 km-rel megnövelve, hogy látsszanak és rájuk lehessen kattintani. A vágás raszteres (0,025°-os rács, `scripts/data/raster.ts`): a pontossága ~3 km, ennél részletesebbet egy kontinenstérkép nem mutat.
+- **Országok:** kimaradnak (`excludeIds`), egy későbbi politikai témában lesznek.
+- **Vetület:** iskolai atlaszok szerint: Lambert-féle területtartó azimutális (Afrika, Dél-Amerika, Ausztrália és Óceánia), Lambert-féle szögtartó kúpvetület (Eurázsia, Észak-Amerika), poláris Hammer (Antarktisz).
 - **Víz:** a `tengerek` és `oceanok` réteg, valamint a `waterIds` listában szereplő tavak és öblök vízszínnel jelennek meg.
 - **Vonalak:** az egymáshoz ~1 km-en belül csatlakozó darabokat (pl. két pontból álló szakaszokra bontott folyó) egyesíti, így a folyó nem szakadozik.
 - **Pontok:** a durva háttérről 3°-on belül lelógó pont (pl. Erebus, Horn-fok) csak figyelmeztetés, a pont így is látszik.

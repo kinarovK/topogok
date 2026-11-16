@@ -1,6 +1,6 @@
 {
   "topicId": "continent-north-america",
-  "dataVersion": "2026.11.16.2",
+  "dataVersion": "2026.11.16.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -10,14 +10,19 @@
       "detail": "3 layer(s): pontok, teruletek, vonalak"
     },
     {
+      "id": "coast",
+      "status": "pass",
+      "detail": "C-NA cut from shp/ne_50m_land.shp: 325 polygon(s)"
+    },
+    {
       "id": "features",
       "status": "pass",
-      "detail": "26 question features"
+      "detail": "23 question features"
     },
     {
       "id": "background",
       "status": "pass",
-      "detail": "base layer \"world_continents\" (41 polygon(s))"
+      "detail": "base layer \"coast C-NA\" (325 polygon(s))"
     },
     {
       "id": "points-on-map",
@@ -27,7 +32,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "753 KiB gzipped (limit 1465 KiB)"
+      "detail": "312 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -44,7 +49,7 @@
       "geomTypes": [
         "area"
       ],
-      "count": 20,
+      "count": 17,
       "skippedEmpty": 0
     },
     {
@@ -57,13 +62,13 @@
     }
   ],
   "totals": {
-    "area": 20,
+    "area": 17,
     "line": 4,
     "point": 2
   },
   "bytes": {
-    "regions": 1975831,
-    "country": 82318,
-    "gzipped": 771383
+    "regions": 257360,
+    "country": 559541,
+    "gzipped": 319259
   }
 }

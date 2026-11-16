@@ -1,6 +1,6 @@
 {
   "topicId": "continent-australia-oceania",
-  "dataVersion": "2026.11.16.2",
+  "dataVersion": "2026.11.16.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -10,6 +10,11 @@
       "detail": "3 layer(s): pontok, tengerek, teruletek"
     },
     {
+      "id": "coast",
+      "status": "pass",
+      "detail": "C-AU cut from shp/ne_50m_land.shp: 164 polygon(s)"
+    },
+    {
       "id": "features",
       "status": "pass",
       "detail": "18 question features"
@@ -17,7 +22,7 @@
     {
       "id": "background",
       "status": "pass",
-      "detail": "base layer \"world_continents\" (4 polygon(s))"
+      "detail": "base layer \"coast C-AU\" (164 polygon(s))"
     },
     {
       "id": "points-on-map",
@@ -27,7 +32,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "41 KiB gzipped (limit 1465 KiB)"
+      "detail": "131 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -62,8 +67,8 @@
     "point": 1
   },
   "bytes": {
-    "regions": 88028,
-    "country": 13201,
-    "gzipped": 41927
+    "regions": 215103,
+    "country": 122025,
+    "gzipped": 134063
   }
 }

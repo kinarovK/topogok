@@ -1,6 +1,6 @@
 {
   "topicId": "continent-africa",
-  "dataVersion": "2026.11.16.2",
+  "dataVersion": "2026.11.16.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -10,6 +10,11 @@
       "detail": "4 layer(s): pontok, tengerek, teruletek, vonalak"
     },
     {
+      "id": "coast",
+      "status": "pass",
+      "detail": "C-AF cut from shp/ne_50m_land.shp: 40 polygon(s)"
+    },
+    {
       "id": "features",
       "status": "pass",
       "detail": "24 question features"
@@ -17,7 +22,7 @@
     {
       "id": "background",
       "status": "pass",
-      "detail": "base layer \"world_continents\" (2 polygon(s))"
+      "detail": "base layer \"coast C-AF\" (40 polygon(s))"
     },
     {
       "id": "points-on-map",
@@ -27,7 +32,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "62 KiB gzipped (limit 1465 KiB)"
+      "detail": "129 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -70,8 +75,8 @@
     "point": 2
   },
   "bytes": {
-    "regions": 140325,
-    "country": 16698,
-    "gzipped": 63629
+    "regions": 253447,
+    "country": 83326,
+    "gzipped": 132446
   }
 }
