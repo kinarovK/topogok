@@ -1,4 +1,4 @@
-# Adatellenőrzés: continent-south-america 2026.11.16.1
+# Adatellenőrzés: continent-south-america 2026.11.16.2
 
 Eredmény: **sikeres**
 
@@ -9,7 +9,7 @@ Eredmény: **sikeres**
 | teruletek | area | 15 |
 | vonalak | line | 5 |
 
-Összesen: terület 16, vonal 5, pont 5; tömörítve 167 KiB.
+Összesen: terület 16, vonal 5, pont 5; tömörítve 173 KiB.
 
 | Ellenőrzés | Eredmény | Részlet |
 |---|---|---|
@@ -17,4 +17,4 @@ Eredmény: **sikeres**
 | features | OK | 26 question features |
 | background | OK | base layer "world_continents" (4 polygon(s)) |
 | points-on-map | FIGYELEM | off the coarse base map, within 3° of land (drawn anyway): hornfok |
-| size | OK | 167 KiB gzipped (limit 1465 KiB) |
+| size | OK | 173 KiB gzipped (limit 1465 KiB) |

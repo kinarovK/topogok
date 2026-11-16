@@ -23,7 +23,7 @@ export function pickFeatureId(candidates: readonly HitCandidate[], allowed: Read
 }
 
 /** Thin target (line or point) with its distance to the tap in CSS pixels. */
-export type NearCandidate = { id: string; distance: number };
+export type NearCandidate = { id: string; distance: number; point?: boolean };
 export type ScreenPoint = { x: number; y: number };
 
 /** Distance from a point to a polyline (or a single vertex), all in screen pixels. */
@@ -46,7 +46,9 @@ export function distanceToPath(p: ScreenPoint, path: readonly ScreenPoint[]): nu
  */
 export function pickTarget(areaHits: readonly HitCandidate[], near: readonly NearCandidate[], allowed: ReadonlySet<string>, buffer: number): string | null {
   const thin = near.filter((c) => allowed.has(c.id) && c.distance <= buffer)
-    .sort((a, b) => a.distance - b.distance || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    // A point within the buffer beats a line (a waterfall on its river): the point is the smaller target and
+    // the line can still be hit anywhere else along its length.
+    .sort((a, b) => Number(!!b.point) - Number(!!a.point) || a.distance - b.distance || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   if (thin.length) return thin[0]!.id;
   return pickFeatureId(areaHits, allowed);
 }

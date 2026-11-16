@@ -1,6 +1,6 @@
 {
   "topicId": "continent-eurasia",
-  "dataVersion": "2026.11.16.1",
+  "dataVersion": "2026.11.16.2",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -27,7 +27,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "228 KiB gzipped (limit 1465 KiB)"
+      "detail": "236 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -62,8 +62,8 @@
     "point": 0
   },
   "bytes": {
-    "regions": 504010,
-    "country": 92204,
-    "gzipped": 233097
+    "regions": 515327,
+    "country": 95290,
+    "gzipped": 241383
   }
 }

@@ -1,6 +1,6 @@
 {
   "topicId": "continent-south-america",
-  "dataVersion": "2026.11.16.1",
+  "dataVersion": "2026.11.16.2",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -27,7 +27,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "167 KiB gzipped (limit 1465 KiB)"
+      "detail": "173 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -70,8 +70,8 @@
     "point": 5
   },
   "bytes": {
-    "regions": 435691,
-    "country": 14635,
-    "gzipped": 171450
+    "regions": 447578,
+    "country": 15092,
+    "gzipped": 177094
   }
 }

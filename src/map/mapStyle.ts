@@ -20,6 +20,19 @@ export const MAP_COLORS: Record<ResolvedTheme, {
   },
 };
 
+type Palette = (typeof MAP_COLORS)[ResolvedTheme];
+/**
+ * Mixed topics (continents) are physical maps: blue sea, light land, and areas, water, rivers and points that
+ * stand out clearly from both. Areas are translucent so nested ones (a sea in an ocean) stay readable.
+ */
+const MIXED_OVERRIDES: Record<ResolvedTheme, Partial<Palette>> = {
+  light: { background: '#BCD7EC', country: '#F5F2EA', countryLine: '#56606B', region: '#D9BF7F', regionLine: '#7D6330', ocean: '#7FB2DE', river: '#1A5DAD', point: '#B3261E' },
+  dark: { background: '#0E2131', country: '#2F353E', countryLine: '#C9D2DC', region: '#8A7243', regionLine: '#E0C68C', ocean: '#2E6A9F', river: '#7CC0FF', point: '#FF8A70' },
+};
+export const paletteFor = (theme: ResolvedTheme, mixed = false): Palette => (mixed ? { ...MAP_COLORS[theme], ...MIXED_OVERRIDES[theme] } : MAP_COLORS[theme]);
+/** A package is drawn as a mixed (physical) map when its features carry a source layer. */
+export const isMixed = (regions: readonly RegionFeature[]) => regions.some((r) => !!r.properties.layer);
+
 export const LAYER_REGIONS_FILL = 'regions-fill';
 export const LAYER_LINES = 'lines';
 export const LAYER_POINTS = 'points';
@@ -30,21 +43,21 @@ const anyState = ['any', ['boolean', ['feature-state', 'correct'], false], ['boo
 
 const state = (name: string) => ['boolean', ['feature-state', name], false] as const;
 
-export function fillColor(theme: ResolvedTheme) {
-  const c = MAP_COLORS[theme];
+export function fillColor(theme: ResolvedTheme, mixed = false) {
+  const c = paletteFor(theme, mixed);
   const base = ['case', ['==', ['get', 'kind'], 'ocean'], c.ocean, c.region];
   // F4: an area the teacher switched off is neutral grey and never highlighted.
   return ['case', state('disabled'), c.disabled, state('correct'), c.correct, state('wrong'), c.wrong, state('selected'), c.selected, base] as unknown as string;
 }
 
-export function highlightLineColor(theme: ResolvedTheme) {
-  const c = MAP_COLORS[theme];
+export function highlightLineColor(theme: ResolvedTheme, mixed = false) {
+  const c = paletteFor(theme, mixed);
   return ['case', state('correct'), c.correctLine, state('wrong'), c.wrongLine, c.selectedLine] as unknown as string;
 }
 
 /** Lines and points: base colour, or the highlight colour of their state. */
-export function thinColor(theme: ResolvedTheme, base: 'river' | 'point') {
-  const c = MAP_COLORS[theme];
+export function thinColor(theme: ResolvedTheme, base: 'river' | 'point', mixed = false) {
+  const c = paletteFor(theme, mixed);
   return ['case', state('disabled'), c.disabled, state('correct'), c.correctLine, state('wrong'), c.wrongLine, state('selected'), c.selectedLine, c[base]] as unknown as string;
 }
 // Zoom interpolation must be the outermost expression; the state decides the value at each stop.
@@ -59,7 +72,10 @@ export const highlightLineWidth = ['case', ['any', state('correct'), state('wron
 
 /** Self-contained style: no tiles, glyphs, sprites or any external URL. */
 export function buildStyle(theme: ResolvedTheme, country: CountryFeature, regions: RegionFeature[]): StyleSpecification {
-  const c = MAP_COLORS[theme];
+  const mixed = isMixed(regions);
+  const c = paletteFor(theme, mixed);
+  // Mixed maps: translucent areas (nesting stays visible), solid once highlighted.
+  const fillOpacity = (mixed ? ['case', ['any', anyState, state('disabled')], 0.9, 0.5] : 1) as unknown as number;
   return {
     version: 8,
     sources: {
@@ -69,15 +85,15 @@ export function buildStyle(theme: ResolvedTheme, country: CountryFeature, region
     layers: [
       { id: 'background', type: 'background', paint: { 'background-color': c.background } },
       { id: 'country-fill', type: 'fill', source: 'country', paint: { 'fill-color': c.country } },
-      { id: LAYER_REGIONS_FILL, type: 'fill', source: 'regions', filter: geomIs('area'), paint: { 'fill-color': fillColor(theme), 'fill-antialias': true } },
-      { id: 'regions-line', type: 'line', source: 'regions', filter: geomIs('area'), paint: { 'line-color': c.regionLine, 'line-width': ['interpolate', ['linear'], ['zoom'], 4, 0.6, 8, 1.2, 11, 1.8] } },
+      { id: LAYER_REGIONS_FILL, type: 'fill', source: 'regions', filter: geomIs('area'), paint: { 'fill-color': fillColor(theme, mixed), 'fill-opacity': fillOpacity, 'fill-antialias': true } },
+      { id: 'regions-line', type: 'line', source: 'regions', filter: geomIs('area'), paint: { 'line-color': c.regionLine, 'line-width': mixed ? ['interpolate', ['linear'], ['zoom'], 2, 1, 8, 1.8] : ['interpolate', ['linear'], ['zoom'], 4, 0.6, 8, 1.2, 11, 1.8] } },
       { id: 'country-line', type: 'line', source: 'country', paint: { 'line-color': c.countryLine, 'line-width': ['interpolate', ['linear'], ['zoom'], 4, 1.2, 9, 2.2] } },
-      { id: 'regions-highlight', type: 'line', source: 'regions', filter: geomIs('area'), paint: { 'line-color': highlightLineColor(theme), 'line-width': highlightLineWidth } },
+      { id: 'regions-highlight', type: 'line', source: 'regions', filter: geomIs('area'), paint: { 'line-color': highlightLineColor(theme, mixed), 'line-width': highlightLineWidth } },
       // Mixed topics: lines (with a halo so they stay visible on any fill), then points on top.
       { id: 'lines-halo', type: 'line', source: 'regions', filter: geomIs('line'), layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': c.halo, 'line-opacity': 0.8, 'line-width': haloWidth } },
-      { id: LAYER_LINES, type: 'line', source: 'regions', filter: geomIs('line'), layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': thinColor(theme, 'river'), 'line-width': lineWidth } },
-      { id: 'points-ring', type: 'circle', source: 'regions', filter: geomIs('point'), paint: { 'circle-radius': 14, 'circle-opacity': 0, 'circle-stroke-width': ringWidth, 'circle-stroke-color': thinColor(theme, 'point') } },
-      { id: LAYER_POINTS, type: 'circle', source: 'regions', filter: geomIs('point'), paint: { 'circle-radius': pointRadius, 'circle-color': thinColor(theme, 'point'), 'circle-stroke-width': 2, 'circle-stroke-color': c.halo } },
+      { id: LAYER_LINES, type: 'line', source: 'regions', filter: geomIs('line'), layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': thinColor(theme, 'river', mixed), 'line-width': lineWidth } },
+      { id: 'points-ring', type: 'circle', source: 'regions', filter: geomIs('point'), paint: { 'circle-radius': 14, 'circle-opacity': 0, 'circle-stroke-width': ringWidth, 'circle-stroke-color': thinColor(theme, 'point', mixed) } },
+      { id: LAYER_POINTS, type: 'circle', source: 'regions', filter: geomIs('point'), paint: { 'circle-radius': pointRadius, 'circle-color': thinColor(theme, 'point', mixed), 'circle-stroke-width': 2, 'circle-stroke-color': c.halo } },
     ],
   };
 }

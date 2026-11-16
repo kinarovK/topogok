@@ -1,4 +1,4 @@
-# Adatellenőrzés: continent-australia-oceania 2026.11.16.1
+# Adatellenőrzés: continent-australia-oceania 2026.11.16.2
 
 Eredmény: **sikeres**
 
@@ -8,7 +8,7 @@ Eredmény: **sikeres**
 | tengerek | area | 2 |
 | teruletek | area | 15 |
 
-Összesen: terület 17, vonal 0, pont 1; tömörítve 40 KiB.
+Összesen: terület 17, vonal 0, pont 1; tömörítve 41 KiB.
 
 | Ellenőrzés | Eredmény | Részlet |
 |---|---|---|
@@ -16,4 +16,4 @@ Eredmény: **sikeres**
 | features | OK | 18 question features |
 | background | OK | base layer "world_continents" (4 polygon(s)) |
 | points-on-map | OK | all points lie on the base map |
-| size | OK | 40 KiB gzipped (limit 1465 KiB) |
+| size | OK | 41 KiB gzipped (limit 1465 KiB) |
