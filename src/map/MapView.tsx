@@ -1,11 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSettings } from '../app/settings.tsx';
+import { getTapBuffer } from '../app/appSettings.ts';
 import type { Bounds, Position, Topic } from '../data/validation.ts';
 import { createMapAdapter, type Feedback, type MapAdapter } from './mapAdapter.ts';
 import s from './map.module.css';
 
 /** minZoom: below this zoom the label does not fit inside its unit and stays hidden; maxWidth: wrap width in px (world topic). */
-export type MapLabel = { id: string; text: string; point: Position; minZoom?: number; maxWidth?: number };
+export type MapLabel = { id: string; text: string; point: Position; minZoom?: number; maxWidth?: number; /** px: point labels sit above their dot. */ offsetY?: number };
 
 type Props = {
   topic: Topic;
@@ -42,7 +43,7 @@ export function MapView(p: Props) {
   useLayoutEffect(() => {
     const container = containerRef.current!;
     const adapter = createMapAdapter({
-      container, country: p.topic.country, regions: p.topic.regions, theme, viewBounds: p.viewBounds, maxBounds: p.maxBounds, disabledIds: p.disabledIds,
+      container, country: p.topic.country, regions: p.topic.regions, theme, viewBounds: p.viewBounds, maxBounds: p.maxBounds, disabledIds: p.disabledIds, tapBuffer: getTapBuffer,
       onSelect: (id) => cb.current.onSelect(id),
       onReady: () => { setReady(true); cb.current.onReady?.(); },
       onError: (e) => cb.current.onError(e),
@@ -76,7 +77,8 @@ export function MapView(p: Props) {
     const placed: Array<[number, number, number, number]> = [];
     const zoom = a.getZoom();
     setPositions(labels.map((l) => {
-      const { x, y } = a.project(l.point as [number, number]);
+      const q = a.project(l.point as [number, number]);
+      const x = q.x; const y = q.y + (l.offsetY ?? 0);
       const maxW = l.maxWidth ?? 120;
       const lines = Math.ceil((l.text.length * 6.6 + 8) / maxW);
       const w = Math.min(maxW, l.text.length * 6.6 + 8) / 2 + 2;

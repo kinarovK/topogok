@@ -48,7 +48,7 @@ export async function mapReady(page: Page, name = 'main') {
 }
 
 /** Waits until the map is not moving and its projection is stable for 200 ms (wheel zoom starts with a delay). */
-async function waitStill(page: Page, map: string) {
+export async function waitStill(page: Page, map: string) {
   let last = '';
   for (let i = 0; i < 40; i++) {
     const now = await page.evaluate((m) => {

@@ -30,7 +30,9 @@
     "topicAdminDesc": "24 terület, a Krími Autonóm Köztársaság, Kijev és Szevasztopol.",
     "topicTectonicsDesc": "Ukrajna 11 tektonikai szerkezeti egysége.",
     "topicWorldDesc": "A hat kontinens és az öt óceán a világtérképen.",
-    "chooseMode": "Mit szeretnél csinálni?"
+    "chooseMode": "Mit szeretnél csinálni?",
+    "topicMixedDesc": "Csak tesztekhez: területek, folyók és pontok egy térképen.",
+    "topicCountMixed": "{count} kérdezhető elem"
   },
   "setup": {
     "titleAssessment": "Számonkérés beállítása",
@@ -71,7 +73,9 @@
     "restartAnyway": "Új kör",
     "exitAnyway": "Kilépés",
     "loadingMap": "Térkép betöltése…",
-    "greyHint": "A szürke területek nem tartoznak a kérdezett egységekhez."
+    "greyHint": "A szürke területek nem tartoznak a kérdezett egységekhez.",
+    "noSelectionMixed": "Válassz egy elemet a térképen.",
+    "alreadyTriedMixed": "Ezt az elemet már kipróbáltad ennél a kérdésnél."
   },
   "practice": {
     "correct": "Helyes!",
@@ -110,7 +114,8 @@
     "title": "Térkép felfedezése",
     "labels": "Nevek megjelenítése",
     "hint": "Koppints vagy kattints egy területre, hogy lásd a nevét.",
-    "selectedName": "Kiválasztva: {name}"
+    "selectedName": "Kiválasztva: {name}",
+    "hintMixed": "Koppints vagy kattints egy elemre (terület, folyó, pont), hogy lásd a nevét."
   },
   "help": {
     "title": "Súgó",

@@ -108,3 +108,17 @@ test('lines are simplified with Douglas–Peucker and keep both ends', () => {
   assert.deepEqual(simplifyLine(line, 0.01), [[0, 0], [3, 0], [3, 1]]);
   assert.deepEqual(simplifyLine([[0, 0], [1, 1]], 1), [[0, 0], [1, 1]]);
 });
+
+test('the app accepts a built mixed package and rejects a line or point with the wrong geometry', async () => {
+  const { validateManifest, validateRegions } = await import('../../src/data/validation.ts');
+  const dir = tmp();
+  const { folder } = makeMixed(dir);
+  const r = buildTopic(cfg(folder));
+  const manifest = validateManifest(JSON.parse(r.files.manifest), { id: config.id, dataVersion: config.dataVersion });
+  const regions = validateRegions(JSON.parse(r.files.regions), manifest);
+  assert.deepEqual(regions.map((x) => x.properties.geomType), ['line', 'line', 'line', 'area', 'area', 'point', 'point', 'point']);
+  const broken = JSON.parse(r.files.regions);
+  broken.features[0].geometry = { type: 'Point', coordinates: [1, 1] };
+  assert.throws(() => validateRegions(broken, manifest), /geometry for MX-R1/);
+  rmSync(dir, { recursive: true });
+});

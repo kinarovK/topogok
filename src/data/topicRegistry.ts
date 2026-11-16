@@ -1,7 +1,7 @@
 import type { QuestionCount } from '../domain/types.ts';
 import { loadTopic, type LocalizedText, type Topic } from './validation.ts';
 
-export type TopicId = 'ukraine-administration' | 'ukraine-tectonics' | 'world-continents';
+export type TopicId = 'ukraine-administration' | 'ukraine-tectonics' | 'world-continents' | 'test-mixed';
 
 export type TopicEntry = {
   id: TopicId;
@@ -12,9 +12,11 @@ export type TopicEntry = {
   counts: readonly QuestionCount[];
   /** True when the question units do not cover all land shown (grey background land). */
   partialCoverage: boolean;
+  /** Mixed topic (0005): areas, lines and points; texts say "element" instead of "area". */
+  mixed?: boolean;
 };
 
-export const TOPICS: readonly TopicEntry[] = [
+const BASE_TOPICS: readonly TopicEntry[] = [
   {
     id: 'ukraine-administration', dataVersion: '2026.11.05.1',
     title: { hu: 'Ukrajna közigazgatása', uk: 'Адміністративний устрій України' },
@@ -31,6 +33,17 @@ export const TOPICS: readonly TopicEntry[] = [
     featureCount: 11, counts: [5, 'all'], partialCoverage: true,
   },
 ];
+
+/** Synthetic mixed topic built from scripts/data/fixtures (0005): only in the E2E build, never shown to users. */
+const TEST_TOPICS: readonly TopicEntry[] = [
+  {
+    id: 'test-mixed', dataVersion: '2026.11.16.1',
+    title: { hu: 'Teszttéma (vegyes)', uk: 'Тестова тема (змішана)' },
+    featureCount: 8, counts: [5, 'all'], partialCoverage: false, mixed: true,
+  },
+];
+const E2E = typeof import.meta.env !== 'undefined' && import.meta.env.MODE === 'e2e';
+export const TOPICS: readonly TopicEntry[] = E2E ? [...BASE_TOPICS, ...TEST_TOPICS] : BASE_TOPICS;
 
 export function topicEntry(id: string): TopicEntry {
   const t = TOPICS.find((x) => x.id === id);

@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { pickFeatureId } from '../../src/map/hitTest.ts';
 import { labelPoint } from '../../src/map/labelPoint.ts';
 import { pointInRing } from '../../scripts/data/geometry.ts';
-import type { RegionFeature } from '../../src/data/validation.ts';
+import type { PolygonGeometry, RegionFeature } from '../../src/data/validation.ts';
 
 const regions = (JSON.parse(readFileSync(resolve(import.meta.dirname, '../../public/data/ukraine-administration/2026.11.05.1/regions.geojson'), 'utf8')) as { features: RegionFeature[] }).features;
 
@@ -20,12 +20,13 @@ test('T14 hit test: deduplicated, city above surrounding unit, stable ID order, 
 
 test('T13 label/control point of every region lies inside that region and in no other region', () => {
   const inside = (p: [number, number], r: RegionFeature) => {
-    const polys = r.geometry.type === 'Polygon' ? [r.geometry.coordinates] : r.geometry.coordinates;
+    const g = r.geometry as PolygonGeometry;
+    const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
     return polys.some((poly) => pointInRing(p, poly[0]!) && !poly.slice(1).some((h) => pointInRing(p, h)));
   };
   assert.equal(regions.length, 27);
   for (const r of regions) {
-    const p = labelPoint(r.geometry) as [number, number];
+    const p = labelPoint(r.geometry as PolygonGeometry) as [number, number];
     assert.ok(inside(p, r), `${r.id} point outside`);
     const others = regions.filter((o) => o.id !== r.id && inside(p, o)).map((o) => o.id);
     assert.deepEqual(others, [], `${r.id} point also inside ${others}`);

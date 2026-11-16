@@ -12,6 +12,7 @@ const DESC: Record<TopicId, MessageKey> = {
   'ukraine-administration': 'home.topicAdminDesc',
   'ukraine-tectonics': 'home.topicTectonicsDesc',
   'world-continents': 'home.topicWorldDesc',
+  'test-mixed': 'home.topicMixedDesc',
 };
 
 /** Home = topic choice. */
@@ -32,7 +33,7 @@ export function HomeScreen({ onTopic, onHelp, onLogin, onManage }: { onTopic: (i
               <strong>{topic.title[locale]}</strong>
               <span>{t(DESC[topic.id])}</span>
             </span>
-            <span className={s.topicMeta}>{t('home.topicCount', { count: topic.featureCount })}<span aria-hidden="true"> ›</span></span>
+            <span className={s.topicMeta}>{t(topic.mixed ? 'home.topicCountMixed' : 'home.topicCount', { count: topic.featureCount })}<span aria-hidden="true"> ›</span></span>
           </button>
         ))}
       </section>
