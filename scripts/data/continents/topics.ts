@@ -1,13 +1,27 @@
 // One topic per continent from the owner's GeoPackage (layers named <continent>_<layer>), each drawn on its own
-// continent only: the base is that continent from the world topic's land (build/world, made by data:world).
+// continent only: the base is that continent cut from Natural Earth 1:50m land (scripts/data/coast.ts), land areas
+// are clipped to the coast and seas to the water.
 // Projections as in school atlases: Lambert azimuthal equal-area centred on the compact continents, Lambert
 // conformal conic for the wide northern ones (Europe keeps its familiar shape), polar Hammer for Antarctica. Usage: npm run data:topic -- scripts/data/continents/topics.ts
 import type { ProjectionConfig } from '../projection.ts';
 import type { LocalizedText, TopicConfig } from '../topic.ts';
 
-const DATA_VERSION = '2026.11.16.2';
+const DATA_VERSION = '2026.11.16.3';
 const SOURCE = 'sources/continents/foldrajz_07_osztaly.gpkg';
 const BASE = 'build/world/world_continents.shp';
+
+const LAND = 'shp/ne_50m_land.shp';
+const SEA_LAYERS = ['tengerek', 'oceanok'];
+// Bays kept in the "teruletek" layers of the source: clipped to the water, drawn as water.
+const SEA_IDS = ['guineaiobol', 'bengaliobol', 'perzsaobol', 'vizcayaiobol', 'hudsonobol', 'kaliforniaiobol', 'mexikoiobol', 'carpentariaobol', 'nagyausztraliaiobol', 'laplata'];
+// Lakes: drawn as water, kept as drawn (they lie on the land).
+const LAKE_IDS = ['csadto', 'nyaszato', 'tanganyikato', 'viktoriato', 'bajkalto', 'kaszpitenger', 'maracaiboto', 'titicacato', 'nagytavak'];
+// Kept as drawn: lakes, and the reef (it lies in the sea).
+const KEEP_IDS = [...LAKE_IDS, 'nagykorallzatony'];
+// Island groups: their islands, each grown by ~45 km so that small islands stay visible and tappable.
+const ISLAND_IDS = ['polinezia', 'mikronezia', 'melanezia', 'kisantillak'];
+// Countries are left out (owner decision 2026-11-16): they come in a later political topic.
+const COUNTRIES = ['brazilia', 'argentina', 'chile', 'kanada', 'amerikaiegyesultallamok', 'mexiko'];
 
 const LAYER_TITLES: Record<string, LocalizedText> = {
   teruletek: { hu: 'Területek', uk: 'Території' },
@@ -19,18 +33,12 @@ const LAYER_TITLES: Record<string, LocalizedText> = {
 
 const continent = (id: string, prefix: string, base: string, projection: ProjectionConfig, title: LocalizedText, extra: Partial<TopicConfig> = {}): TopicConfig => ({
   id, dataVersion: DATA_VERSION, title, source: SOURCE, layerPrefix: `${prefix}_`,
-  background: BASE, backgroundIds: [base],
+  coast: { land: LAND, continents: BASE, continent: base, seaLayers: SEA_LAYERS, seaIds: SEA_IDS, keepIds: KEEP_IDS, islandIds: ISLAND_IDS },
+  excludeIds: COUNTRIES,
   projection,
   layerTitles: LAYER_TITLES,
-  waterLayers: ['tengerek', 'oceanok'],
-  // Lakes and bays kept in the "teruletek" layers of the source.
-  waterIds: [
-    'csadto', 'guineaiobol', 'nyaszato', 'tanganyikato', 'viktoriato',
-    'bajkalto', 'bengaliobol', 'kaszpitenger', 'perzsaobol', 'vizcayaiobol',
-    'hudsonobol', 'kaliforniaiobol', 'mexikoiobol',
-    'maracaiboto', 'titicacato',
-    'carpentariaobol', 'nagyausztraliaiobol',
-  ],
+  waterLayers: SEA_LAYERS,
+  waterIds: [...SEA_IDS, ...LAKE_IDS],
   // Owner-made data: no source link or licence was given, so none is claimed.
   provenance: { source: 'foldrajz_07_osztaly.gpkg (owner)', sourceUrl: null, license: null, licenseUrl: null, status: 'unverified' },
   ...extra,
