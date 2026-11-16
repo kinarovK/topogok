@@ -1,0 +1,85 @@
+{
+  "topicId": "continent-antarctica",
+  "dataVersion": "2026.11.16.1",
+  "node": "v22.23.4",
+  "source": "sources/continents/foldrajz_07_osztaly.gpkg",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "5 layer(s): oceanok, pontok, tengerek, teruletek, vonalak"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "11 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"world_continents\" (8 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "warn",
+      "detail": "off the coarse base map, within 3° of land (drawn anyway): erebus"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "109 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "oceanok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "pontok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "tengerek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 4,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "teruletek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 3,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "vonalak",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 8,
+    "line": 1,
+    "point": 2
+  },
+  "bytes": {
+    "regions": 255900,
+    "country": 37946,
+    "gzipped": 111971
+  }
+}

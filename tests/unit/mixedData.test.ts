@@ -122,3 +122,9 @@ test('the app accepts a built mixed package and rejects a line or point with the
   assert.throws(() => validateRegions(broken, manifest), /geometry for MX-R1/);
   rmSync(dir, { recursive: true });
 });
+
+test('line parts that touch end to end are joined (a river exported as two-point segments)', async () => {
+  const { mergeLineParts, removeSpikes } = await import('../../scripts/data/topic.ts');
+  assert.deepEqual(mergeLineParts([[[1, 0], [2, 0]], [[0, 0], [1, 0]], [[3, 1], [2, 0]], [[9, 9], [9, 8]]]), [[[0, 0], [1, 0], [2, 0], [3, 1]], [[9, 9], [9, 8]]]);
+  assert.deepEqual(removeSpikes([[0, 0], [4, 0], [4, 4], [5, 5], [4, 4], [0, 4], [0, 0]]), [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]]);
+});

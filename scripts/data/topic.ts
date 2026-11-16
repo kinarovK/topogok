@@ -25,12 +25,20 @@ export type TopicConfig = {
   source: string;
   /** Map base when the source has no "hatter" layer: another source (e.g. world land), relative to the repo root. */
   background?: string;
+  /** Only these base features (matched on the base's `id` field), e.g. one continent of a world land layer. */
+  backgroundIds?: string[];
+  /** Base simplification tolerance in degrees (default 0.01°). */
+  simplifyBackground?: number;
   /** World-map style projection (pre-projected like the world topic); without it the map is Web Mercator. */
   projection?: ProjectionConfig;
   /** Only layers whose name starts with this prefix (one GeoPackage holding several topics); the prefix is dropped. */
   layerPrefix?: string;
   /** Optional per-layer field renames when a source does not follow id / name_hu / name_uk. */
   fields?: Record<string, { id?: string; name_hu?: string; name_uk?: string }>;
+  /** Area layers drawn as water (seas, oceans) instead of land. */
+  waterLayers?: string[];
+  /** Single area features drawn as water although their layer is land (a lake or bay among the regions). */
+  waterIds?: string[];
   /** Optional per-layer titles for the teacher's checklist (default: the layer name). */
   layerTitles?: Record<string, LocalizedText>;
   /** Area layers whose features must not overlap each other (e.g. countries). */
@@ -43,8 +51,8 @@ export type TopicConfig = {
 };
 
 export type GeomType = 'area' | 'line' | 'point';
-type OutFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText; kind: 'generic'; geomType: GeomType; layer: string }; geometry: Geometry };
-type Check = { id: string; status: 'pass' | 'fail'; detail: string };
+type OutFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText; kind: 'generic' | 'ocean'; geomType: GeomType; layer: string }; geometry: Geometry };
+type Check = { id: string; status: 'pass' | 'warn' | 'fail'; detail: string };
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const BACKGROUND = /^(hatter|háttér|background)$/i;
@@ -97,6 +105,59 @@ export function simplifyLine(line: Pos[], tol: number): Pos[] {
   return line.filter((_, i) => keep[i]);
 }
 
+/**
+ * Joins line parts whose ends meet (within `snap` degrees, ~1 km by default) into continuous lines, reversing parts
+ * where needed: a river exported as hundreds of two-point segments, or with small gaps between its pieces, would
+ * otherwise be simplified piece by piece and drawn with gaps. Branches (a delta) stay separate parts.
+ */
+export function mergeLineParts(parts: Pos[][], snap = 0.01): Pos[][] {
+  const left = parts.filter((l) => l.length >= 2).map((l) => [...l]);
+  const used = new Set<number>();
+  const dist = (a: Pos, b: Pos) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  // The nearest free part end within the snap distance: [part index, whether it is that part's start].
+  const nearest = (tip: Pos): [number, boolean] | undefined => {
+    let best: [number, boolean] | undefined; let bestD = snap;
+    left.forEach((l, j) => {
+      if (used.has(j)) return;
+      for (const atStart of [true, false]) { const d = dist(tip, atStart ? l[0]! : l[l.length - 1]!); if (d <= bestD) { bestD = d; best = [j, atStart]; } }
+    });
+    return best;
+  };
+  const out: Pos[][] = [];
+  for (let i = 0; i < left.length; i++) {
+    if (used.has(i)) continue;
+    used.add(i);
+    let line = left[i]!;
+    for (const atEnd of [true, false]) {
+      for (;;) {
+        const hit = nearest(atEnd ? line[line.length - 1]! : line[0]!);
+        if (!hit) break;
+        used.add(hit[0]);
+        const part = left[hit[0]]!;
+        if (atEnd) line = dedupe([...line, ...(hit[1] ? part : [...part].reverse())]);
+        else line = dedupe([...(hit[1] ? [...part].reverse() : part), ...line]);
+      }
+    }
+    out.push(line);
+  }
+  return out;
+}
+
+/** Removes A–B–A back-and-forth spikes from a closed ring (they come from near-duplicate vertices). */
+export function removeSpikes(ring: Pos[]): Pos[] {
+  const same = (a: Pos, b: Pos) => a[0] === b[0] && a[1] === b[1];
+  let pts = ring.slice(0, -1); let changed = true;
+  while (changed && pts.length >= 3) {
+    changed = false;
+    for (let i = 0; i < pts.length && pts.length >= 3; i++) {
+      const prev = pts[(i - 1 + pts.length) % pts.length]!; const next = pts[(i + 1) % pts.length]!;
+      if (same(prev, next)) { pts.splice(i, 1); pts = pts.filter((p, k) => k === 0 || !same(p, pts[k - 1]!)); changed = true; break; }
+    }
+  }
+  if (pts.length && same(pts[0]!, pts[pts.length - 1]!)) pts.pop();
+  return pts.length ? [...pts, pts[0]!] : [];
+}
+
 function dedupe(line: Pos[]): Pos[] {
   return line.filter((p, i) => i === 0 || p[0] !== line[i - 1]![0] || p[1] !== line[i - 1]![1]);
 }
@@ -120,6 +181,7 @@ export type BuildResult = { ok: boolean; checks: Check[]; files: { manifest: str
 export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult {
   const checks: Check[] = [];
   const check = (id: string, ok: boolean, detail: string) => { checks.push({ id, status: ok ? 'pass' : 'fail', detail }); return ok; };
+  const warn = (id: string, detail: string) => { checks.push({ id, status: 'warn', detail }); };
   const srcPath = isAbsolute(config.source) ? config.source : join(sourceRoot, config.source);
   let layers: SourceLayer[] = [];
   try {
@@ -130,7 +192,16 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
 
   let background = layers.filter((l) => BACKGROUND.test(l.name));
   if (!background.length && config.background) {
-    try { background = readSource(isAbsolute(config.background) ? config.background : join(sourceRoot, config.background)); }
+    try {
+      background = readSource(isAbsolute(config.background) ? config.background : join(sourceRoot, config.background));
+      const keep = config.backgroundIds;
+      if (keep) {
+        background = background.map((l) => ({ ...l, features: l.features.filter((x) => keep.includes(String(x.props['id'] ?? ''))) }));
+        const found = new Set(background.flatMap((l) => l.features.map((x) => String(x.props['id']))));
+        const missing = keep.filter((k) => !found.has(k));
+        if (missing.length) check('background-source', false, `base feature(s) not found: ${missing.join(', ')}`);
+      }
+    }
     catch (e) { check('background-source', false, String(e instanceof Error ? e.message : e)); }
   }
   const questionLayers = layers.filter((l) => !BACKGROUND.test(l.name));
@@ -164,7 +235,7 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
         if (pts.length !== 1) { problems.push(`${where}: a point element must be exactly one point (got ${pts.length})`); continue; }
         geometry = { type: 'Point', coordinates: [round(pts[0]![0]), round(pts[0]![1])] }; geomType = 'point';
       } else if (g.type === 'LineString' || g.type === 'MultiLineString') {
-        const all = (g.type === 'LineString' ? [g.coordinates] : g.coordinates)
+        const all = mergeLineParts(g.type === 'LineString' ? [g.coordinates] : g.coordinates)
           .map((l) => dedupe(simplifyLine(dedupe(l), tol).map((p): Pos => [round(p[0]), round(p[1])])));
         // Tiny parts that vanish when simplified are dropped; a line needs at least one real part.
         const parts = all.filter((l) => l.length >= 2);
@@ -183,19 +254,32 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
         geometry = polys.length === 1 ? { type: 'Polygon', coordinates: polys[0]! } : { type: 'MultiPolygon', coordinates: polys }; geomType = 'area';
       }
       types.add(geomType);
-      features.push({ type: 'Feature', id, properties: { id, names, kind: 'generic', geomType, layer: layer.name }, geometry });
+      const kind = geomType === 'area' && (config.waterLayers?.includes(layer.name) || config.waterIds?.includes(id)) ? 'ocean' : 'generic';
+      features.push({ type: 'Feature', id, properties: { id, names, kind, geomType, layer: layer.name }, geometry });
     }
     layerStats.push({ layer: layer.name, geomTypes: [...types], count: n - skippedEmpty, skippedEmpty });
   }
   check('features', problems.length === 0 && features.length > 0, problems.length ? `${problems.length} problem(s): ${problems.slice(0, 20).join(' | ')}` : `${features.length} question features`);
 
   // Background: the base layer if given, otherwise the asked areas themselves.
-  const bgPolys: PolygonCoords[] = background.flatMap((l) => l.features.flatMap((x) => (x.geometry ? polysOf(x.geometry) : [])))
-    .map((poly) => rewind(poly.map((ring) => ring.map((p): Pos => [round(p[0]), round(p[1])]))));
+  // The base is only drawn, never asked: spikes from near-duplicate vertices are removed, and a polygon that stays
+  // invalid is left out with a warning instead of failing the whole topic.
+  const bgTol = config.simplifyBackground ?? DEFAULT_AREA_TOLERANCE;
+  const bgRaw: PolygonCoords[] = background.flatMap((l) => l.features.flatMap((x) => (x.geometry ? polysOf(x.geometry) : [])));
+  const bgPolys: PolygonCoords[] = []; const bgDropped: string[] = [];
+  for (const [i, raw] of bgRaw.entries()) {
+    let tol = bgTol; let poly: PolygonCoords = []; let ok = false;
+    for (let attempt = 0; attempt < 8 && !ok; attempt++, tol = attempt === 7 ? 0 : tol / 2) {
+      const simple = simplifyPolygons([raw], tol)[0];
+      if (!simple) { ok = true; poly = []; break; }
+      poly = rewind(simple.map((ring) => removeSpikes(dedupe(ring.map((p): Pos => [round(p[0]), round(p[1])])))).filter((r) => r.length >= 4));
+      ok = poly.length > 0 && validatePolygon('hatter', poly).length === 0;
+    }
+    if (ok && poly.length) bgPolys.push(poly); else if (!ok) bgDropped.push(`polygon ${i}`);
+  }
   const basePolys = bgPolys.length ? bgPolys : features.filter((x) => x.properties.geomType === 'area').flatMap((x) => polysOf(x.geometry));
   check('background', basePolys.length > 0, bgPolys.length ? `base layer "${background.map((l) => l.name).join(', ')}" (${bgPolys.length} polygon(s))` : basePolys.length ? 'no base layer: the asked areas form the background' : 'no base layer and no areas: add a "hatter" layer');
-  const bgIssues = bgPolys.flatMap((poly) => validatePolygon('hatter', poly));
-  if (bgPolys.length) check('background-geometry', bgIssues.length === 0, bgIssues.length ? bgIssues.slice(0, 3).map((x) => x.code).join(', ') : 'valid');
+  if (bgDropped.length) warn('background-geometry', `invalid base polygon(s) left out: ${bgDropped.join(', ')}`);
 
   const all = [...features.flatMap((x) => allPositions(x.geometry)), ...basePolys.flat(2)];
   const bb = [Infinity, Infinity, -Infinity, -Infinity];
@@ -205,10 +289,15 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
   // Points must lie on the base map.
   const inBase = (p: Pos) => basePolys.some((poly) => pointInRing(p, poly[0]!) && !poly.slice(1).some((h) => pointInRing(p, h)));
   const strayPoints = features.filter((x) => x.geometry.type === 'Point' && basePolys.length && !inBase(x.geometry.coordinates)).map((x) => x.id);
-  // A coarse base may miss a cape or an islet: points just off it are reported, points far away are errors.
-  const near = (p: Pos) => [[0, 0], [0.5, 0], [-0.5, 0], [0, 0.5], [0, -0.5]].some(([dx, dy]) => inBase([p[0] + dx!, p[1] + dy!]));
-  const farPoints = strayPoints.filter((id) => !near((features.find((x) => x.id === id)!.geometry as { coordinates: Pos }).coordinates));
-  check('points-on-map', farPoints.length === 0, strayPoints.length ? `off the base map: ${strayPoints.join(', ')}${farPoints.length ? ` (far: ${farPoints.join(', ')})` : ' (within 0.5°: accepted)'}` : 'all points lie on the base map');
+  // A coarse base may miss a cape or an islet: the dot is still drawn, so points near the coast are only reported;
+  // a point far from any land is most likely a coordinate error.
+  const near = (p: Pos, d: number) => [[0, 0], [d, 0], [-d, 0], [0, d], [0, -d], [d, d], [-d, d], [d, -d], [-d, -d]].some(([dx, dy]) => inBase([p[0] + dx!, p[1] + dy!]));
+  const coordsOf = (id: string) => (features.find((x) => x.id === id)!.geometry as { coordinates: Pos }).coordinates;
+  const offShore = strayPoints.filter((id) => !near(coordsOf(id), 0.5));
+  const farPoints = offShore.filter((id) => ![1, 2, 3].some((d) => near(coordsOf(id), d)));
+  if (farPoints.length) check('points-on-map', false, `far from the base map (> 3°): ${farPoints.join(', ')}`);
+  else if (offShore.length) warn('points-on-map', `off the coarse base map, within 3° of land (drawn anyway): ${offShore.join(', ')}`);
+  else check('points-on-map', true, strayPoints.length ? `within 0.5° of the base map: ${strayPoints.join(', ')}` : 'all points lie on the base map');
 
   // Coverage layers: no two features overlap (sampled on a grid scaled to the bounds).
   for (const layer of config.coverage ?? []) {
@@ -279,7 +368,7 @@ function reportMarkdown(r: BuildResult): string {
     ...rep.layers.map((l) => `| ${l.layer} | ${l.geomTypes.join(', ') || '–'} | ${l.count} |`), '',
     `Összesen: terület ${rep.totals['area']}, vonal ${rep.totals['line']}, pont ${rep.totals['point']}; tömörítve ${Math.round((rep.bytes['gzipped'] ?? 0) / 1024)} KiB.`, '',
     '| Ellenőrzés | Eredmény | Részlet |', '|---|---|---|',
-    ...r.checks.map((c) => `| ${c.id} | ${c.status === 'pass' ? 'OK' : 'HIBA'} | ${c.detail.replaceAll('|', '/')} |`), '',
+    ...r.checks.map((c) => `| ${c.id} | ${c.status === 'pass' ? 'OK' : c.status === 'warn' ? 'FIGYELEM' : 'HIBA'} | ${c.detail.replaceAll('|', '/')} |`), '',
   ].join('\n');
 }
 
@@ -288,23 +377,33 @@ async function main() {
   const configPath = args.find((a) => !a.startsWith('--'));
   if (!configPath) { console.error('usage: node scripts/data/topic.ts <config.ts> [--out <dir>] [--check]'); process.exit(2); }
   const outIdx = args.indexOf('--out');
-  const config = (await import(pathToFileURL(resolve(configPath)).href) as { default: TopicConfig }).default;
+  const mod = (await import(pathToFileURL(resolve(configPath)).href) as { default: TopicConfig | TopicConfig[] }).default;
+  // A config module may describe several topics (e.g. one per continent from one GeoPackage).
+  let failed = false;
+  for (const config of Array.isArray(mod) ? mod : [mod]) {
+    if (Array.isArray(mod)) console.log(`== ${config.id}`);
+    if (!buildOne(config, args, outIdx)) failed = true;
+  }
+  process.exit(failed ? 1 : 0);
+}
+
+function buildOne(config: TopicConfig, args: string[], outIdx: number): boolean {
   const r = buildTopic(config);
-  for (const c of r.checks) console.log(`${c.status === 'pass' ? 'PASS' : 'FAIL'} ${c.id}: ${c.detail}`);
+  for (const c of r.checks) console.log(`${c.status.toUpperCase()} ${c.id}: ${c.detail}`);
   const outRoot = outIdx >= 0 ? resolve(args[outIdx + 1]!) : join(root, 'public/data');
   const finalDir = join(outRoot, config.id, config.dataVersion);
   if (args.includes('--check')) {
     const same = r.ok && (['manifest', 'regions', 'country'] as const).every((k) => existsSync(join(finalDir, `${k === 'manifest' ? 'manifest.json' : `${k}.geojson`}`))
       && readFileSync(join(finalDir, k === 'manifest' ? 'manifest.json' : `${k}.geojson`), 'utf8') === r.files[k]);
     console.log(same ? `OK: ${finalDir} matches the source` : `MISMATCH: ${finalDir} differs from a fresh build`);
-    process.exit(same ? 0 : 1);
+    return same;
   }
   if (outIdx < 0) {
     mkdirSync(join(root, 'reports'), { recursive: true });
     writeFileSync(join(root, `reports/${config.id}-validation.json`), JSON.stringify(r.report, null, 2) + '\n');
     writeFileSync(join(root, `reports/${config.id}-validation.md`), reportMarkdown(r));
   }
-  if (!r.ok) { console.error('Validation failed; package not written.'); process.exit(1); }
+  if (!r.ok) { console.error('Validation failed; package not written.'); return false; }
   const tmp = join(outRoot, config.id, `.tmp-${process.pid}`);
   mkdirSync(tmp, { recursive: true });
   writeFileSync(join(tmp, 'manifest.json'), r.files.manifest);
@@ -313,6 +412,7 @@ async function main() {
   if (existsSync(finalDir)) rmSync(finalDir, { recursive: true, force: true });
   renameSync(tmp, finalDir);
   console.log(`Wrote ${finalDir}`);
+  return true;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) void main();

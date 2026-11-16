@@ -1,10 +1,12 @@
 import type { RegionKind } from '../data/validation.ts';
 
-export type HitCandidate = { id: string; kind: RegionKind };
+/** `area`: the feature's size (any planar unit); when areas overlap, the smaller one is the more specific target. */
+export type HitCandidate = { id: string; kind: RegionKind; area?: number | undefined };
 
 /**
  * Chooses one feature ID from the rendered features under a pointer.
- * Order: deduplicate, city polygons above surrounding units, then stable ID order.
+ * Order: deduplicate, city polygons above surrounding units, then the smallest area (a sea inside an ocean, a
+ * mountain range inside a region: owner decision 2026-11-16), then stable ID order.
  * The question's correct answer is never an input here.
  */
 export function pickFeatureId(candidates: readonly HitCandidate[], allowed: ReadonlySet<string>): string | null {
@@ -15,7 +17,7 @@ export function pickFeatureId(candidates: readonly HitCandidate[], allowed: Read
   list.sort((a, b) => {
     const pa = a.kind === 'city' ? 0 : 1;
     const pb = b.kind === 'city' ? 0 : 1;
-    return pa - pb || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+    return pa - pb || (a.area ?? 0) - (b.area ?? 0) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
   });
   return list[0]!.id;
 }

@@ -224,7 +224,9 @@ function densifyWrapped(line: Pos[], step: number): Pos[] {
 
 /** Projects polygons: map frame, seams healed, cut at the map edge, projected. */
 export function projectPolygons(cfg: ProjectionConfig, polys: Pos[][][]): Pos[][][] {
-  const { kept, stitched } = stitchSeam(polys);
+  // Source edges are straight in lon/lat: an edge from −180° to 180° runs along the whole parallel (e.g. the outline of
+  // an ocean band after simplification). Densified here, before stitching, so later steps never read it as a seam jump.
+  const { kept, stitched } = stitchSeam(polys.map((poly) => poly.map((r) => densify(r, 1))));
   const framed = [...kept.map((poly) => poly.map((r) => toFrame(cfg, r))), ...nestRings(stitched.map((r) => toFrame(cfg, r)))];
   return framed.flatMap((poly) => projectFramed(cfg, poly));
 }

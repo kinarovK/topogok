@@ -35,3 +35,15 @@ test('labels: a line is labelled halfway along its longest part; a point on itse
   assert.deepEqual(lineMidpoint([[[0, 0], [0, 4], [4, 4]]]), [0, 4]);
   assert.deepEqual(regionLabelPoint({ properties: {}, geometry: { type: 'Point', coordinates: [3, 4] } }), [3, 4]);
 });
+
+test('overlapping areas: the smallest one wins (a sea inside an ocean), then the stable id order', async () => {
+  const { pickFeatureId } = await import('../../src/map/hitTest.ts');
+  const { geometryArea } = await import('../../src/map/labelPoint.ts');
+  const all = new Set(['OCEAN', 'SEA', 'Z']);
+  const ocean = geometryArea({ type: 'Polygon', coordinates: [[[0, 0], [20, 0], [20, 20], [0, 20], [0, 0]]] });
+  const sea = geometryArea({ type: 'MultiPolygon', coordinates: [[[[5, 5], [8, 5], [8, 8], [5, 8], [5, 5]]]] });
+  assert.ok(sea > 0 && sea < ocean);
+  assert.equal(pickFeatureId([{ id: 'OCEAN', kind: 'generic', area: ocean }, { id: 'SEA', kind: 'generic', area: sea }], all), 'SEA');
+  assert.equal(pickFeatureId([{ id: 'Z', kind: 'generic', area: 1 }, { id: 'SEA', kind: 'generic', area: 1 }], all), 'SEA');
+  assert.equal(geometryArea({ type: 'Point', coordinates: [1, 1] }), 0);
+});
