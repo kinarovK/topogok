@@ -1,9 +1,11 @@
 # CI + release for TopoGok (F1, docs/project/tasks/0003_ONLINE_PLATFORM/phases/F1_HOSTING.md).
 #
-# Every push runs the gates. Only if ALL gates pass is the exact tested `dist/` uploaded to
-# Cloudflare Pages (Direct Upload, free plan):
-#   - push to main      → production deployment (https://topogok.pages.dev)
-#   - push to any other → preview deployment (https://<branch>.topogok.pages.dev); never touches production
+# Runs only for main and staging (feature branches are tested locally before they are merged), and not
+# for documentation-only changes, to stay within the free Actions minutes of a private repository.
+# Only if ALL gates pass is the exact tested `dist/` uploaded to Cloudflare Pages (Direct Upload, free plan):
+#   - push to main    → production deployment (https://topogok.pages.dev); browser tests always run
+#   - push to staging → preview deployment (https://staging.topogok.pages.dev); browser tests are skipped
+#                       (they are the slowest step), unless started by hand with "e2e" ticked
 # The deploy job is skipped (not failed) while the repository has no CLOUDFLARE_* secrets.
 # No artifacts are uploaded to GitHub (the account's Actions storage quota is not used).
 
@@ -11,8 +13,14 @@ name: ci
 
 on:
   push:
-    branches: ['**']
+    branches: [main, staging]
+    paths-ignore: ['**.md', 'docs/**', 'reports/**']
   workflow_dispatch:
+    inputs:
+      e2e:
+        description: Run the browser tests (always on for main)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -29,7 +37,9 @@ env:
 jobs:
   gates:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 25
+    env:
+      RUN_E2E: ${{ github.ref == 'refs/heads/main' || inputs.e2e == true }}
     outputs:
       build_id: ${{ steps.id.outputs.build_id }}
     steps:
@@ -54,6 +64,7 @@ jobs:
         env:
           TOPOGOK_BUILD_ID: ${{ steps.id.outputs.build_id }}
       - name: E2E build
+        if: env.RUN_E2E == 'true'
         run: npm run build:e2e
         env:
           TOPOGOK_BUILD_ID: ${{ steps.id.outputs.build_id }}
@@ -63,8 +74,10 @@ jobs:
           for i in $(seq 1 20); do curl -fsS -o /dev/null http://127.0.0.1:4180/ && break; sleep 0.5; done
           curl -sSI http://127.0.0.1:4180/ | head -5
           node scripts/release/smoke.mjs http://127.0.0.1:4180/ "${{ steps.id.outputs.build_id }}"
-      - run: npx playwright install --with-deps chromium
+      - if: env.RUN_E2E == 'true'
+        run: npx playwright install --with-deps chromium
       - name: Browser tests (Playwright, Chromium, mobile viewport, CSP)
+        if: env.RUN_E2E == 'true'
         run: npm run test:e2e
       - name: Keep the tested package for the deploy job (cache, not artifact storage)
         uses: actions/cache/save@v5
