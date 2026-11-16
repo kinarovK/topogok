@@ -1,4 +1,4 @@
-# Adatellenőrzés: continent-north-america 2026.11.16.1
+# Adatellenőrzés: continent-north-america 2026.11.16.2
 
 Eredmény: **sikeres**
 
@@ -8,7 +8,7 @@ Eredmény: **sikeres**
 | teruletek | area | 20 |
 | vonalak | line | 4 |
 
-Összesen: terület 20, vonal 4, pont 2; tömörítve 726 KiB.
+Összesen: terület 20, vonal 4, pont 2; tömörítve 753 KiB.
 
 | Ellenőrzés | Eredmény | Részlet |
 |---|---|---|
@@ -16,4 +16,4 @@ Eredmény: **sikeres**
 | features | OK | 26 question features |
 | background | OK | base layer "world_continents" (41 polygon(s)) |
 | points-on-map | OK | all points lie on the base map |
-| size | OK | 726 KiB gzipped (limit 1465 KiB) |
+| size | OK | 753 KiB gzipped (limit 1465 KiB) |

@@ -1,6 +1,6 @@
 {
   "topicId": "continent-north-america",
-  "dataVersion": "2026.11.16.1",
+  "dataVersion": "2026.11.16.2",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -27,7 +27,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "726 KiB gzipped (limit 1465 KiB)"
+      "detail": "753 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -62,8 +62,8 @@
     "point": 2
   },
   "bytes": {
-    "regions": 1911284,
-    "country": 79228,
-    "gzipped": 743697
+    "regions": 1975831,
+    "country": 82318,
+    "gzipped": 771383
   }
 }

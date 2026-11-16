@@ -1,4 +1,4 @@
-# Adatellenőrzés: continent-eurasia 2026.11.16.1
+# Adatellenőrzés: continent-eurasia 2026.11.16.2
 
 Eredmény: **sikeres**
 
@@ -8,7 +8,7 @@ Eredmény: **sikeres**
 | teruletek | area | 34 |
 | vonalak | line | 17 |
 
-Összesen: terület 42, vonal 17, pont 0; tömörítve 228 KiB.
+Összesen: terület 42, vonal 17, pont 0; tömörítve 236 KiB.
 
 | Ellenőrzés | Eredmény | Részlet |
 |---|---|---|
@@ -16,4 +16,4 @@ Eredmény: **sikeres**
 | features | OK | 59 question features |
 | background | OK | base layer "world_continents" (48 polygon(s)) |
 | points-on-map | OK | all points lie on the base map |
-| size | OK | 228 KiB gzipped (limit 1465 KiB) |
+| size | OK | 236 KiB gzipped (limit 1465 KiB) |

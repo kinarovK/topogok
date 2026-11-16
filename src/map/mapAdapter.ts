@@ -5,7 +5,7 @@ import type { ResolvedTheme } from '../app/settings.tsx';
 import type { Bounds, CountryFeature, RegionFeature, RegionKind } from '../data/validation.ts';
 import { DEFAULT_TAP_BUFFER, distanceToPath, pickTarget, type NearCandidate, type ScreenPoint } from './hitTest.ts';
 import { geometryArea, geometryBounds } from './labelPoint.ts';
-import { buildStyle, fillColor, highlightLineColor, LAYER_LINES, LAYER_POINTS, LAYER_REGIONS_FILL, MAP_COLORS, thinColor } from './mapStyle.ts';
+import { buildStyle, fillColor, highlightLineColor, LAYER_LINES, LAYER_POINTS, LAYER_REGIONS_FILL, isMixed, paletteFor, thinColor } from './mapStyle.ts';
 
 // The worker is bundled from our own origin (CSP worker-src 'self'), not derived from the chunk URL.
 setWorkerUrl(workerUrl);
@@ -56,6 +56,7 @@ export function padBounds([w, s, e, n]: Bounds, ratio: number): Bounds {
 }
 
 export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
+  const mixed = isMixed(o.regions);
   const kinds = new Map<string, RegionKind>(o.regions.map((r) => [r.id, r.properties.kind]));
   const sizes = new Map<string, number>(o.regions.map((r) => [r.id, geometryArea(r.geometry)]));
   const disabled = o.disabledIds ?? new Set<string>();
@@ -110,17 +111,17 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
 
   let theme = o.theme;
   const applyTheme = () => {
-    const c = MAP_COLORS[theme];
+    const c = paletteFor(theme, mixed);
     map.setPaintProperty('background', 'background-color', c.background);
     map.setPaintProperty('country-fill', 'fill-color', c.country);
-    map.setPaintProperty(LAYER_REGIONS_FILL, 'fill-color', fillColor(theme));
+    map.setPaintProperty(LAYER_REGIONS_FILL, 'fill-color', fillColor(theme, mixed));
     map.setPaintProperty('regions-line', 'line-color', c.regionLine);
     map.setPaintProperty('country-line', 'line-color', c.countryLine);
-    map.setPaintProperty('regions-highlight', 'line-color', highlightLineColor(theme));
+    map.setPaintProperty('regions-highlight', 'line-color', highlightLineColor(theme, mixed));
     map.setPaintProperty('lines-halo', 'line-color', c.halo);
-    map.setPaintProperty(LAYER_LINES, 'line-color', thinColor(theme, 'river'));
-    map.setPaintProperty('points-ring', 'circle-stroke-color', thinColor(theme, 'point'));
-    map.setPaintProperty(LAYER_POINTS, 'circle-color', thinColor(theme, 'point'));
+    map.setPaintProperty(LAYER_LINES, 'line-color', thinColor(theme, 'river', mixed));
+    map.setPaintProperty('points-ring', 'circle-stroke-color', thinColor(theme, 'point', mixed));
+    map.setPaintProperty(LAYER_POINTS, 'circle-color', thinColor(theme, 'point', mixed));
     map.setPaintProperty(LAYER_POINTS, 'circle-stroke-color', c.halo);
   };
 
@@ -137,7 +138,7 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
       if (pt.x < Math.min(a.x, b.x) - buffer || pt.x > Math.max(a.x, b.x) + buffer || pt.y < Math.min(a.y, b.y) - buffer || pt.y > Math.max(a.y, b.y) + buffer) continue;
       let d = Infinity;
       for (const path of f.paths) d = Math.min(d, distanceToPath(pt, path.map((p) => map.project(p))));
-      near.push({ id: f.id, distance: d });
+      near.push({ id: f.id, distance: d, point: f.paths.length === 1 && f.paths[0]!.length === 1 });
     }
     return pickTarget(areas, near, allowed, buffer);
   };

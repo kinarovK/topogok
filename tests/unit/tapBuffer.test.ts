@@ -47,3 +47,9 @@ test('overlapping areas: the smallest one wins (a sea inside an ocean), then the
   assert.equal(pickFeatureId([{ id: 'Z', kind: 'generic', area: 1 }, { id: 'SEA', kind: 'generic', area: 1 }], all), 'SEA');
   assert.equal(geometryArea({ type: 'Point', coordinates: [1, 1] }), 0);
 });
+
+test('a point within the buffer beats a nearer line (a waterfall on its river)', () => {
+  const all = new Set(['ZAMBEZI', 'FALLS']);
+  assert.equal(pickTarget([], [{ id: 'ZAMBEZI', distance: 1 }, { id: 'FALLS', distance: 9, point: true }], all, 22), 'FALLS');
+  assert.equal(pickTarget([], [{ id: 'ZAMBEZI', distance: 1 }, { id: 'FALLS', distance: 30, point: true }], all, 22), 'ZAMBEZI');
+});

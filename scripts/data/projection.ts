@@ -3,13 +3,15 @@
 // The central meridian moves the map's cut away from the topic, so nothing is torn at ±180°.
 import type { Pos } from './wkb.ts';
 
-export type ProjectionName = 'robinson' | 'mollweide' | 'hammer';
+export type ProjectionName = 'robinson' | 'mollweide' | 'hammer' | 'laea' | 'lcc' | 'albers';
 /**
  * centralMeridian: the map's middle meridian (the cut moves to the opposite side).
  * center: oblique aspect – this lon/lat becomes the middle of the map (e.g. [0, -90] puts the South Pole in the
  * middle of a world map); rotation turns the map around that centre (degrees).
+ * parallels: the two standard parallels of a conic projection ('lcc' conformal, 'albers' equal-area); the map's
+ * vertical middle is their mean. 'laea' (Lambert azimuthal equal-area) is meant with `center`.
  */
-export type ProjectionConfig = { name: ProjectionName; centralMeridian?: number; center?: [number, number]; rotation?: number };
+export type ProjectionConfig = { name: ProjectionName; centralMeridian?: number; center?: [number, number]; rotation?: number; parallels?: [number, number] };
 
 /** Oblique aspect: rotates the sphere so that `center` moves to (0, 0), then turns by `rotation`. */
 function rotate(cfg: ProjectionConfig, [lon, lat]: Pos): Pos {
@@ -36,9 +38,26 @@ function cubic(col: number, lat: number): number {
 }
 
 /** Plane coordinates scaled so that the equator spans ±π (like the Web Mercator x range). */
-function planeXY(name: ProjectionName, lon: number, lat: number): [number, number] {
+function planeXY(cfg: ProjectionConfig, lon: number, lat: number): [number, number] {
   const l = lon * RAD; const p = lat * RAD;
-  switch (name) {
+  switch (cfg.name) {
+    case 'laea': {
+      const k = Math.sqrt(2 / Math.max(1e-12, 1 + Math.cos(p) * Math.cos(l)));
+      return [k * Math.cos(p) * Math.sin(l), k * Math.sin(p)];
+    }
+    case 'lcc': {
+      const [a, b] = (cfg.parallels ?? [30, 60]).map((v) => v * RAD) as [number, number]; const p0 = (a + b) / 2;
+      const t = (v: number) => Math.tan(Math.PI / 4 + Math.max(-89.5 * RAD, Math.min(89.5 * RAD, v)) / 2);
+      const n = a === b ? Math.sin(a) : Math.log(Math.cos(a) / Math.cos(b)) / Math.log(t(b) / t(a));
+      const F = (Math.cos(a) * t(a) ** n) / n; const rho = F / t(p) ** n; const rho0 = F / t(p0) ** n;
+      return [rho * Math.sin(n * l), rho0 - rho * Math.cos(n * l)];
+    }
+    case 'albers': {
+      const [a, b] = (cfg.parallels ?? [30, 60]).map((v) => v * RAD) as [number, number]; const p0 = (a + b) / 2;
+      const n = (Math.sin(a) + Math.sin(b)) / 2; const C = Math.cos(a) ** 2 + 2 * n * Math.sin(a);
+      const rho = (v: number) => Math.sqrt(Math.max(0, C - 2 * n * Math.sin(v))) / n;
+      return [rho(p) * Math.sin(n * l), rho(p0) - rho(p) * Math.cos(n * l)];
+    }
     case 'robinson': return [cubic(0, lat) * l, Math.sign(lat) * cubic(1, lat) * (1.3523 / 0.8487)];
     case 'mollweide': {
       let t = p;
@@ -57,7 +76,7 @@ function planeXY(name: ProjectionName, lon: number, lat: number): [number, numbe
 export const DISPLAY_SCALE = 0.5;
 
 export function projectPos(cfg: ProjectionConfig, [lon, lat]: Pos): Pos {
-  const [x, y] = planeXY(cfg.name, lon, lat);
+  const [x, y] = planeXY(cfg, lon, lat);
   const X = x * DISPLAY_SCALE; const Y = y * DISPLAY_SCALE;
   return [X / RAD, (2 * Math.atan(Math.exp(Y)) - Math.PI / 2) / RAD];
 }

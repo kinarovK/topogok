@@ -1,6 +1,6 @@
 {
   "topicId": "continent-africa",
-  "dataVersion": "2026.11.16.1",
+  "dataVersion": "2026.11.16.2",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -27,7 +27,7 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "60 KiB gzipped (limit 1465 KiB)"
+      "detail": "62 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
@@ -70,8 +70,8 @@
     "point": 2
   },
   "bytes": {
-    "regions": 136806,
-    "country": 15933,
-    "gzipped": 61363
+    "regions": 140325,
+    "country": 16698,
+    "gzipped": 63629
   }
 }
