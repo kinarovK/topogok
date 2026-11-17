@@ -36,32 +36,32 @@ const BASE_TOPICS: readonly TopicEntry[] = [
   },
   // One question set per continent (scripts/data/continents/topics.ts): areas, seas, lines and points.
   {
-    id: 'continent-africa', dataVersion: '2026.11.17.1',
+    id: 'continent-africa', dataVersion: '2026.11.17.2',
     title: { hu: 'Afrika', uk: 'Африка' },
-    featureCount: 24, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 28, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
   },
   {
-    id: 'continent-eurasia', dataVersion: '2026.11.17.1',
+    id: 'continent-eurasia', dataVersion: '2026.11.17.2',
     title: { hu: 'Eurázsia', uk: 'Євразія' },
-    featureCount: 58, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 62, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
   },
   {
-    id: 'continent-north-america', dataVersion: '2026.11.17.1',
+    id: 'continent-north-america', dataVersion: '2026.11.17.2',
     title: { hu: 'Észak-Amerika', uk: 'Північна Америка' },
-    featureCount: 24, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 28, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
   },
   {
-    id: 'continent-south-america', dataVersion: '2026.11.17.1',
+    id: 'continent-south-america', dataVersion: '2026.11.17.2',
     title: { hu: 'Dél-Amerika', uk: 'Південна Америка' },
-    featureCount: 23, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 26, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
   },
   {
-    id: 'continent-australia-oceania', dataVersion: '2026.11.17.1',
+    id: 'continent-australia-oceania', dataVersion: '2026.11.17.2',
     title: { hu: 'Ausztrália és Óceánia', uk: 'Австралія та Океанія' },
-    featureCount: 13, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 17, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
   },
   {
-    id: 'continent-antarctica', dataVersion: '2026.11.17.1',
+    id: 'continent-antarctica', dataVersion: '2026.11.17.2',
     title: { hu: 'Antarktisz', uk: 'Антарктида' },
     featureCount: 11, counts: [5, 'all'], partialCoverage: true, mixed: true,
   },
@@ -70,7 +70,7 @@ const BASE_TOPICS: readonly TopicEntry[] = [
 /** Synthetic mixed topic built from scripts/data/fixtures (0005): only in the E2E build, never shown to users. */
 const TEST_TOPICS: readonly TopicEntry[] = [
   {
-    id: 'test-mixed', dataVersion: '2026.11.17.1',
+    id: 'test-mixed', dataVersion: '2026.11.17.2',
     title: { hu: 'Teszttéma (vegyes)', uk: 'Тестова тема (змішана)' },
     featureCount: 8, counts: [5, 'all'], partialCoverage: false, mixed: true,
   },

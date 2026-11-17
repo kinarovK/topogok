@@ -1,13 +1,13 @@
 {
   "topicId": "continent-eurasia",
-  "dataVersion": "2026.11.17.1",
+  "dataVersion": "2026.11.17.2",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
     {
       "id": "source",
       "status": "pass",
-      "detail": "3 layer(s): tengerek, teruletek, vonalak"
+      "detail": "4 layer(s): pontok, tengerek, teruletek, vonalak"
     },
     {
       "id": "coast",
@@ -17,7 +17,7 @@
     {
       "id": "features",
       "status": "pass",
-      "detail": "58 question features"
+      "detail": "62 question features"
     },
     {
       "id": "background",
@@ -27,7 +27,7 @@
     {
       "id": "points-on-map",
       "status": "pass",
-      "detail": "all points lie on the base map"
+      "detail": "within 0.5° of the base map: piaifok, rocafok, gyezsnyovfok"
     },
     {
       "id": "size",
@@ -36,6 +36,14 @@
     }
   ],
   "layers": [
+    {
+      "layer": "pontok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 4,
+      "skippedEmpty": 0
+    },
     {
       "layer": "tengerek",
       "geomTypes": [
@@ -64,11 +72,11 @@
   "totals": {
     "area": 42,
     "line": 16,
-    "point": 0
+    "point": 4
   },
   "bytes": {
-    "regions": 698589,
+    "regions": 699544,
     "country": 573258,
-    "gzipped": 313942
+    "gzipped": 314207
   }
 }
