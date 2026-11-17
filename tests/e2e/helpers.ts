@@ -20,10 +20,17 @@ export const NAME = new Map(ALL.map((r) => [r.id, r.properties.names]));
 export type TopicKey = 'admin' | 'tectonics' | 'world';
 const TOPIC_ATTR: Record<TopicKey, string> = { admin: 'ukraine-administration', tectonics: 'ukraine-tectonics', world: 'world-continents' };
 
+/** The topic's card on the home page, its grade block opened first (blocks start folded). */
+export async function topicCard(page: Page, id: string) {
+  const card = page.locator(`[data-topic="${id}"]`);
+  if (!(await card.isVisible())) await page.locator(`details:has([data-topic="${id}"]) > summary`).click();
+  return card;
+}
+
 /** Home → topic page. */
 export async function openTopic(page: Page, base: string, topic: TopicKey = 'admin') {
   await page.goto(base);
-  await page.locator(`[data-topic="${TOPIC_ATTR[topic]}"]`).click();
+  await (await topicCard(page, TOPIC_ATTR[topic])).click();
 }
 
 /** Every test fails if the page requests anything outside the local origin or logs an error. */

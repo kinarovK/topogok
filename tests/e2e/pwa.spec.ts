@@ -1,15 +1,15 @@
 import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
 import { existsSync, rmSync, symlinkSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { expect, mapReady, PROD, test } from './helpers.ts';
+import { expect, mapReady, PROD, test, topicCard } from './helpers.ts';
 
 test('T19 after the first full load everything works offline: both languages, both themes, a round', async ({ page, context }) => {
   await page.goto(PROD);
   await expect(page.getByText('Az alkalmazás offline is használható.')).toBeVisible({ timeout: 30_000 });
   await context.setOffline(true);
   await page.reload();
-  await expect(page.locator('[data-topic="ukraine-tectonics"]')).toBeVisible();
-  await page.locator('[data-topic="ukraine-tectonics"]').click();
+  await expect(await topicCard(page, 'ukraine-tectonics')).toBeVisible();
+  await (await topicCard(page, 'ukraine-tectonics')).click();
   await page.getByLabel('Nyelv', { exact: true }).selectOption('uk');
   await page.getByLabel('Вигляд', { exact: true }).selectOption('dark');
   await page.getByRole('button', { name: /^Практика/ }).click(); // F4.5: starts at once
@@ -51,7 +51,7 @@ test.describe('updates', () => {
     await playing.goto(base);
     await expect(playing.getByText('Az alkalmazás offline is használható.')).toBeVisible({ timeout: 30_000 });
     await playing.reload(); // now controlled by SW A
-    await playing.locator('[data-topic="ukraine-administration"]').click();
+    await (await topicCard(playing, 'ukraine-administration')).click();
     await playing.getByRole('button', { name: /^Gyakorlás/ }).click(); // F4.5: starts at once
     await mapReady(playing);
     const question = await playing.locator('#question').innerText();

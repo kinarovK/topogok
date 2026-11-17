@@ -1,6 +1,6 @@
 // F2: accounts end to end against the real API code (scripts/dev/serve.mjs --api, in-memory SQLite).
 import type { Page } from '@playwright/test';
-import { expect, test } from './helpers.ts';
+import { expect, test, topicCard } from './helpers.ts';
 
 const BASE = 'http://127.0.0.1:4176/';
 const SETUP_CODE = 'local-setup-code-0123456789';
@@ -92,7 +92,7 @@ test('superadmin setup → teacher → class → student → student sign-in; lo
   const stored = await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }));
   expect(stored).not.toMatch(/Anna|nagy\.anna|session/);
   // Guest play is unaffected.
-  await page.locator('[data-topic="ukraine-administration"]').click();
+  await (await topicCard(page, 'ukraine-administration')).click();
   await expect(page.getByRole('button', { name: /^Gyakorlás/ })).toBeVisible();
 });
 

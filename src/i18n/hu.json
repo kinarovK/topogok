@@ -26,6 +26,8 @@
     "explore": "Térkép felfedezése",
     "help": "Súgó",
     "chooseTopic": "Válassz témát",
+    "grade": "{grade}. osztály",
+    "gradeTopics": "Témák: {count}",
     "topicCount": "{count} kérdezhető egység",
     "topicAdminDesc": "24 terület, a Krími Autonóm Köztársaság, Kijev és Szevasztopol.",
     "topicTectonicsDesc": "Ukrajna 11 tektonikai szerkezeti egysége.",

@@ -1,4 +1,4 @@
-import { clickNext, confirmBtn, openTopic, currentTargetId, E2E, expect, mapReady, nextBtn, otherId, selectRegion, start, test } from './helpers.ts';
+import { clickNext, confirmBtn, openTopic, currentTargetId, E2E, expect, mapReady, nextBtn, otherId, selectRegion, start, test, topicCard } from './helpers.ts';
 
 test.describe('practice', () => {
   test('T02–T05 mixed round (11 tectonic units, F4.5: starts at once, elapsed time shown): feedback, hidden answer, reveal, single review, 960/1100', async ({ page }) => {
@@ -204,7 +204,7 @@ test.describe('round controls', () => {
     // Reload: home, only the preference key in storage
     await page.reload();
     await expect(page.locator('#question')).toHaveCount(0);
-    await expect(page.locator('[data-topic="ukraine-tectonics"]')).toBeVisible();
+    await expect(await topicCard(page, 'ukraine-tectonics')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     const storage = await page.evaluate(async () => ({
       local: Object.keys(localStorage),

@@ -1,4 +1,5 @@
 // F4: the teacher picks, per topic, which features students may be asked about.
+import { TopicOptions } from '../../components/TopicOptions.tsx';
 import { useEffect, useState } from 'react';
 import { api, ApiFailure, type TopicSetting } from '../../account/api.ts';
 import { useSettings } from '../../app/settings.tsx';
@@ -75,7 +76,7 @@ export function TopicsPanel({ scope }: { scope: string | null }) {
       <div className={s.toolbar}>
         <Field label={t('report.topic')}>
           <select value={topicId} onChange={(e) => { setTopicId(e.target.value as TopicId); setMessage(null); }}>
-            {TOPICS.map((x) => <option key={x.id} value={x.id}>{x.title[locale]}</option>)}
+            <TopicOptions />
           </select>
         </Field>
         <Button onClick={() => setOff(new Set())}>{t('topics.all')}</Button>

@@ -16,54 +16,56 @@ export type TopicEntry = {
   partialCoverage: boolean;
   /** Mixed topic (0005): areas, lines and points; texts say "element" instead of "area". */
   mixed?: boolean;
+  /** School grade the topic belongs to; the topic lists are grouped by it. */
+  grade: number;
 };
 
 const BASE_TOPICS: readonly TopicEntry[] = [
   {
     id: 'ukraine-administration', dataVersion: '2026.11.05.1',
     title: { hu: 'Ukrajna közigazgatása', uk: 'Адміністративний устрій України' },
-    featureCount: 27, counts: [5, 12, 'all'], partialCoverage: false,
+    featureCount: 27, counts: [5, 12, 'all'], partialCoverage: false, grade: 8,
   },
   {
     id: 'ukraine-tectonics', dataVersion: '2026.11.09.1',
     title: { hu: 'Ukrajna tektonikai szerkezete', uk: 'Тектонічна будова України' },
-    featureCount: 11, counts: [5, 'all'], partialCoverage: true,
+    featureCount: 11, counts: [5, 'all'], partialCoverage: true, grade: 8,
   },
   {
     id: 'world-continents', dataVersion: '2026.11.11.1',
     title: { hu: 'Kontinensek topója', uk: 'Материки та океани' },
-    featureCount: 11, counts: [5, 'all'], partialCoverage: true,
+    featureCount: 11, counts: [5, 'all'], partialCoverage: true, grade: 7,
   },
   // One question set per continent (scripts/data/continents/topics.ts): areas, seas, lines and points.
   {
     id: 'continent-africa', dataVersion: '2026.11.17.4',
     title: { hu: 'Afrika', uk: 'Африка' },
-    featureCount: 28, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 28, counts: [5, 12, 'all'], partialCoverage: true, grade: 7, mixed: true,
   },
   {
     id: 'continent-eurasia', dataVersion: '2026.11.17.4',
     title: { hu: 'Eurázsia', uk: 'Євразія' },
-    featureCount: 64, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 64, counts: [5, 12, 'all'], partialCoverage: true, grade: 7, mixed: true,
   },
   {
     id: 'continent-north-america', dataVersion: '2026.11.17.4',
     title: { hu: 'Észak-Amerika', uk: 'Північна Америка' },
-    featureCount: 28, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 28, counts: [5, 12, 'all'], partialCoverage: true, grade: 7, mixed: true,
   },
   {
     id: 'continent-south-america', dataVersion: '2026.11.17.4',
     title: { hu: 'Dél-Amerika', uk: 'Південна Америка' },
-    featureCount: 26, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 26, counts: [5, 12, 'all'], partialCoverage: true, grade: 7, mixed: true,
   },
   {
     id: 'continent-australia-oceania', dataVersion: '2026.11.17.4',
     title: { hu: 'Ausztrália és Óceánia', uk: 'Австралія та Океанія' },
-    featureCount: 17, counts: [5, 12, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 17, counts: [5, 12, 'all'], partialCoverage: true, grade: 7, mixed: true,
   },
   {
     id: 'continent-antarctica', dataVersion: '2026.11.17.4',
     title: { hu: 'Antarktisz', uk: 'Антарктида' },
-    featureCount: 11, counts: [5, 'all'], partialCoverage: true, mixed: true,
+    featureCount: 11, counts: [5, 'all'], partialCoverage: true, grade: 7, mixed: true,
   },
 ];
 
@@ -72,11 +74,17 @@ const TEST_TOPICS: readonly TopicEntry[] = [
   {
     id: 'test-mixed', dataVersion: '2026.11.17.4',
     title: { hu: 'Teszttéma (vegyes)', uk: 'Тестова тема (змішана)' },
-    featureCount: 8, counts: [5, 'all'], partialCoverage: false, mixed: true,
+    featureCount: 8, counts: [5, 'all'], partialCoverage: false, grade: 7, mixed: true,
   },
 ];
 const E2E = typeof import.meta.env !== 'undefined' && import.meta.env.MODE === 'e2e';
 export const TOPICS: readonly TopicEntry[] = E2E ? [...BASE_TOPICS, ...TEST_TOPICS] : BASE_TOPICS;
+
+/** Topics grouped by grade (ascending), keeping the registry order within a grade. */
+export function topicsByGrade(list: readonly TopicEntry[] = TOPICS): Array<{ grade: number; topics: TopicEntry[] }> {
+  const grades = [...new Set(list.map((x) => x.grade))].sort((a, b) => a - b);
+  return grades.map((grade) => ({ grade, topics: list.filter((x) => x.grade === grade) }));
+}
 
 export function topicEntry(id: string): TopicEntry {
   const t = TOPICS.find((x) => x.id === id);
