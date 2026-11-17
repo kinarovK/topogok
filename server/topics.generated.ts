@@ -229,6 +229,18 @@ export const TOPIC_FEATURES: Record<string, Record<string, readonly string[]>> =
       "UA-77"
     ]
   },
+  "ukraine-minerals": {
+    "2026.11.18.1": [
+      "delikoolaj",
+      "dnyeperibarnaszen",
+      "donyecimedence",
+      "keletikoolaj",
+      "krivbasz",
+      "lvivvolinyimedence",
+      "nyikopolimangan",
+      "nyugatikoolaj"
+    ]
+  },
   "ukraine-position": {
     "2026.11.18.1": [
       "azovitenger",
@@ -253,6 +265,29 @@ export const TOPIC_FEATURES: Record<string, Record<string, readonly string[]>> =
       "ukrajna"
     ]
   },
+  "ukraine-relief": {
+    "2026.11.18.1": [
+      "azovmellekihatsag",
+      "belmakmohila",
+      "dnyepermentialfold",
+      "dnyepermentihatsag",
+      "donyecihatsag",
+      "elokarpatihatsag",
+      "feketetengermellekialfold",
+      "hoverla",
+      "kamula",
+      "karpataljaialfold",
+      "kozeporoszhatsag",
+      "krimihegyseg",
+      "mohilamecsetna",
+      "podoliaihatsag",
+      "poleszjeialfold",
+      "poltavaisiksag",
+      "romankos",
+      "ukrankarpatok",
+      "volinyihatsag"
+    ]
+  },
   "ukraine-tectonics": {
     "2026.11.09.1": [
       "TU-01",
@@ -266,6 +301,16 @@ export const TOPIC_FEATURES: Record<string, Record<string, readonly string[]>> =
       "TU-09",
       "TU-10",
       "TU-11"
+    ]
+  },
+  "ukraine-zones": {
+    "2026.11.18.1": [
+      "erdosztyepp",
+      "karpatihegyvidek",
+      "krimihegyvidek",
+      "lombleveluerdok",
+      "sztyepp",
+      "vegyeserdok"
     ]
   },
   "world-continents": {

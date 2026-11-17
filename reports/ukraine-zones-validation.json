@@ -1,0 +1,53 @@
+{
+  "topicId": "ukraine-zones",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/ukraine8/ovezetek",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "2 layer(s): hatter, ovezetek"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "6 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (4 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "all points lie on the base map"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "17 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "ovezetek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 6,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 6,
+    "line": 0,
+    "point": 0
+  },
+  "bytes": {
+    "regions": 24083,
+    "country": 20699,
+    "gzipped": 17585
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "topicId": "ukraine-minerals",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/ukraine8/asvanykincs",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "4 layer(s): ercek, hatter, koolajfoldgaz, szen"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "8 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (4 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "all points lie on the base map"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "10 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "ercek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "koolajfoldgaz",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 3,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "szen",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 3,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 8,
+    "line": 0,
+    "point": 0
+  },
+  "bytes": {
+    "regions": 5539,
+    "country": 20699,
+    "gzipped": 10287
+  }
+}
