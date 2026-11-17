@@ -5,7 +5,7 @@ import type { ResolvedTheme } from '../app/settings.tsx';
 import type { Bounds, CountryFeature, RegionFeature, RegionKind } from '../data/validation.ts';
 import { DEFAULT_TAP_BUFFER, distanceToPath, pickTarget, type NearCandidate, type ScreenPoint } from './hitTest.ts';
 import { geometryArea, geometryBounds } from './labelPoint.ts';
-import { buildStyle, fillColor, highlightLineColor, LAYER_LINES, LAYER_POINTS, LAYER_REGIONS_FILL, isMixed, paletteFor, thinColor } from './mapStyle.ts';
+import { buildStyle, fillColor, highlightLineColor, LAYER_LINES, LAYER_MOUNTAINS, LAYER_POINTS, LAYER_REGIONS_FILL, isMixed, paletteFor, thinColor } from './mapStyle.ts';
 
 // The worker is bundled from our own origin (CSP worker-src 'self'), not derived from the chunk URL.
 setWorkerUrl(workerUrl);
@@ -120,6 +120,7 @@ export function createMapAdapter(o: MapAdapterOptions): MapAdapter {
     map.setPaintProperty('regions-highlight', 'line-color', highlightLineColor(theme, mixed));
     map.setPaintProperty('lines-halo', 'line-color', c.halo);
     map.setPaintProperty(LAYER_LINES, 'line-color', thinColor(theme, 'river', mixed));
+    map.setPaintProperty(LAYER_MOUNTAINS, 'line-color', thinColor(theme, 'mountain', mixed));
     map.setPaintProperty('points-ring', 'circle-stroke-color', thinColor(theme, 'point', mixed));
     map.setPaintProperty(LAYER_POINTS, 'circle-color', thinColor(theme, 'point', mixed));
     map.setPaintProperty(LAYER_POINTS, 'circle-stroke-color', c.halo);

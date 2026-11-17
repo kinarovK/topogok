@@ -140,19 +140,48 @@ POINTS = {
 }
 
 def ensure_point_table(c, table, template='afrika_pontok'):
-    """Creates an empty point layer like `template` (table, R-tree index, triggers, GeoPackage registration)."""
+    """Creates an empty layer like `template` (table, R-tree index, triggers, GeoPackage registration)."""
     if c.execute('select 1 from gpkg_contents where table_name=?', (table,)).fetchone(): return
     for typ, name, sql in c.execute("select type, name, sql from sqlite_master where (tbl_name=? or name like ?) and sql is not null and name not like ? order by type = 'trigger', name like 'rtree%'", (template, f'rtree_{template}_geom%', f'rtree_{template}_geom_%')).fetchall():
         if typ in ('table', 'trigger'): c.execute(sql.replace(template, table))
     c.execute("insert into gpkg_contents(table_name, data_type, identifier, description, last_change, min_x, min_y, max_x, max_y, srs_id) values (?, 'features', ?, '', strftime('%Y-%m-%dT%H:%M:%fZ','now'), null, null, null, null, 4326)", (table, table))
-    c.execute("insert into gpkg_geometry_columns values (?, 'geom', 'POINT', 4326, 0, 0)", (table,))
+    gtype = c.execute('select geometry_type_name from gpkg_geometry_columns where table_name=?', (template,)).fetchone()[0]
+    c.execute("insert into gpkg_geometry_columns values (?, 'geom', ?, 4326, 0, 0)", (table, gtype))
     c.execute("insert into gpkg_extensions values (?, 'geom', 'gpkg_rtree_index', 'http://www.geopackage.org/spec120/#extension_rtree', 'write-only')", (table,))
     c.execute('insert into gpkg_ogr_contents values (?, 0)', (table,))
     print('created', table)
 
+# Mountain ranges become ridge lines (owner decision 2026-11-17): the centre line of each range polygon goes to a
+# new "<continent>_hegysegek" line layer and the polygon leaves the "teruletek" layer.
+RANGES = {
+    'afrika': ['atlasz', 'sarkanyhegyseg'],
+    'antarktisz': ['transzantarktiszihegyseg'],
+    'ausztraliaesoceania': ['nagyvizvalasztohegyseg', 'ausztralalpok'],
+    'delamerika': ['andok'],
+    'eszakamerika': ['kordillerak', 'sziklashegyseg', 'appalachehegyseg'],
+    'eurazsia': ['pireneusok', 'alpok', 'appenninek', 'ural', 'kaukazus', 'tiensan', 'himalaja'],
+}
+
+def polygons_of_blob(blob):
+    """GeoPackage (Multi)Polygon blob → [[outer, holes...], ...]."""
+    flags = blob[3]; env = (flags >> 1) & 7; b = blob[8 + [0, 32, 48, 48, 64][env]:]; out = []
+    def rd(o):
+        e = '<' if b[o] == 1 else '>'; t = struct.unpack_from(e + 'I', b, o + 1)[0] % 1000; o += 5
+        if t == 3:
+            nr = struct.unpack_from(e + 'I', b, o)[0]; o += 4; rings = []
+            for _ in range(nr):
+                n = struct.unpack_from(e + 'I', b, o)[0]; o += 4
+                rings.append([struct.unpack_from(e + '2d', b, o + 16 * k) for k in range(n)]); o += 16 * n
+            out.append(rings); return o
+        n = struct.unpack_from(e + 'I', b, o)[0]; o += 4
+        for _ in range(n): o = rd(o)
+        return o
+    rd(0); return out
+
 c = sqlite3.connect(GPKG, isolation_level=None)
 c.execute('pragma journal_mode=MEMORY'); c.execute('begin')
 for t in POINTS: ensure_point_table(c, t)
+for cont in RANGES: ensure_point_table(c, f'{cont}_hegysegek', 'afrika_vonalak')
 trig = c.execute("select name, sql from sqlite_master where type='trigger' and name like 'rtree_%'").fetchall()
 for name, _ in trig: c.execute(f'drop trigger "{name}"')
 
@@ -183,6 +212,20 @@ for table, pts in POINTS.items():
         fid = c.execute('select last_insert_rowid()').fetchone()[0]
         set_geom(table, fid, struct.pack('<BIdd', 1, 1, x, y), [(x, y)])
     print('points', table, len(pts))
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from ridges import ridge
+for cont, ids in RANGES.items():
+    for fid_text in ids:
+        row = c.execute(f'select fid, name_hu, name_uk, geom from "{cont}_teruletek" where id=?', (fid_text,)).fetchone()
+        if not row: continue
+        lines = ridge(polygons_of_blob(row[3]))
+        c.execute(f'insert into "{cont}_hegysegek"(id, name_hu, name_uk) values (?,?,?)', (fid_text, row[1], row[2]))
+        new = c.execute('select last_insert_rowid()').fetchone()[0]
+        set_geom(f'{cont}_hegysegek', new, wkb_multiline(lines), [p for l in lines for p in l])
+        c.execute(f'delete from "{cont}_teruletek" where fid=?', (row[0],))
+        c.execute(f'delete from "rtree_{cont}_teruletek_geom" where id=?', (row[0],))
+    print('ridges', cont, len(ids))
 for _, sql in trig: c.execute(sql)
 c.execute('commit')
 print(c.execute('pragma integrity_check').fetchone()[0])

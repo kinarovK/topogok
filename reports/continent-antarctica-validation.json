@@ -1,13 +1,13 @@
 {
   "topicId": "continent-antarctica",
-  "dataVersion": "2026.11.17.2",
+  "dataVersion": "2026.11.17.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
     {
       "id": "source",
       "status": "pass",
-      "detail": "5 layer(s): oceanok, pontok, tengerek, teruletek, vonalak"
+      "detail": "6 layer(s): hegysegek, oceanok, pontok, tengerek, teruletek, vonalak"
     },
     {
       "id": "coast",
@@ -32,10 +32,18 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "251 KiB gzipped (limit 1465 KiB)"
+      "detail": "242 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
     {
       "layer": "oceanok",
       "geomTypes": [
@@ -65,7 +73,7 @@
       "geomTypes": [
         "area"
       ],
-      "count": 3,
+      "count": 2,
       "skippedEmpty": 0
     },
     {
@@ -78,13 +86,13 @@
     }
   ],
   "totals": {
-    "area": 8,
-    "line": 1,
+    "area": 7,
+    "line": 2,
     "point": 2
   },
   "bytes": {
-    "regions": 480338,
+    "regions": 454976,
     "country": 194424,
-    "gzipped": 257058
+    "gzipped": 247556
   }
 }

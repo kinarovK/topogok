@@ -1,13 +1,13 @@
 {
   "topicId": "continent-eurasia",
-  "dataVersion": "2026.11.17.2",
+  "dataVersion": "2026.11.17.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
     {
       "id": "source",
       "status": "pass",
-      "detail": "4 layer(s): pontok, tengerek, teruletek, vonalak"
+      "detail": "5 layer(s): hegysegek, pontok, tengerek, teruletek, vonalak"
     },
     {
       "id": "coast",
@@ -32,10 +32,18 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "307 KiB gzipped (limit 1465 KiB)"
+      "detail": "298 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 7,
+      "skippedEmpty": 0
+    },
     {
       "layer": "pontok",
       "geomTypes": [
@@ -57,7 +65,7 @@
       "geomTypes": [
         "area"
       ],
-      "count": 34,
+      "count": 27,
       "skippedEmpty": 0
     },
     {
@@ -70,13 +78,13 @@
     }
   ],
   "totals": {
-    "area": 42,
-    "line": 16,
+    "area": 35,
+    "line": 23,
     "point": 4
   },
   "bytes": {
-    "regions": 699544,
+    "regions": 654630,
     "country": 573258,
-    "gzipped": 314207
+    "gzipped": 304992
   }
 }

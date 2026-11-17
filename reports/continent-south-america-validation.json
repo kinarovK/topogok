@@ -1,13 +1,13 @@
 {
   "topicId": "continent-south-america",
-  "dataVersion": "2026.11.17.2",
+  "dataVersion": "2026.11.17.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
     {
       "id": "source",
       "status": "pass",
-      "detail": "4 layer(s): pontok, tengerek, teruletek, vonalak"
+      "detail": "5 layer(s): hegysegek, pontok, tengerek, teruletek, vonalak"
     },
     {
       "id": "coast",
@@ -32,10 +32,18 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "291 KiB gzipped (limit 1465 KiB)"
+      "detail": "260 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
     {
       "layer": "pontok",
       "geomTypes": [
@@ -57,7 +65,7 @@
       "geomTypes": [
         "area"
       ],
-      "count": 13,
+      "count": 12,
       "skippedEmpty": 0
     },
     {
@@ -70,13 +78,13 @@
     }
   ],
   "totals": {
-    "area": 14,
-    "line": 4,
+    "area": 13,
+    "line": 5,
     "point": 8
   },
   "bytes": {
-    "regions": 333408,
+    "regions": 248750,
     "country": 481668,
-    "gzipped": 298462
+    "gzipped": 266749
   }
 }

@@ -1,13 +1,13 @@
 {
   "topicId": "continent-north-america",
-  "dataVersion": "2026.11.17.2",
+  "dataVersion": "2026.11.17.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
     {
       "id": "source",
       "status": "pass",
-      "detail": "3 layer(s): pontok, teruletek, vonalak"
+      "detail": "4 layer(s): hegysegek, pontok, teruletek, vonalak"
     },
     {
       "id": "coast",
@@ -32,10 +32,18 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "319 KiB gzipped (limit 1465 KiB)"
+      "detail": "299 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 3,
+      "skippedEmpty": 0
+    },
     {
       "layer": "pontok",
       "geomTypes": [
@@ -49,7 +57,7 @@
       "geomTypes": [
         "area"
       ],
-      "count": 17,
+      "count": 14,
       "skippedEmpty": 0
     },
     {
@@ -62,13 +70,13 @@
     }
   ],
   "totals": {
-    "area": 17,
-    "line": 5,
+    "area": 14,
+    "line": 8,
     "point": 6
   },
   "bytes": {
-    "regions": 277562,
+    "regions": 225170,
     "country": 559541,
-    "gzipped": 327056
+    "gzipped": 306515
   }
 }
