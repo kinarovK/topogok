@@ -1,6 +1,6 @@
 {
   "topicId": "continent-north-america",
-  "dataVersion": "2026.11.17.1",
+  "dataVersion": "2026.11.17.2",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -17,7 +17,7 @@
     {
       "id": "features",
       "status": "pass",
-      "detail": "24 question features"
+      "detail": "28 question features"
     },
     {
       "id": "background",
@@ -27,7 +27,7 @@
     {
       "id": "points-on-map",
       "status": "pass",
-      "detail": "all points lie on the base map"
+      "detail": "within 0.5° of the base map: murchisonfok, mariatofok, princeofwalesfok, stcharlesfok"
     },
     {
       "id": "size",
@@ -41,7 +41,7 @@
       "geomTypes": [
         "point"
       ],
-      "count": 2,
+      "count": 6,
       "skippedEmpty": 0
     },
     {
@@ -64,11 +64,11 @@
   "totals": {
     "area": 17,
     "line": 5,
-    "point": 2
+    "point": 6
   },
   "bytes": {
-    "regions": 276520,
+    "regions": 277562,
     "country": 559541,
-    "gzipped": 326767
+    "gzipped": 327056
   }
 }

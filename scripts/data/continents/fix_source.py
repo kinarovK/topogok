@@ -105,9 +105,54 @@ NEW = [  # (table, id, name_hu, name_uk, geometry)
     ('delamerika_teruletek', 'poopoto', 'Poopó-tó', 'Поопо', lambda: ('area', area_from(LAK, [1312]))),
 ]
 
+# Extreme points of the mainland (owner request 2026-11-17). Names follow the 7th-grade textbook list
+# (foldrajzi_nevjegyzek_6-11.md); Australia's are not in that list and use the usual school-atlas set.
+POINTS = {
+    'afrika_pontok': [
+        ('rasangela', 'Ras Angela', 'мис Рас-Енгела', (9.75, 37.345)),
+        ('tufok', 'Tű-fok', 'мис Голковий', (20.003, -34.830)),
+        ('almadifok', 'Almadi-fok', 'мис Альмаді', (-17.530, 14.743)),
+        ('rashafun', 'Ras Hafun', 'мис Рас-Гафун', (51.413, 10.440)),
+    ],
+    'eurazsia_pontok': [
+        ('cseljuszkinfok', 'Cseljuszkin-fok', 'мис Челюскін', (104.28, 77.72)),
+        ('piaifok', 'Piai-fok', 'мис Піай', (103.51, 1.265)),
+        ('rocafok', 'Roca-fok', 'мис Рока', (-9.500, 38.781)),
+        ('gyezsnyovfok', 'Gyezsnyov-fok', 'мис Дежньова', (-169.65, 66.08)),
+    ],
+    'eszakamerika_pontok': [
+        ('murchisonfok', 'Murchison-fok', 'мис Мерчисон', (-94.47, 71.97)),
+        ('mariatofok', 'Mariato-fok', 'мис Мар’ято', (-80.88, 7.21)),
+        ('princeofwalesfok', 'Prince of Wales-fok', 'мис Принца Уельського', (-168.09, 65.61)),
+        ('stcharlesfok', 'St. Charles-fok', 'мис Сент-Чарльз', (-55.62, 52.22)),
+    ],
+    'delamerika_pontok': [
+        ('frowardfok', 'Froward-fok', 'мис Фроуерд', (-71.30, -53.90)),
+        ('brancofok', 'Branco-fok', 'мис Кабу-Бранку', (-34.795, -7.148)),
+        ('parinasfok', 'Pariñas-fok', 'мис Паріньяс', (-81.33, -4.68)),
+    ],
+    'ausztraliaesoceania_pontok': [
+        ('yorkfok', 'York-fok', 'мис Йорк', (142.53, -10.69)),
+        ('delkeletifok', 'Délkeleti-fok', 'мис Південно-Східний', (146.42, -39.13)),
+        ('steeppoint', 'Steep Point', 'мис Стіп-Пойнт', (113.155, -26.153)),
+        ('byronfok', 'Byron-fok', 'мис Байрон', (153.638, -28.637)),
+    ],
+}
+
+def ensure_point_table(c, table, template='afrika_pontok'):
+    """Creates an empty point layer like `template` (table, R-tree index, triggers, GeoPackage registration)."""
+    if c.execute('select 1 from gpkg_contents where table_name=?', (table,)).fetchone(): return
+    for typ, name, sql in c.execute("select type, name, sql from sqlite_master where (tbl_name=? or name like ?) and sql is not null and name not like ? order by type = 'trigger', name like 'rtree%'", (template, f'rtree_{template}_geom%', f'rtree_{template}_geom_%')).fetchall():
+        if typ in ('table', 'trigger'): c.execute(sql.replace(template, table))
+    c.execute("insert into gpkg_contents(table_name, data_type, identifier, description, last_change, min_x, min_y, max_x, max_y, srs_id) values (?, 'features', ?, '', strftime('%Y-%m-%dT%H:%M:%fZ','now'), null, null, null, null, 4326)", (table, table))
+    c.execute("insert into gpkg_geometry_columns values (?, 'geom', 'POINT', 4326, 0, 0)", (table,))
+    c.execute("insert into gpkg_extensions values (?, 'geom', 'gpkg_rtree_index', 'http://www.geopackage.org/spec120/#extension_rtree', 'write-only')", (table,))
+    c.execute('insert into gpkg_ogr_contents values (?, 0)', (table,))
+    print('created', table)
+
 c = sqlite3.connect(GPKG, isolation_level=None)
 c.execute('pragma journal_mode=MEMORY'); c.execute('begin')
-tables = {t for (t, _) in AREAS} | {t for (t, _) in LINES} | {t for (t, *_ ) in NEW}
+for t in POINTS: ensure_point_table(c, t)
 trig = c.execute("select name, sql from sqlite_master where type='trigger' and name like 'rtree_%'").fetchall()
 for name, _ in trig: c.execute(f'drop trigger "{name}"')
 
@@ -131,6 +176,13 @@ for table, fid_text, hu, uk, make in NEW:
     if kind == 'area': set_geom(table, fid, wkb_multipolygon(geom), [p for poly in geom for p in poly[0]])
     else: set_geom(table, fid, wkb_multiline(geom), [p for l in geom for p in l])
     print('added', table, fid_text)
+for table, pts in POINTS.items():
+    for fid_text, hu, uk, (x, y) in pts:
+        if c.execute(f'select 1 from "{table}" where id=?', (fid_text,)).fetchone(): continue
+        c.execute(f'insert into "{table}"(id, name_hu, name_uk) values (?,?,?)', (fid_text, hu, uk))
+        fid = c.execute('select last_insert_rowid()').fetchone()[0]
+        set_geom(table, fid, struct.pack('<BIdd', 1, 1, x, y), [(x, y)])
+    print('points', table, len(pts))
 for _, sql in trig: c.execute(sql)
 c.execute('commit')
 print(c.execute('pragma integrity_check').fetchone()[0])

@@ -1,6 +1,6 @@
 {
   "topicId": "continent-australia-oceania",
-  "dataVersion": "2026.11.17.1",
+  "dataVersion": "2026.11.17.2",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -17,7 +17,7 @@
     {
       "id": "features",
       "status": "pass",
-      "detail": "13 question features"
+      "detail": "17 question features"
     },
     {
       "id": "background",
@@ -27,7 +27,7 @@
     {
       "id": "points-on-map",
       "status": "pass",
-      "detail": "all points lie on the base map"
+      "detail": "within 0.5° of the base map: yorkfok, steeppoint, byronfok"
     },
     {
       "id": "size",
@@ -41,7 +41,7 @@
       "geomTypes": [
         "point"
       ],
-      "count": 1,
+      "count": 5,
       "skippedEmpty": 0
     },
     {
@@ -64,11 +64,11 @@
   "totals": {
     "area": 12,
     "line": 0,
-    "point": 1
+    "point": 5
   },
   "bytes": {
-    "regions": 125081,
+    "regions": 126066,
     "country": 114588,
-    "gzipped": 94791
+    "gzipped": 95066
   }
 }

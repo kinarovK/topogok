@@ -1,6 +1,6 @@
 {
   "topicId": "continent-south-america",
-  "dataVersion": "2026.11.17.1",
+  "dataVersion": "2026.11.17.2",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -17,7 +17,7 @@
     {
       "id": "features",
       "status": "pass",
-      "detail": "23 question features"
+      "detail": "26 question features"
     },
     {
       "id": "background",
@@ -41,7 +41,7 @@
       "geomTypes": [
         "point"
       ],
-      "count": 5,
+      "count": 8,
       "skippedEmpty": 0
     },
     {
@@ -72,11 +72,11 @@
   "totals": {
     "area": 14,
     "line": 4,
-    "point": 5
+    "point": 8
   },
   "bytes": {
-    "regions": 332666,
+    "regions": 333408,
     "country": 481668,
-    "gzipped": 298284
+    "gzipped": 298462
   }
 }

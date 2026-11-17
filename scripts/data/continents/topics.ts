@@ -7,7 +7,7 @@ import type { CoastConfig } from '../coast.ts';
 import type { ProjectionConfig } from '../projection.ts';
 import type { LocalizedText, TopicConfig } from '../topic.ts';
 
-const DATA_VERSION = '2026.11.17.1';
+const DATA_VERSION = '2026.11.17.2';
 const SOURCE = 'sources/continents/foldrajz_07_osztaly.gpkg';
 const BASE = 'build/world/world_continents.shp';
 
