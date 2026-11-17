@@ -1,4 +1,4 @@
-# Adatellenőrzés: continent-south-america 2026.11.17.3
+# Adatellenőrzés: continent-south-america 2026.11.17.4
 
 Eredmény: **sikeres**
 

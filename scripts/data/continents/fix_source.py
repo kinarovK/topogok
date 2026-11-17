@@ -215,6 +215,21 @@ for table, pts in POINTS.items():
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ridges import ridge
+# Ranges missing from the source (owner request 2026-11-17): the Carpathians from the Natural Earth 1:10m range
+# polygon, the Scandinavian Mountains (no such polygon there) traced along the main ridge from atlas knowledge.
+NEW_RANGES = [
+    ('eurazsia', 'karpatok', 'Kárpátok', 'Карпати', lambda: ridge(area_from(REG, [565]))),
+    ('eurazsia', 'skandinavhegyseg', 'Skandináv-hegység', 'Скандинавські гори', lambda: [[
+        (7.0, 58.9), (7.4, 60.2), (8.3, 61.5), (9.4, 62.3), (11.0, 63.0), (12.3, 63.6), (13.6, 64.6), (14.8, 65.6),
+        (16.0, 66.6), (17.2, 67.6), (18.6, 68.3), (20.3, 69.0), (22.0, 69.6), (24.0, 70.1), (25.8, 70.4)]]),
+]
+for cont, fid_text, hu, uk, make in NEW_RANGES:
+    if c.execute(f'select 1 from "{cont}_hegysegek" where id=?', (fid_text,)).fetchone(): continue
+    lines = make()
+    c.execute(f'insert into "{cont}_hegysegek"(id, name_hu, name_uk) values (?,?,?)', (fid_text, hu, uk))
+    new = c.execute('select last_insert_rowid()').fetchone()[0]
+    set_geom(f'{cont}_hegysegek', new, wkb_multiline(lines), [p for l in lines for p in l])
+    print('added range', fid_text, sum(len(l) for l in lines), 'points')
 for cont, ids in RANGES.items():
     for fid_text in ids:
         row = c.execute(f'select fid, name_hu, name_uk, geom from "{cont}_teruletek" where id=?', (fid_text,)).fetchone()

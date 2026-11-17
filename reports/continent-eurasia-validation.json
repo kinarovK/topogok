@@ -1,6 +1,6 @@
 {
   "topicId": "continent-eurasia",
-  "dataVersion": "2026.11.17.3",
+  "dataVersion": "2026.11.17.4",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
@@ -17,7 +17,7 @@
     {
       "id": "features",
       "status": "pass",
-      "detail": "62 question features"
+      "detail": "64 question features"
     },
     {
       "id": "background",
@@ -41,7 +41,7 @@
       "geomTypes": [
         "line"
       ],
-      "count": 7,
+      "count": 9,
       "skippedEmpty": 0
     },
     {
@@ -79,12 +79,12 @@
   ],
   "totals": {
     "area": 35,
-    "line": 23,
+    "line": 25,
     "point": 4
   },
   "bytes": {
-    "regions": 654630,
+    "regions": 656061,
     "country": 573258,
-    "gzipped": 304992
+    "gzipped": 305495
   }
 }
