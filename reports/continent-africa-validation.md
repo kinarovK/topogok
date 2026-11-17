@@ -1,4 +1,4 @@
-# Adatellenőrzés: continent-africa 2026.11.17.3
+# Adatellenőrzés: continent-africa 2026.11.17.4
 
 Eredmény: **sikeres**
 
