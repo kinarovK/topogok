@@ -42,6 +42,8 @@ export type TopicConfig = {
   excludeIds?: string[];
   /** Area layers drawn as water (seas, oceans) instead of land. */
   waterLayers?: string[];
+  /** Line layers drawn as mountain ranges (ridge lines) instead of rivers. */
+  mountainLayers?: string[];
   /** Single area features drawn as water although their layer is land (a lake or bay among the regions). */
   waterIds?: string[];
   /** Optional per-layer titles for the teacher's checklist (default: the layer name). */
@@ -56,7 +58,7 @@ export type TopicConfig = {
 };
 
 export type GeomType = 'area' | 'line' | 'point';
-type OutFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText; kind: 'generic' | 'ocean'; geomType: GeomType; layer: string }; geometry: Geometry };
+type OutFeature = { type: 'Feature'; id: string; properties: { id: string; names: LocalizedText; kind: 'generic' | 'ocean' | 'mountain'; geomType: GeomType; layer: string }; geometry: Geometry };
 type Check = { id: string; status: 'pass' | 'warn' | 'fail'; detail: string };
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -275,7 +277,8 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
         geometry = polys.length === 1 ? { type: 'Polygon', coordinates: polys[0]! } : { type: 'MultiPolygon', coordinates: polys }; geomType = 'area';
       }
       types.add(geomType);
-      const kind = geomType === 'area' && (config.waterLayers?.includes(layer.name) || config.waterIds?.includes(id)) ? 'ocean' : 'generic';
+      const kind = geomType === 'area' && (config.waterLayers?.includes(layer.name) || config.waterIds?.includes(id)) ? 'ocean'
+        : geomType === 'line' && config.mountainLayers?.includes(layer.name) ? 'mountain' : 'generic';
       features.push({ type: 'Feature', id, properties: { id, names, kind, geomType, layer: layer.name }, geometry });
     }
     layerStats.push({ layer: layer.name, geomTypes: [...types], count: n - skippedEmpty, skippedEmpty });

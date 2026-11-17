@@ -9,7 +9,7 @@ export type LineGeometry = { type: 'LineString'; coordinates: Position[] } | { t
 export type PointGeometry = { type: 'Point'; coordinates: Position };
 export type FeatureGeometry = PolygonGeometry | LineGeometry | PointGeometry;
 export type GeomType = 'area' | 'line' | 'point';
-export const REGION_KINDS = ['oblast', 'autonomous-republic', 'city', 'tectonic-unit', 'continent', 'ocean', 'generic'] as const;
+export const REGION_KINDS = ['oblast', 'autonomous-republic', 'city', 'tectonic-unit', 'continent', 'ocean', 'mountain', 'generic'] as const;
 export type RegionKind = (typeof REGION_KINDS)[number];
 export type RegionFeature = {
   type: 'Feature'; id: string;

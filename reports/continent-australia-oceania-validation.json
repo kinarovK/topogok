@@ -1,13 +1,13 @@
 {
   "topicId": "continent-australia-oceania",
-  "dataVersion": "2026.11.17.2",
+  "dataVersion": "2026.11.17.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
     {
       "id": "source",
       "status": "pass",
-      "detail": "3 layer(s): pontok, tengerek, teruletek"
+      "detail": "4 layer(s): hegysegek, pontok, tengerek, teruletek"
     },
     {
       "id": "coast",
@@ -32,10 +32,18 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "93 KiB gzipped (limit 1465 KiB)"
+      "detail": "88 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
     {
       "layer": "pontok",
       "geomTypes": [
@@ -57,18 +65,18 @@
       "geomTypes": [
         "area"
       ],
-      "count": 10,
+      "count": 9,
       "skippedEmpty": 0
     }
   ],
   "totals": {
-    "area": 12,
-    "line": 0,
+    "area": 11,
+    "line": 1,
     "point": 5
   },
   "bytes": {
-    "regions": 126066,
+    "regions": 112363,
     "country": 114588,
-    "gzipped": 95066
+    "gzipped": 89632
   }
 }

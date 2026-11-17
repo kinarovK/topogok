@@ -1,13 +1,13 @@
 {
   "topicId": "continent-africa",
-  "dataVersion": "2026.11.17.2",
+  "dataVersion": "2026.11.17.3",
   "node": "v22.23.4",
   "source": "sources/continents/foldrajz_07_osztaly.gpkg",
   "checks": [
     {
       "id": "source",
       "status": "pass",
-      "detail": "4 layer(s): pontok, tengerek, teruletek, vonalak"
+      "detail": "5 layer(s): hegysegek, pontok, tengerek, teruletek, vonalak"
     },
     {
       "id": "coast",
@@ -32,10 +32,18 @@
     {
       "id": "size",
       "status": "pass",
-      "detail": "139 KiB gzipped (limit 1465 KiB)"
+      "detail": "133 KiB gzipped (limit 1465 KiB)"
     }
   ],
   "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
     {
       "layer": "pontok",
       "geomTypes": [
@@ -57,7 +65,7 @@
       "geomTypes": [
         "area"
       ],
-      "count": 13,
+      "count": 11,
       "skippedEmpty": 0
     },
     {
@@ -70,13 +78,13 @@
     }
   ],
   "totals": {
-    "area": 15,
-    "line": 7,
+    "area": 13,
+    "line": 9,
     "point": 6
   },
   "bytes": {
-    "regions": 278263,
+    "regions": 261051,
     "country": 83326,
-    "gzipped": 142238
+    "gzipped": 135723
   }
 }

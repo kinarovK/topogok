@@ -7,7 +7,7 @@ import type { CoastConfig } from '../coast.ts';
 import type { ProjectionConfig } from '../projection.ts';
 import type { LocalizedText, TopicConfig } from '../topic.ts';
 
-const DATA_VERSION = '2026.11.17.2';
+const DATA_VERSION = '2026.11.17.3';
 const SOURCE = 'sources/continents/foldrajz_07_osztaly.gpkg';
 const BASE = 'build/world/world_continents.shp';
 
@@ -28,18 +28,17 @@ const EXCLUDED = [
   'lamanche', 'drakeatjaro', 'ausztralalpok', 'ujzeland', 'melanezia', 'mikronezia', 'polinezia',
 ];
 // Relief units may not overlap (owner decision 2026-11-17); peninsulas, islands and deserts (a landscape lying on
-// top of relief units) keep their whole outline.
+// top of relief units) keep their whole outline. Mountain ranges are ridge lines (layer "hegysegek"), not areas.
 const PARTITION = {
   outlinePattern: /(felsziget|szigetek|sivatag)$/,
-  outlineIds: ['szahara', 'atacama', 'madagaszkar', 'tasmania', 'tuzfold', 'gronland', 'ujfundland', 'nagyantillak', 'alaszka', 'nagybritannia', 'izland', 'szahalin', 'srilanka', 'tajvan', 'kamcsatka', 'antarktisz', 'kordillerak'],
-  // The Cordillera is a mountain system containing its ranges (Rocky Mountains), but the plains stop at its edge.
-  cuts: { kordillerak: ['nagysiksag', 'kozpontisiksag'] },
+  outlineIds: ['szahara', 'atacama', 'madagaszkar', 'tasmania', 'tuzfold', 'gronland', 'ujfundland', 'nagyantillak', 'alaszka', 'nagybritannia', 'izland', 'szahalin', 'srilanka', 'tajvan', 'kamcsatka', 'antarktisz'],
 };
 
 const LAYER_TITLES: Record<string, LocalizedText> = {
   teruletek: { hu: 'Területek', uk: 'Території' },
   tengerek: { hu: 'Tengerek', uk: 'Моря' },
   oceanok: { hu: 'Óceánok', uk: 'Океани' },
+  hegysegek: { hu: 'Hegységek', uk: 'Гори' },
   vonalak: { hu: 'Vonalak', uk: 'Лінії' },
   pontok: { hu: 'Pontok', uk: 'Точки' },
 };
@@ -52,6 +51,7 @@ const continent = (id: string, prefix: string, base: string, projection: Project
   projection,
   layerTitles: LAYER_TITLES,
   waterLayers: SEA_LAYERS,
+  mountainLayers: ['hegysegek'],
   waterIds: [...SEA_IDS, ...LAKE_IDS],
   // Owner-made data: no source link or licence was given, so none is claimed.
   provenance: { source: 'foldrajz_07_osztaly.gpkg (owner)', sourceUrl: null, license: null, licenseUrl: null, status: 'unverified' },

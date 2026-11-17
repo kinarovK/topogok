@@ -59,3 +59,13 @@ test('coast: relief units are cut against each other (smaller wins), outlines an
   assert.equal(area(coast.base as never), 100);
   rmSync(dir, { recursive: true });
 });
+
+test('mixed style: mountain ridge lines have their own layer; rivers exclude them', async () => {
+  const { buildStyle, LAYER_LINES, LAYER_MOUNTAINS } = await import('../../src/map/mapStyle.ts');
+  const country = { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] } } as never;
+  const region = (id: string, kind: string) => ({ type: 'Feature', id, properties: { id, names: { hu: id, uk: id }, kind, geomType: 'line', layer: 'x' }, geometry: { type: 'LineString', coordinates: [[0, 0], [1, 1]] } });
+  const style = buildStyle('light', country, [region('a', 'mountain'), region('b', 'generic')] as never);
+  const ids = style.layers.map((l) => l.id);
+  assert.ok(ids.indexOf(LAYER_MOUNTAINS) < ids.indexOf(LAYER_LINES), 'ridges are drawn below rivers');
+  assert.match(JSON.stringify(style.layers.find((l) => l.id === LAYER_LINES)), /"!"/);
+});
