@@ -2,7 +2,7 @@
 // mixed topic is grouped by source layer. Synthetic test topic, real API on an in-memory database.
 import type { Page } from '@playwright/test';
 import { login, seedAccounts } from './apiSeed.ts';
-import { clickNext, confirmBtn, expect, mapReady, test, waitStill } from './helpers.ts';
+import { clickNext, confirmBtn, expect, mapReady, test, waitStill, topicCard } from './helpers.ts';
 
 const BASE = 'http://127.0.0.1:4182/';
 
@@ -31,7 +31,7 @@ test('superadmin widens the tap buffer; a guest then hits a river from farther a
   const ctx = await browser.newContext();
   const guest = await ctx.newPage();
   await guest.goto(BASE);
-  await guest.locator('[data-topic="test-mixed"]').click();
+  await (await topicCard(guest, 'test-mixed')).click();
   await guest.getByRole('button', { name: /^Gyakorlás/ }).click();
   await mapReady(guest);
   const coarse = await guest.evaluate(() => matchMedia('(pointer: coarse)').matches);

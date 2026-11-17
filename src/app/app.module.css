@@ -435,6 +435,50 @@
   gap: var(--space-3);
 }
 
+.gradeBlock {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.gradeBlock[open] {
+  padding-bottom: var(--space-3);
+}
+
+.gradeSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: var(--space-3) var(--space-4);
+  font-size: 19px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.gradeSummary::-webkit-details-marker {
+  display: none;
+}
+
+.chevron {
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+.gradeBlock[open] .chevron {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron { transition: none; }
+}
+
+.gradeBlock .topicList {
+  padding: 0 var(--space-3);
+}
+
 .topicCard {
   display: flex;
   align-items: center;

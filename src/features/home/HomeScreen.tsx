@@ -2,7 +2,8 @@ import { useAccount } from '../../account/account.tsx';
 import { useSettings } from '../../app/settings.tsx';
 import acc from '../account/account.module.css';
 import { Button } from '../../components/ui.tsx';
-import { TOPICS, type TopicEntry, type TopicId } from '../../data/topicRegistry.ts';
+import { useState } from 'react';
+import { topicsByGrade, type TopicEntry, type TopicId } from '../../data/topicRegistry.ts';
 import type { MessageKey } from '../../i18n/translator.ts';
 import type { Mode } from '../../domain/types.ts';
 import { RecordLine } from '../leaderboard/Leaderboard.tsx';
@@ -18,12 +19,26 @@ const DESC: Record<TopicId, MessageKey> = {
   'continent-eurasia': 'home.topicContinentDesc',
   'continent-north-america': 'home.topicContinentDesc',
   'continent-south-america': 'home.topicContinentDesc',
+  'ukraine-position': 'home.topicPositionDesc',
   'test-mixed': 'home.topicMixedDesc',
+};
+
+const OPEN_KEY = 'topogok.openGrades';
+const readOpen = (): Set<number> => {
+  try { const v = JSON.parse(localStorage.getItem(OPEN_KEY) ?? 'null') as unknown; if (Array.isArray(v)) return new Set(v.filter((x): x is number => typeof x === 'number')); } catch { /* storage unavailable */ }
+  return new Set();
 };
 
 /** Home = topic choice. */
 export function HomeScreen({ onTopic, onHelp, onLogin, onManage }: { onTopic: (id: TopicId) => void; onHelp: () => void; onLogin: () => void; onManage: () => void }) {
   const { t, locale } = useSettings();
+  const [open, setOpen] = useState(readOpen);
+  const setGradeOpen = (grade: number, isOpen: boolean) => setOpen((cur) => {
+    if (cur.has(grade) === isOpen) return cur;
+    const next = new Set(cur); if (isOpen) next.add(grade); else next.delete(grade);
+    try { localStorage.setItem(OPEN_KEY, JSON.stringify([...next])); } catch { /* storage unavailable */ }
+    return next;
+  });
   return (
     <div className={s.page}>
       <AccountBar onLogin={onLogin} onManage={onManage} />
@@ -33,14 +48,26 @@ export function HomeScreen({ onTopic, onHelp, onLogin, onManage }: { onTopic: (i
       </div>
       <section aria-labelledby="choose-topic" className={s.topicList}>
         <h2 id="choose-topic" className={s.sectionTitle}>{t('home.chooseTopic')}</h2>
-        {TOPICS.map((topic) => (
-          <button key={topic.id} type="button" className={s.topicCard} onClick={() => onTopic(topic.id)} data-topic={topic.id}>
-            <span className={s.topicText}>
-              <strong>{topic.title[locale]}</strong>
-              <span>{t(DESC[topic.id])}</span>
-            </span>
-            <span className={s.topicMeta}>{t(topic.mixed ? 'home.topicCountMixed' : 'home.topicCount', { count: topic.featureCount })}<span aria-hidden="true"> ›</span></span>
-          </button>
+        {/* Grouped by grade; each block folds, and the open ones are remembered on this device. */}
+        {topicsByGrade().map(({ grade, topics }) => (
+          <details key={grade} className={s.gradeBlock} open={open.has(grade)} data-grade={grade}
+            onToggle={(e) => setGradeOpen(grade, (e.currentTarget as HTMLDetailsElement).open)}>
+            <summary className={s.gradeSummary}>
+              <span><span aria-hidden="true" className={s.chevron}>›</span> {t('home.grade', { grade })}</span>
+              <span className={s.topicMeta}>{t('home.gradeTopics', { count: topics.length })}</span>
+            </summary>
+            <div className={s.topicList}>
+              {topics.map((topic) => (
+                <button key={topic.id} type="button" className={s.topicCard} onClick={() => { setGradeOpen(grade, true); onTopic(topic.id); }} data-topic={topic.id}>
+                  <span className={s.topicText}>
+                    <strong>{topic.title[locale]}</strong>
+                    <span>{t(DESC[topic.id])}</span>
+                  </span>
+                  <span className={s.topicMeta}>{t(topic.mixed ? 'home.topicCountMixed' : 'home.topicCount', { count: topic.featureCount })}<span aria-hidden="true"> ›</span></span>
+                </button>
+              ))}
+            </div>
+          </details>
         ))}
       </section>
       <nav className={s.secondaryLinks} aria-label={t('common.settings')}>

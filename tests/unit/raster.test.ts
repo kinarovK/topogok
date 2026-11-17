@@ -69,3 +69,9 @@ test('mixed style: mountain ridge lines have their own layer; rivers exclude the
   assert.ok(ids.indexOf(LAYER_MOUNTAINS) < ids.indexOf(LAYER_LINES), 'ridges are drawn below rivers');
   assert.match(JSON.stringify(style.layers.find((l) => l.id === LAYER_LINES)), /"!"/);
 });
+
+test('topics are grouped by grade, ascending, keeping the registry order', async () => {
+  const { topicsByGrade } = await import('../../src/data/topicRegistry.ts');
+  const groups = topicsByGrade([{ id: 'a', grade: 8 }, { id: 'b', grade: 7 }, { id: 'c', grade: 8 }] as never);
+  assert.deepEqual(groups.map((g) => [g.grade, g.topics.map((x) => x.id)]), [[7, ['b']], [8, ['a', 'c']]]);
+});

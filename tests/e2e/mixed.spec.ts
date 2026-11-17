@@ -2,7 +2,7 @@
 // near a river or point select it; farther away the area underneath is selected. Guest mode, no server.
 import type { Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { clickNext, confirmBtn, E2E, expect, mapReady, test, waitStill } from './helpers.ts';
+import { clickNext, confirmBtn, E2E, expect, mapReady, test, waitStill, topicCard } from './helpers.ts';
 
 type F = { id: string; properties: { names: { hu: string }; geomType: string }; geometry: { type: string; coordinates: unknown } };
 const regions = (JSON.parse(readFileSync('dist-e2e/data/test-mixed/2026.11.16.1/regions.geojson', 'utf8')) as { features: F[] }).features;
@@ -27,7 +27,7 @@ async function tap(page: Page, lngLat: [number, number], offsetPx: number, dir: 
 
 test('tap buffer: near a river or point selects it, farther away the area underneath; full mixed round', async ({ page }) => {
   await page.goto(E2E);
-  await page.locator('[data-topic="test-mixed"]').click();
+  await (await topicCard(page, 'test-mixed')).click();
   await expect(page.locator('[data-topic="test-mixed"]')).toHaveCount(0);
   await page.getByRole('button', { name: /^Gyakorlás/ }).click();
   await mapReady(page);

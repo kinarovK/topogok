@@ -1,7 +1,7 @@
 // F4: the teacher narrows a topic to two features; the student is asked only those, the rest of the map is grey
 // and cannot be selected; another session as guest gets the full map again.
 import { login, seedAccounts } from './apiSeed.ts';
-import { clickRegion, confirmBtn, currentTargetId, expect, openTopic, REGIONS, selectRegion, test } from './helpers.ts';
+import { clickRegion, confirmBtn, currentTargetId, expect, openTopic, REGIONS, selectRegion, test, topicCard } from './helpers.ts';
 
 const BASE = 'http://127.0.0.1:4178/';
 const plain = REGIONS.map((r) => r.id).filter((id) => id !== 'UA-30' && id !== 'UA-40');
@@ -29,7 +29,7 @@ test('teacher narrows the question set; the student gets only those; guests keep
   const ctx = await browser.newContext();
   const student = await ctx.newPage();
   await login(student, BASE, 'nagy.anna', 'student-password-1');
-  await student.locator('[data-topic="ukraine-administration"]').click();
+  await (await topicCard(student, 'ukraine-administration')).click();
   await student.locator('button', { hasText: /^Számonkérés/ }).first().click();
   await expect(student.getByTestId('teacher-selection')).toContainText('2 elemet');
   const options = student.locator('fieldset').first().locator('label');
