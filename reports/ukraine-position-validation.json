@@ -1,0 +1,77 @@
+{
+  "topicId": "ukraine-position",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/ukraine8/fekves",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "5 layer(s): hatter, hegysegek, orszagok, pontok, tengerek"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "20 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (14 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "within 0.5° of the base map: saricsfok"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "43 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "orszagok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 11,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "pontok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 5,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "tengerek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 13,
+    "line": 2,
+    "point": 5
+  },
+  "bytes": {
+    "regions": 87634,
+    "country": 28692,
+    "gzipped": 43975
+  }
+}

@@ -72,3 +72,8 @@ Elvárt: minden sorban `valid = 1`. Ha nem, a csomag nem adható ki, és a hibá
 - **Vonalak:** az egymáshoz ~1 km-en belül csatlakozó darabokat (pl. két pontból álló szakaszokra bontott folyó) egyesíti, így a folyó nem szakadozik.
 - **Pontok:** a durva háttérről 3°-on belül lelógó pont (pl. Erebus, Horn-fok) csak figyelmeztetés, a pont így is látszik.
 - **Átfedő területeknél** a kliens a kisebb területet választja (pl. tenger az óceánon belül).
+
+## 8. osztály – Ukrajna (`npm run data:ukraine8`)
+
+- **Leíró:** `scripts/data/ukraine8/topics.ts`; források: `sources/ukraine8/<téma>/*.geojson` (egy fájl = egy réteg), a `scripts/data/ukraine8/make_sources.py` készíti a Natural Earth 1:10m-ből (közkincs, v5.1.1, ukrán nézőpontú országhatárok).
+- **Ukrajna fekvése és határai:** Ukrajna és 10 szomszéd/tengeri szomszéd ország, Fekete- és Azovi-tenger, Kárpátok (a kontinensek GPKG-jából, mint az Eurázsia-térképen) és Krími-hegység (kézzel, ellenőrizendő) gerincvonala, a 4 szélső pont és a földrajzi középpont (atlaszkoordináták, ellenőrizendők). A háttér-szárazföldet 0,01°-os raszteren vágja ki az ablakra, mert az ablak széle sok partvonalat metsz.

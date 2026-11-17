@@ -229,6 +229,30 @@ export const TOPIC_FEATURES: Record<string, Record<string, readonly string[]>> =
       "UA-77"
     ]
   },
+  "ukraine-position": {
+    "2026.11.18.1": [
+      "azovitenger",
+      "bulgaria",
+      "feheroroszorszag",
+      "feketetenger",
+      "gruzia",
+      "hremjacs",
+      "karpatok",
+      "krimihegyseg",
+      "lengyelorszag",
+      "magyarorszag",
+      "marjanyivka",
+      "moldova",
+      "oroszorszag",
+      "rannjazorja",
+      "romania",
+      "salamon",
+      "saricsfok",
+      "szlovakia",
+      "torokorszag",
+      "ukrajna"
+    ]
+  },
   "ukraine-tectonics": {
     "2026.11.09.1": [
       "TU-01",

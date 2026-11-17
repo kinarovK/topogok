@@ -19,6 +19,7 @@ const DESC: Record<TopicId, MessageKey> = {
   'continent-eurasia': 'home.topicContinentDesc',
   'continent-north-america': 'home.topicContinentDesc',
   'continent-south-america': 'home.topicContinentDesc',
+  'ukraine-position': 'home.topicPositionDesc',
   'test-mixed': 'home.topicMixedDesc',
 };
 
