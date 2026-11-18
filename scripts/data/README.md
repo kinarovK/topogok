@@ -85,3 +85,9 @@ Elvárt: minden sorban `valid = 1`. Ha nem, a csomag nem adható ki, és a hibá
 - **Leíró:** `scripts/data/grade9/topics.ts`; források: `sources/grade9/<téma>/*.geojson`, a `scripts/data/grade9/make_sources.py` készíti.
 - **A világgazdaság országai:** a G20 tankönyvi országköre és Kazahsztán, Natural Earth 1:10m (ukrán nézőpont), 0,05°-os raszteren újrarajzolva (a forrás néhány gyűrűje érvénytelen, és így elég könnyű egy világtérképhez); háttér: 1:110m szárazföld.
 - **VÁZLAT, ellenőrizendő:** a világ szén-, kőolaj- és földgázmedencéi (kézi körvonalak), Ukrajna energetikája (a 8.-os vázlat energiahordozói + 14 erőmű), kohászata (központok + ércbázis), gépgyártása, közlekedése (csomópontok, kikötők, a csővezetékek durva nyomvonala) és üdülőhelyei. A pontok koordinátái atlaszismeretből vannak. Egy város egy témán belül egyszer szerepel, akkor is, ha több ágazatban is központ.
+
+## 10. osztály – a világ régiói és országai (`npm run data:grade10`)
+
+- **Leíró:** `scripts/data/grade10/topics.ts`; források: `sources/grade10/<téma>/*.geojson`, a `scripts/data/grade10/make_sources.py` készíti a közös `scripts/data/geolib.py`-vel (Natural Earth: 1:10m országok ukrán nézőpontból, raszteren újrarajzolva; 1:50m szárazföld; 1:10m folyók).
+- **Témák:** Európa (4 régió), Ázsia (5 régió), Amerika (fő és további országok), Ausztrália és Óceánia, Afrika gazdasága, valamint az országfejezetek: Németország–Franciaország–Egyesült Királyság–Olaszország–Lengyelország, Oroszország, Kína–Japán–Dél-Korea, India, USA–Kanada, Brazília, Egyiptom–Dél-afrikai Köztársaság (az A szintű városok és térségek).
+- **Ellenőrizendő:** a városok és térségek (pl. Ruhr-vidék, Volga-vidék, Witwatersrand) pontként, atlaszismeretből; az Urál és a Szuezi-csatorna vonala kézi. A nagyon kicsi államok (Vatikán, Monaco, San Marino, Liechtenstein, Szingapúr, Bahrein, Maldív-szigetek, Óceánia szigetállamai) pontok. Koszovó nincs a forrásban (ukrán nézőpont), Szerbia része.

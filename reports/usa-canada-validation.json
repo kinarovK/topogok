@@ -1,0 +1,74 @@
+{
+  "topicId": "usa-canada",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade10/eszakamerika",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "4 layer(s): folyok, hatter, orszagok, varosok"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "20 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (201 polygon(s))"
+    },
+    {
+      "id": "background-geometry",
+      "status": "warn",
+      "detail": "invalid base polygon(s) left out: polygon 146, polygon 156"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "within 0.5° of the base map: newyork, quebec"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "120 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "folyok",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "orszagok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "varosok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 17,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 2,
+    "line": 1,
+    "point": 17
+  },
+  "bytes": {
+    "regions": 134715,
+    "country": 168318,
+    "gzipped": 122560
+  }
+}

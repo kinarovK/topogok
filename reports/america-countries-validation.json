@@ -1,0 +1,61 @@
+{
+  "topicId": "america-countries",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade10/amerika",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "3 layer(s): foorszagok, hatter, tovabbi"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "28 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (117 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "all points lie on the base map"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "143 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "foorszagok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 13,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "tovabbi",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 15,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 28,
+    "line": 0,
+    "point": 0
+  },
+  "bytes": {
+    "regions": 235370,
+    "country": 132785,
+    "gzipped": 146545
+  }
+}

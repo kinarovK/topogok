@@ -1,0 +1,88 @@
+{
+  "topicId": "asia-countries",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade10/azsia",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "6 layer(s): del, delkelet, hatter, kelet, kozep, nyugat"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "49 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (263 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "warn",
+      "detail": "far from the base map (small islands, drawn anyway): maldiv"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "212 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "del",
+      "geomTypes": [
+        "area",
+        "point"
+      ],
+      "count": 7,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "delkelet",
+      "geomTypes": [
+        "area",
+        "point"
+      ],
+      "count": 11,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "kelet",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 6,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "kozep",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 5,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "nyugat",
+      "geomTypes": [
+        "area",
+        "point"
+      ],
+      "count": 20,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 46,
+    "line": 0,
+    "point": 3
+  },
+  "bytes": {
+    "regions": 411646,
+    "country": 164643,
+    "gzipped": 216670
+  }
+}

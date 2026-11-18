@@ -42,6 +42,8 @@ export type TopicConfig = {
   excludeIds?: string[];
   /** Area layers drawn as water (seas, oceans) instead of land. */
   waterLayers?: string[];
+  /** Points may lie far from the base map (small island states shown as points): reported, never a failure. */
+  pointsAnywhere?: boolean;
   /** Line layers drawn as mountain ranges (ridge lines) instead of rivers. */
   mountainLayers?: string[];
   /** Single area features drawn as water although their layer is land (a lake or bay among the regions). */
@@ -319,7 +321,8 @@ export function buildTopic(config: TopicConfig, sourceRoot = root): BuildResult 
   const coordsOf = (id: string) => (features.find((x) => x.id === id)!.geometry as { coordinates: Pos }).coordinates;
   const offShore = strayPoints.filter((id) => !near(coordsOf(id), 0.5));
   const farPoints = offShore.filter((id) => ![1, 2, 3].some((d) => near(coordsOf(id), d)));
-  if (farPoints.length) check('points-on-map', false, `far from the base map (> 3°): ${farPoints.join(', ')}`);
+  if (farPoints.length && config.pointsAnywhere) warn('points-on-map', `far from the base map (small islands, drawn anyway): ${farPoints.join(', ')}`);
+  else if (farPoints.length) check('points-on-map', false, `far from the base map (> 3°): ${farPoints.join(', ')}`);
   else if (offShore.length) warn('points-on-map', `off the coarse base map, within 3° of land (drawn anyway): ${offShore.join(', ')}`);
   else check('points-on-map', true, strayPoints.length ? `within 0.5° of the base map: ${strayPoints.join(', ')}` : 'all points lie on the base map');
 

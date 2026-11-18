@@ -4,6 +4,7 @@ import { loadTopic, type LocalizedText, type Topic } from './validation.ts';
 export type TopicId = 'ukraine-administration' | 'ukraine-tectonics' | 'world-continents'
   | 'continent-africa' | 'continent-antarctica' | 'continent-australia-oceania' | 'continent-eurasia' | 'continent-north-america' | 'continent-south-america'
   | 'ukraine-position' | 'ukraine-relief' | 'ukraine-minerals' | 'ukraine-zones' | 'ukraine-admin-centres'
+  | 'europe-countries' | 'asia-countries' | 'america-countries' | 'oceania-countries' | 'africa-economy' | 'western-europe-g7' | 'russia' | 'east-asia' | 'india' | 'usa-canada' | 'brazil' | 'egypt-south-africa'
   | 'world-economy-countries' | 'world-fuel-basins' | 'ukraine-energy' | 'ukraine-metallurgy' | 'ukraine-machinery' | 'ukraine-transport' | 'ukraine-resorts'
   | 'test-mixed';
 
@@ -87,6 +88,66 @@ const BASE_TOPICS: readonly TopicEntry[] = [
     id: 'ukraine-resorts', dataVersion: '2026.11.18.1',
     title: { hu: 'Ukrajna üdülő- és gyógyhelyei', uk: 'Курорти України' },
     featureCount: 19, counts: [5, 12, 'all'], partialCoverage: true, grade: 9, mixed: true,
+  },
+  {
+    id: 'europe-countries', dataVersion: '2026.11.18.1',
+    title: { hu: 'Európa országai', uk: 'Країни Європи' },
+    featureCount: 44, counts: [5, 12, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'asia-countries', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ázsia országai', uk: 'Країни Азії' },
+    featureCount: 49, counts: [5, 12, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'america-countries', dataVersion: '2026.11.18.1',
+    title: { hu: 'Amerika országai', uk: 'Країни Америки' },
+    featureCount: 28, counts: [5, 12, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'oceania-countries', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ausztrália és Óceánia', uk: 'Австралія та Океанія' },
+    featureCount: 21, counts: [5, 12, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'africa-economy', dataVersion: '2026.11.18.1',
+    title: { hu: 'Afrika gazdasága', uk: 'Господарство Африки' },
+    featureCount: 36, counts: [5, 12, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'western-europe-g7', dataVersion: '2026.11.18.1',
+    title: { hu: 'Németország, Franciaország, Egyesült Királyság, Olaszország, Lengyelország', uk: 'Німеччина, Франція, Велика Британія, Італія, Польща' },
+    featureCount: 47, counts: [5, 12, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'russia', dataVersion: '2026.11.18.1',
+    title: { hu: 'Oroszország', uk: 'Росія' },
+    featureCount: 15, counts: [5, 12, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'east-asia', dataVersion: '2026.11.18.1',
+    title: { hu: 'Kína, Japán, Dél-Korea', uk: 'Китай, Японія, Південна Корея' },
+    featureCount: 21, counts: [5, 12, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'india', dataVersion: '2026.11.18.1',
+    title: { hu: 'India', uk: 'Індія' },
+    featureCount: 6, counts: [5, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'usa-canada', dataVersion: '2026.11.18.1',
+    title: { hu: 'Amerikai Egyesült Államok és Kanada', uk: 'США і Канада' },
+    featureCount: 20, counts: [5, 12, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'brazil', dataVersion: '2026.11.18.1',
+    title: { hu: 'Brazília', uk: 'Бразилія' },
+    featureCount: 7, counts: [5, 'all'], partialCoverage: true, grade: 10, mixed: true,
+  },
+  {
+    id: 'egypt-south-africa', dataVersion: '2026.11.18.1',
+    title: { hu: 'Egyiptom és a Dél-afrikai Köztársaság', uk: 'Єгипет і Південно-Африканська Республіка' },
+    featureCount: 14, counts: [5, 12, 'all'], partialCoverage: true, grade: 10, mixed: true,
   },
   {
     id: 'ukraine-tectonics', dataVersion: '2026.11.09.1',

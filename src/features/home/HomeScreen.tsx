@@ -31,6 +31,18 @@ const DESC: Record<TopicId, MessageKey> = {
   'ukraine-machinery': 'home.topicUkraineMachineryDesc',
   'ukraine-transport': 'home.topicUkraineTransportDesc',
   'ukraine-resorts': 'home.topicUkraineResortsDesc',
+  'europe-countries': 'home.topicEuropeCountriesDesc',
+  'asia-countries': 'home.topicAsiaCountriesDesc',
+  'america-countries': 'home.topicAmericaCountriesDesc',
+  'oceania-countries': 'home.topicOceaniaCountriesDesc',
+  'africa-economy': 'home.topicAfricaEconomyDesc',
+  'western-europe-g7': 'home.topicWesternEuropeG7Desc',
+  'russia': 'home.topicRussiaDesc',
+  'east-asia': 'home.topicEastAsiaDesc',
+  'india': 'home.topicIndiaDesc',
+  'usa-canada': 'home.topicUsaCanadaDesc',
+  'brazil': 'home.topicBrazilDesc',
+  'egypt-south-africa': 'home.topicEgyptSouthAfricaDesc',
   'test-mixed': 'home.topicMixedDesc',
 };
 
