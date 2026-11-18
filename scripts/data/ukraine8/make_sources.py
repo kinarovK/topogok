@@ -260,3 +260,24 @@ write('ovezetek', 'ovezetek', partition_in_ukraine([
     ('karpatihegyvidek', 'Kárpáti hegyvidék (magassági övezetesség)', 'Українські Карпати (висотна поясність)', ring((22.6, 49.0), (23.0, 49.45), (23.5, 49.2), (24.3, 48.75), (25.2, 48.2), (25.8, 47.9), (25.2, 47.7), (24.4, 47.95), (23.5, 48.0), (22.9, 48.2), (22.5, 48.6))),
     ('krimihegyvidek', 'Krími hegyvidék (magassági övezetesség)', 'Кримські гори (висотна поясність)', ring((33.4, 44.4), (33.6, 44.8), (34.3, 44.95), (35.0, 45.05), (35.5, 45.05), (35.3, 44.8), (34.5, 44.55), (33.7, 44.38))),
 ]))
+
+# --- Közigazgatás: the oblasts of the administration topic plus their centres (owner request 2026-11-18). ---------
+_adm = json.load(open('public/data/ukraine-administration/2026.11.05.1/regions.geojson'))['features']
+write('kozigazgatas', 'megyek', [feature(f['id'].lower().replace('-', ''), f['properties']['names']['hu'], f['properties']['names']['uk'], f['geometry']) for f in _adm])
+json.dump({'type': 'FeatureCollection', 'features': [feature('ukrajna', 'Ukrajna', 'Україна', mpoly(_ukr))]}, open(f'{OUT}/kozigazgatas/hatter.geojson', 'w'), ensure_ascii=False, separators=(',', ':'))
+CENTRES = [  # textbook names (foldrajzi_nevjegyzek_6-11.md, 8th grade), city-centre coordinates
+    ('vinnyica', 'Vinnyica', 'Вінниця', 28.468, 49.233), ('luck', 'Luck', 'Луцьк', 25.325, 50.747),
+    ('dnyipro', 'Dnyipro', 'Дніпро', 35.046, 48.465), ('donyeck', 'Donyeck', 'Донецьк', 37.803, 48.016),
+    ('zsitomir', 'Zsitomir', 'Житомир', 28.659, 50.255), ('ungvar', 'Ungvár', 'Ужгород', 22.288, 48.621),
+    ('zaporizzsja', 'Zaporizzsja', 'Запоріжжя', 35.140, 47.839), ('ivanofrankivszk', 'Ivano-Frankivszk', 'Івано-Франківськ', 24.711, 48.923),
+    ('kijev', 'Kijev', 'Київ', 30.523, 50.450), ('kropivnickij', 'Kropivnickij', 'Кропивницький', 32.262, 48.508),
+    ('luhanszk', 'Luhanszk', 'Луганськ', 39.308, 48.574), ('lviv', 'Lviv', 'Львів', 24.030, 49.840),
+    ('mikolajiv', 'Mikolajiv', 'Миколаїв', 31.995, 46.975), ('odessza', 'Odessza', 'Одеса', 30.723, 46.483),
+    ('poltava', 'Poltava', 'Полтава', 34.551, 49.588), ('rivne', 'Rivne', 'Рівне', 26.252, 50.620),
+    ('szumi', 'Szumi', 'Суми', 34.798, 50.908), ('ternopil', 'Ternopil', 'Тернопіль', 25.595, 49.554),
+    ('harkiv', 'Harkiv', 'Харків', 36.230, 49.994), ('herszon', 'Herszon', 'Херсон', 32.617, 46.635),
+    ('hmelnyickij', 'Hmelnyickij', 'Хмельницький', 26.987, 49.423), ('cserkaszi', 'Cserkaszi', 'Черкаси', 32.060, 49.444),
+    ('csernyivci', 'Csernyivci', 'Чернівці', 25.940, 48.292), ('csernyihiv', 'Csernyihiv', 'Чернігів', 31.289, 51.498),
+    ('szimferopol', 'Szimferopol', 'Сімферополь', 34.102, 44.952), ('szevasztopol', 'Szevasztopol', 'Севастополь', 33.525, 44.617),
+]
+write('kozigazgatas', 'kozpontok', [feature(i, hu, uk, {'type': 'Point', 'coordinates': [x, y]}) for i, hu, uk, x, y in CENTRES])

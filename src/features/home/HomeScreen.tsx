@@ -23,6 +23,7 @@ const DESC: Record<TopicId, MessageKey> = {
   'ukraine-relief': 'home.topicReliefDesc',
   'ukraine-minerals': 'home.topicMineralsDesc',
   'ukraine-zones': 'home.topicZonesDesc',
+  'ukraine-admin-centres': 'home.topicCentresDesc',
   'test-mixed': 'home.topicMixedDesc',
 };
 
