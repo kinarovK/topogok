@@ -1,0 +1,61 @@
+{
+  "topicId": "india",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade10/india",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "3 layer(s): hatter, orszagok, varosok"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "6 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (15 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "all points lie on the base map"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "16 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "orszagok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "varosok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 5,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 1,
+    "line": 0,
+    "point": 5
+  },
+  "bytes": {
+    "regions": 22004,
+    "country": 16862,
+    "gzipped": 16049
+  }
+}

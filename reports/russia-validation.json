@@ -1,0 +1,77 @@
+{
+  "topicId": "russia",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade10/oroszorszag",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "5 layer(s): folyok, hatter, hegysegek, orszagok, varosok"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "15 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (98 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "all points lie on the base map"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "81 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "folyok",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "orszagok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "varosok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 12,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 1,
+    "line": 2,
+    "point": 12
+  },
+  "bytes": {
+    "regions": 101277,
+    "country": 102382,
+    "gzipped": 82987
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "topicId": "brazil",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade10/brazilia",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "3 layer(s): hatter, orszagok, varosok"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "7 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (15 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "within 0.5° of the base map: riodejaneiro"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "18 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "orszagok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "varosok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 6,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 1,
+    "line": 0,
+    "point": 6
+  },
+  "bytes": {
+    "regions": 28364,
+    "country": 17012,
+    "gzipped": 18844
+  }
+}

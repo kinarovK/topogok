@@ -1,0 +1,62 @@
+{
+  "topicId": "oceania-countries",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade10/oceania",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "3 layer(s): allamok, ausztraliavarosok, hatter"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "21 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (204 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "warn",
+      "detail": "far from the base map (small islands, drawn anyway): marshall, nauru, kiribati, eszakimariana, tonga, tuvalu"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "46 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "allamok",
+      "geomTypes": [
+        "area",
+        "point"
+      ],
+      "count": 15,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "ausztraliavarosok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 6,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 2,
+    "line": 0,
+    "point": 19
+  },
+  "bytes": {
+    "regions": 25106,
+    "country": 94876,
+    "gzipped": 47003
+  }
+}
