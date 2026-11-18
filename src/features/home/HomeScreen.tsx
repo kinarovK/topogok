@@ -24,6 +24,13 @@ const DESC: Record<TopicId, MessageKey> = {
   'ukraine-minerals': 'home.topicMineralsDesc',
   'ukraine-zones': 'home.topicZonesDesc',
   'ukraine-admin-centres': 'home.topicCentresDesc',
+  'world-economy-countries': 'home.topicWorldEconomyCountriesDesc',
+  'world-fuel-basins': 'home.topicWorldFuelBasinsDesc',
+  'ukraine-energy': 'home.topicUkraineEnergyDesc',
+  'ukraine-metallurgy': 'home.topicUkraineMetallurgyDesc',
+  'ukraine-machinery': 'home.topicUkraineMachineryDesc',
+  'ukraine-transport': 'home.topicUkraineTransportDesc',
+  'ukraine-resorts': 'home.topicUkraineResortsDesc',
   'test-mixed': 'home.topicMixedDesc',
 };
 

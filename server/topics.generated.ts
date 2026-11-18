@@ -286,6 +286,80 @@ export const TOPIC_FEATURES: Record<string, Record<string, readonly string[]>> =
       "UA-77"
     ]
   },
+  "ukraine-energy": {
+    "2026.11.18.1": [
+      "burshtynihoe",
+      "delikoolaj",
+      "delukrajnaiae",
+      "dnyeperive",
+      "dnyepermellekihoe",
+      "dnyeszterive",
+      "donyecimedence",
+      "hmelnickijiae",
+      "keletikoolaj",
+      "ladizsinihoe",
+      "lvivvolinyimedence",
+      "nyugatikoolaj",
+      "rivneiae",
+      "szlovjanszkihoe",
+      "tasliki",
+      "tripilljaihoe",
+      "zaporizzsjaiae",
+      "zaporizzsjaihoe",
+      "zmijivihoe"
+    ]
+  },
+  "ukraine-machinery": {
+    "2026.11.18.1": [
+      "bergyicsiv",
+      "cserkaszi",
+      "csernyihiv",
+      "dnyipro",
+      "donyeck",
+      "feodoszija",
+      "harkiv",
+      "herszon",
+      "hmelnickij",
+      "izmajil",
+      "kamjanszke",
+      "kercs",
+      "kijev",
+      "kramatorszk",
+      "kremencsuk",
+      "krivijrih",
+      "luck",
+      "lviv",
+      "mariupol",
+      "melitopol",
+      "mikolajiv",
+      "perejaszlav",
+      "proliszki",
+      "salamon",
+      "szumi",
+      "zaporizzsja"
+    ]
+  },
+  "ukraine-metallurgy": {
+    "2026.11.18.1": [
+      "alcsevszk",
+      "bilozerszkeivasercvidek",
+      "dnyipro",
+      "donyeck",
+      "harcizk",
+      "jenakijeve",
+      "kamjanszke",
+      "kremencsukivasercvidek",
+      "krivbasz",
+      "krivijrih",
+      "makijivka",
+      "mariupol",
+      "novomoszkovszk",
+      "nyikopol",
+      "nyikopolimangan",
+      "velikijtokmak",
+      "zaporizzsja"
+    ]
+  },
   "ukraine-minerals": {
     "2026.11.18.1": [
       "delikoolaj",
@@ -345,6 +419,29 @@ export const TOPIC_FEATURES: Record<string, Record<string, readonly string[]>> =
       "volinyihatsag"
     ]
   },
+  "ukraine-resorts": {
+    "2026.11.18.1": [
+      "alusta",
+      "bergyanszk",
+      "feodoszija",
+      "hmilnik",
+      "jalta",
+      "jaremcse",
+      "jevpatorija",
+      "kekesfured",
+      "mirhorod",
+      "morsin",
+      "odessza",
+      "poljana",
+      "sajan",
+      "szaki",
+      "szhidnicja",
+      "szudak",
+      "tiszaborkut",
+      "truszkavec",
+      "vorohta"
+    ]
+  },
   "ukraine-tectonics": {
     "2026.11.09.1": [
       "TU-01",
@@ -358,6 +455,32 @@ export const TOPIC_FEATURES: Record<string, Record<string, readonly string[]>> =
       "TU-09",
       "TU-10",
       "TU-11"
+    ]
+  },
+  "ukraine-transport": {
+    "2026.11.18.1": [
+      "csap",
+      "csornomorszk",
+      "dnyipro",
+      "druzsba",
+      "fasztyiv",
+      "harkiv",
+      "herszon",
+      "kijev",
+      "kovel",
+      "kozjatin",
+      "lviv",
+      "mariupol",
+      "mikolajiv",
+      "odessza",
+      "odesszabrodi",
+      "pivdennij",
+      "sepetyivka",
+      "szmila",
+      "szojuz",
+      "urengoj",
+      "znamjanka",
+      "zsmerinka"
     ]
   },
   "ukraine-zones": {
@@ -383,6 +506,50 @@ export const TOPIC_FEATURES: Record<string, Record<string, readonly string[]>> =
       "O-IN",
       "O-PA",
       "O-SO"
+    ]
+  },
+  "world-economy-countries": {
+    "2026.11.18.1": [
+      "argentina",
+      "ausztralia",
+      "brazilia",
+      "delafrika",
+      "delkorea",
+      "egyesultkiralysag",
+      "franciaorszag",
+      "india",
+      "indonezia",
+      "japan",
+      "kanada",
+      "kazahsztan",
+      "kina",
+      "mexiko",
+      "nemetorszag",
+      "olaszorszag",
+      "oroszorszag",
+      "szaudarabia",
+      "torokorszag",
+      "usa"
+    ]
+  },
+  "world-fuel-basins": {
+    "2026.11.18.1": [
+      "appalache",
+      "delkeletausztraliai",
+      "eszakitengeri",
+      "eszakkeletkinai",
+      "felsoszileziai",
+      "guineaiobol",
+      "karagandai",
+      "keletindiai",
+      "kuznyecki",
+      "mexikoiobol",
+      "nyugatkanadai",
+      "nyugatsziberiai",
+      "perzsaobol",
+      "szaharai",
+      "szunda",
+      "texasi"
     ]
   }
 };

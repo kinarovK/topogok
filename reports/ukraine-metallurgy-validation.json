@@ -1,0 +1,62 @@
+{
+  "topicId": "ukraine-metallurgy",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade9/kohaszat",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "3 layer(s): ercek, hatter, kozpontok"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "17 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (4 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "all points lie on the base map"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "9 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "ercek",
+      "geomTypes": [
+        "area",
+        "point"
+      ],
+      "count": 5,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "kozpontok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 12,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 4,
+    "line": 0,
+    "point": 13
+  },
+  "bytes": {
+    "regions": 4937,
+    "country": 20683,
+    "gzipped": 9434
+  }
+}

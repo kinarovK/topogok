@@ -1,0 +1,53 @@
+{
+  "topicId": "ukraine-machinery",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade9/gepgyartas",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "2 layer(s): hatter, kozpontok"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "26 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (4 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "within 0.5° of the base map: herszon"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "9 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "kozpontok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 26,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 0,
+    "line": 0,
+    "point": 26
+  },
+  "bytes": {
+    "regions": 6151,
+    "country": 20697,
+    "gzipped": 9429
+  }
+}
