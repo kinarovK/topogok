@@ -1,0 +1,77 @@
+{
+  "topicId": "ukraine-relief",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/ukraine8/felszin",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "5 layer(s): alfoldek, csucsok, hatsagok, hatter, hegysegek"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "19 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (4 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "all points lie on the base map"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "17 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "alfoldek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 5,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "csucsok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 5,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "hatsagok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 7,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 12,
+    "line": 2,
+    "point": 5
+  },
+  "bytes": {
+    "regions": 26144,
+    "country": 20680,
+    "gzipped": 17775
+  }
+}

@@ -3,7 +3,7 @@ import { loadTopic, type LocalizedText, type Topic } from './validation.ts';
 
 export type TopicId = 'ukraine-administration' | 'ukraine-tectonics' | 'world-continents'
   | 'continent-africa' | 'continent-antarctica' | 'continent-australia-oceania' | 'continent-eurasia' | 'continent-north-america' | 'continent-south-america'
-  | 'ukraine-position'
+  | 'ukraine-position' | 'ukraine-relief' | 'ukraine-minerals' | 'ukraine-zones'
   | 'test-mixed';
 
 export type TopicEntry = {
@@ -31,6 +31,21 @@ const BASE_TOPICS: readonly TopicEntry[] = [
     id: 'ukraine-position', dataVersion: '2026.11.18.1',
     title: { hu: 'Ukrajna fekvése és határai', uk: 'Географічне положення та кордони України' },
     featureCount: 20, counts: [5, 12, 'all'], partialCoverage: true, grade: 8, mixed: true,
+  },
+  {
+    id: 'ukraine-relief', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ukrajna felszínformái', uk: 'Рельєф України' },
+    featureCount: 19, counts: [5, 12, 'all'], partialCoverage: true, grade: 8, mixed: true,
+  },
+  {
+    id: 'ukraine-minerals', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ukrajna ásványkincsei', uk: 'Корисні копалини України' },
+    featureCount: 8, counts: [5, 'all'], partialCoverage: true, grade: 8, mixed: true,
+  },
+  {
+    id: 'ukraine-zones', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ukrajna természeti övezetei', uk: 'Природні зони України' },
+    featureCount: 6, counts: [5, 'all'], partialCoverage: true, grade: 8, mixed: true,
   },
   {
     id: 'ukraine-tectonics', dataVersion: '2026.11.09.1',
