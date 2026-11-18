@@ -39,6 +39,13 @@
     "topicMineralsDesc": "Вугільні, нафтогазоносні та рудні басейни (чернетка).",
     "topicZonesDesc": "Природні зони та гори (чернетка).",
     "topicCentresDesc": "Області та їхні центри, Київ і Севастополь.",
+    "topicWorldEconomyCountriesDesc": "Країни G20 і Казахстан.",
+    "topicWorldFuelBasinsDesc": "Головні вугільні та нафтогазоносні басейни світу (чернетка).",
+    "topicUkraineEnergyDesc": "Паливні ресурси, ТЕС, АЕС і ГЕС.",
+    "topicUkraineMetallurgyDesc": "Металургійні центри та рудна база.",
+    "topicUkraineMachineryDesc": "Центри машинобудування.",
+    "topicUkraineTransportDesc": "Транспортні вузли, порти та трубопроводи.",
+    "topicUkraineResortsDesc": "Курорти від Карпат до Криму.",
     "topicMixedDesc": "Лише для тестів: території, річки й точки на одній карті.",
     "topicCountMixed": "{count} елементів для запитань"
   },

@@ -4,6 +4,7 @@ import { loadTopic, type LocalizedText, type Topic } from './validation.ts';
 export type TopicId = 'ukraine-administration' | 'ukraine-tectonics' | 'world-continents'
   | 'continent-africa' | 'continent-antarctica' | 'continent-australia-oceania' | 'continent-eurasia' | 'continent-north-america' | 'continent-south-america'
   | 'ukraine-position' | 'ukraine-relief' | 'ukraine-minerals' | 'ukraine-zones' | 'ukraine-admin-centres'
+  | 'world-economy-countries' | 'world-fuel-basins' | 'ukraine-energy' | 'ukraine-metallurgy' | 'ukraine-machinery' | 'ukraine-transport' | 'ukraine-resorts'
   | 'test-mixed';
 
 export type TopicEntry = {
@@ -51,6 +52,41 @@ const BASE_TOPICS: readonly TopicEntry[] = [
     id: 'ukraine-admin-centres', dataVersion: '2026.11.18.1',
     title: { hu: 'Ukrajna megyéi és megyeközpontjai', uk: 'Області та обласні центри України' },
     featureCount: 53, counts: [5, 12, 'all'], partialCoverage: false, grade: 8, mixed: true,
+  },
+  {
+    id: 'world-economy-countries', dataVersion: '2026.11.18.1',
+    title: { hu: 'A világgazdaság országai', uk: 'Країни у світовому господарстві' },
+    featureCount: 20, counts: [5, 12, 'all'], partialCoverage: true, grade: 9, mixed: true,
+  },
+  {
+    id: 'world-fuel-basins', dataVersion: '2026.11.18.1',
+    title: { hu: 'A világ szén-, kőolaj- és földgázmedencéi', uk: 'Вугільні та нафтогазоносні басейни світу' },
+    featureCount: 16, counts: [5, 12, 'all'], partialCoverage: true, grade: 9, mixed: true,
+  },
+  {
+    id: 'ukraine-energy', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ukrajna energetikája', uk: 'Енергетика України' },
+    featureCount: 19, counts: [5, 12, 'all'], partialCoverage: true, grade: 9, mixed: true,
+  },
+  {
+    id: 'ukraine-metallurgy', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ukrajna kohászata', uk: 'Металургія України' },
+    featureCount: 17, counts: [5, 12, 'all'], partialCoverage: true, grade: 9, mixed: true,
+  },
+  {
+    id: 'ukraine-machinery', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ukrajna gépgyártása', uk: 'Машинобудування України' },
+    featureCount: 26, counts: [5, 12, 'all'], partialCoverage: true, grade: 9, mixed: true,
+  },
+  {
+    id: 'ukraine-transport', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ukrajna közlekedése', uk: 'Транспорт України' },
+    featureCount: 22, counts: [5, 12, 'all'], partialCoverage: true, grade: 9, mixed: true,
+  },
+  {
+    id: 'ukraine-resorts', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ukrajna üdülő- és gyógyhelyei', uk: 'Курорти України' },
+    featureCount: 19, counts: [5, 12, 'all'], partialCoverage: true, grade: 9, mixed: true,
   },
   {
     id: 'ukraine-tectonics', dataVersion: '2026.11.09.1',

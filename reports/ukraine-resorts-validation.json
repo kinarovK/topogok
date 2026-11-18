@@ -1,0 +1,53 @@
+{
+  "topicId": "ukraine-resorts",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade9/udulohelyek",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "2 layer(s): hatter, udulohelyek"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "19 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (4 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "all points lie on the base map"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "9 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "udulohelyek",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 19,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 0,
+    "line": 0,
+    "point": 19
+  },
+  "bytes": {
+    "regions": 4503,
+    "country": 20693,
+    "gzipped": 9171
+  }
+}

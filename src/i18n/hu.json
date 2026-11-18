@@ -39,6 +39,13 @@
     "topicMineralsDesc": "Szén-, kőolaj- és földgáz-, valamint ércmedencék (vázlat).",
     "topicZonesDesc": "Természeti övezetek és a hegyvidékek (vázlat).",
     "topicCentresDesc": "A megyék és központjaik, Kijev és Szevasztopol.",
+    "topicWorldEconomyCountriesDesc": "A G20 országai és Kazahsztán.",
+    "topicWorldFuelBasinsDesc": "A világ fő szén-, kőolaj- és földgázmedencéi (vázlat).",
+    "topicUkraineEnergyDesc": "Energiahordozók, hő-, atom- és vízerőművek.",
+    "topicUkraineMetallurgyDesc": "Kohászati központok és az ércbázis.",
+    "topicUkraineMachineryDesc": "A gépgyártás központjai.",
+    "topicUkraineTransportDesc": "Csomópontok, kikötők és csővezetékek.",
+    "topicUkraineResortsDesc": "Üdülő- és gyógyhelyek a Kárpátoktól a Krímig.",
     "topicMixedDesc": "Csak tesztekhez: területek, folyók és pontok egy térképen.",
     "topicCountMixed": "{count} kérdezhető elem"
   },
