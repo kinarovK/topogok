@@ -1,0 +1,61 @@
+{
+  "topicId": "ukraine-admin-centres",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/ukraine8/kozigazgatas",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "3 layer(s): hatter, kozpontok, megyek"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "53 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (4 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "within 0.5° of the base map: herszon, szevasztopol"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "38 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "kozpontok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 26,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "megyek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 27,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 27,
+    "line": 0,
+    "point": 26
+  },
+  "bytes": {
+    "regions": 94459,
+    "country": 20728,
+    "gzipped": 39063
+  }
+}

@@ -16,6 +16,8 @@ const LAYER_TITLES: Record<string, LocalizedText> = {
   koolajfoldgaz: { hu: 'Kőolaj- és földgázvidékek', uk: 'Нафтогазоносні регіони' },
   ercek: { hu: 'Ércmedencék', uk: 'Рудні басейни' },
   ovezetek: { hu: 'Természeti övezetek', uk: 'Природні зони' },
+  megyek: { hu: 'Megyék', uk: 'Області' },
+  kozpontok: { hu: 'Megyeközpontok', uk: 'Обласні центри' },
 };
 const provenance: TopicConfig['provenance'] = { source: 'Natural Earth 1:10m (public domain), hand-placed points and ridge lines', sourceUrl: 'https://www.naturalearthdata.com/', license: 'Public domain', licenseUrl: 'https://www.naturalearthdata.com/about/terms-of-use/', status: 'unverified' };
 
@@ -47,6 +49,12 @@ const topics: TopicConfig[] = [
     title: { hu: 'Ukrajna természeti övezetei', uk: 'Природні зони України' },
     source: 'sources/ukraine8/ovezetek', projection: { name: 'laea', center: [31, 48.5] },
     layerTitles: LAYER_TITLES, provenance: DRAFT,
+  },
+  {
+    id: 'ukraine-admin-centres', dataVersion: DATA_VERSION,
+    title: { hu: 'Ukrajna megyéi és megyeközpontjai', uk: 'Області та обласні центри України' },
+    source: 'sources/ukraine8/kozigazgatas', projection: { name: 'laea', center: [31, 48.5] },
+    layerTitles: LAYER_TITLES, provenance,
   },
 ];
 export default topics;

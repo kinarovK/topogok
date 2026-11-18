@@ -3,7 +3,7 @@ import { loadTopic, type LocalizedText, type Topic } from './validation.ts';
 
 export type TopicId = 'ukraine-administration' | 'ukraine-tectonics' | 'world-continents'
   | 'continent-africa' | 'continent-antarctica' | 'continent-australia-oceania' | 'continent-eurasia' | 'continent-north-america' | 'continent-south-america'
-  | 'ukraine-position' | 'ukraine-relief' | 'ukraine-minerals' | 'ukraine-zones'
+  | 'ukraine-position' | 'ukraine-relief' | 'ukraine-minerals' | 'ukraine-zones' | 'ukraine-admin-centres'
   | 'test-mixed';
 
 export type TopicEntry = {
@@ -46,6 +46,11 @@ const BASE_TOPICS: readonly TopicEntry[] = [
     id: 'ukraine-zones', dataVersion: '2026.11.18.1',
     title: { hu: 'Ukrajna természeti övezetei', uk: 'Природні зони України' },
     featureCount: 6, counts: [5, 'all'], partialCoverage: true, grade: 8, mixed: true,
+  },
+  {
+    id: 'ukraine-admin-centres', dataVersion: '2026.11.18.1',
+    title: { hu: 'Ukrajna megyéi és megyeközpontjai', uk: 'Області та обласні центри України' },
+    featureCount: 53, counts: [5, 12, 'all'], partialCoverage: false, grade: 8, mixed: true,
   },
   {
     id: 'ukraine-tectonics', dataVersion: '2026.11.09.1',
