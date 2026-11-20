@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import type { Page } from '@playwright/test';
-import { clickNext, confirmBtn, currentTargetId, E2E, expect, mapReady, otherId, selectRegion, start, test } from './helpers.ts';
+import { clickNext, confirmBtn, currentTargetId, E2E, expect, mapReady, otherId, selectRegion, start, test, topicCard } from './helpers.ts';
 
 const OUT = 'reports/screenshots';
 mkdirSync(OUT, { recursive: true });
@@ -123,7 +123,7 @@ for (const sz of sizes) {
 test('explore + help screenshots; no About page', async ({ page }) => {
   await prefs(page, 'hu', 'light');
   await page.goto(E2E);
-  await page.locator('[data-topic="ukraine-administration"]').click();
+  await (await topicCard(page, 'ukraine-administration')).click();
   await page.getByRole('button', { name: 'Térkép felfedezése' }).click();
   await mapReady(page, 'explore');
   await page.waitForTimeout(300);
@@ -150,7 +150,7 @@ test('tectonics screenshots hu-light and uk-dark', async ({ page }) => {
     await page.evaluate(() => window.scrollTo(0, 0));
     await shot(page, `tectonics-${locale}-${theme}-practice-wrong`);
     await page.goto(E2E);
-    await page.locator('[data-topic="ukraine-tectonics"]').click();
+    await (await topicCard(page, 'ukraine-tectonics')).click();
     await page.getByRole('button', { name: /Térkép felfedezése|Ознайомлення з картою/ }).click();
     await mapReady(page, 'explore');
     await page.waitForTimeout(300);
@@ -173,7 +173,7 @@ test('continents screenshots: desktop hu-light practice + uk-dark explore, phone
     await page.setViewportSize(vp);
     await prefs(page, locale, theme);
     await page.goto(E2E);
-    await page.locator('[data-topic="world-continents"]').click();
+    await (await topicCard(page, 'world-continents')).click();
     await page.getByRole('button', { name: /Térkép felfedezése|Ознайомлення з картою/ }).click();
     await mapReady(page, 'explore');
     await page.waitForTimeout(300);

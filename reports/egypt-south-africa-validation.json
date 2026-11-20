@@ -1,0 +1,77 @@
+{
+  "topicId": "egypt-south-africa",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade10/egyiptomdaf",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "5 layer(s): csatornak, folyok, hatter, orszagok, varosok"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "14 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (54 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "all points lie on the base map"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "30 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "csatornak",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "folyok",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "orszagok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "varosok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 10,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 2,
+    "line": 2,
+    "point": 10
+  },
+  "bytes": {
+    "regions": 23559,
+    "country": 51012,
+    "gzipped": 30300
+  }
+}

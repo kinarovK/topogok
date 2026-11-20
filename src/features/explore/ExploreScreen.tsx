@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSettings } from '../../app/settings.tsx';
 import { Button } from '../../components/ui.tsx';
 import type { Topic } from '../../data/validation.ts';
-import { regionLabelPoint } from '../../map/labelPoint.ts';
+import { geometryBounds, regionLabelPoint } from '../../map/labelPoint.ts';
 import { padBounds, type Feedback } from '../../map/mapAdapter.ts';
 import { MapView, type MapLabel } from '../../map/MapView.tsx';
 import { topicEntry } from '../../data/topicRegistry.ts';
@@ -19,15 +19,13 @@ export function ExploreScreen({ topic, onBack, onRenderError }: { topic: Topic; 
   // Priority: the two cities first, then larger units (bbox size) before smaller ones.
   const order = useMemo(() => {
     const size = (b: number[]) => (b[2]! - b[0]!) * (b[3]! - b[1]!);
-    const bbox = (r: Topic['regions'][number]) => {
-      const rings = r.geometry.type === 'Polygon' ? [r.geometry.coordinates[0]!] : r.geometry.coordinates.map((p) => p[0]!);
-      const xs = rings.flat().map((p) => p[0]); const ys = rings.flat().map((p) => p[1]);
-      return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
-    };
-    return [...topic.regions].sort((a, b) => (a.properties.kind === 'city' ? -1 : 0) - (b.properties.kind === 'city' ? -1 : 0) || size(bbox(b)) - size(bbox(a)));
+    const bbox = (r: Topic['regions'][number]) => geometryBounds(r.geometry);
+    // Points and lines are small targets: their names come before area names.
+    const rank = (r: Topic['regions'][number]) => (r.properties.kind === 'city' || r.properties.geomType === 'point' ? 0 : r.properties.geomType === 'line' ? 1 : 2);
+    return [...topic.regions].sort((a, b) => rank(a) - rank(b) || size(bbox(b)) - size(bbox(a)));
   }, [topic]);
   const labels: MapLabel[] | null = useMemo(
-    () => (showLabels ? order.map((r) => ({ id: r.id, text: r.properties.names[locale], point: points.get(r.id)!, ...(r.properties.labelMinZoom ? { minZoom: r.properties.labelMinZoom[locale] } : {}), ...(r.properties.labelWidth ? { maxWidth: r.properties.labelWidth[locale] } : {}) })) : null),
+    () => (showLabels ? order.map((r) => ({ id: r.id, text: r.properties.names[locale], point: points.get(r.id)!, ...(r.properties.geomType === 'point' ? { offsetY: -16 } : {}), ...(r.properties.labelMinZoom ? { minZoom: r.properties.labelMinZoom[locale] } : {}), ...(r.properties.labelWidth ? { maxWidth: r.properties.labelWidth[locale] } : {}) })) : null),
     [showLabels, order, locale, points],
   );
   const maxBounds = useMemo(() => padBounds(topic.manifest.bounds, 0.6), [topic]);
@@ -36,7 +34,7 @@ export function ExploreScreen({ topic, onBack, onRenderError }: { topic: Topic; 
     <div className={s.exploreLayout}>
       <h1>{t('explore.title')}</h1>
       <p className={s.topicLine}>{topic.manifest.title[locale]}</p>
-      <p className={s.note}>{t('explore.hint')}{topicEntry(topic.manifest.id).partialCoverage ? ` ${t('game.greyHint')}` : ''}</p>
+      <p className={s.note}>{t(topic.manifest.geometryKind === 'mixed' ? 'explore.hintMixed' : 'explore.hint')}{topicEntry(topic.manifest.id).partialCoverage ? ` ${t('game.greyHint')}` : ''}</p>
       <label className={s.toggle}>
         <input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} />
         <span>{t('explore.labels')}</span>
@@ -46,7 +44,7 @@ export function ExploreScreen({ topic, onBack, onRenderError }: { topic: Topic; 
           selection={selected} feedback={NO_FEEDBACK} onSelect={setSelected} onError={onRenderError} labels={labels} />
       </div>
       <p className={s.feedback} aria-live="polite" data-testid="explore-selected">
-        {selectedName ? t('explore.selectedName', { name: selectedName }) : t('explore.hint')}
+        {selectedName ? t('explore.selectedName', { name: selectedName }) : t(topic.manifest.geometryKind === 'mixed' ? 'explore.hintMixed' : 'explore.hint')}
       </p>
       <div className={s.actions}>
         <Button onClick={onBack}>{t('common.back')}</Button>

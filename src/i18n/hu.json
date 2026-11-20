@@ -26,11 +26,40 @@
     "explore": "Térkép felfedezése",
     "help": "Súgó",
     "chooseTopic": "Válassz témát",
+    "grade": "{grade}. osztály",
+    "gradeTopics": "Témák: {count}",
     "topicCount": "{count} kérdezhető egység",
     "topicAdminDesc": "24 terület, a Krími Autonóm Köztársaság, Kijev és Szevasztopol.",
     "topicTectonicsDesc": "Ukrajna 11 tektonikai szerkezeti egysége.",
     "topicWorldDesc": "A hat kontinens és az öt óceán a világtérképen.",
-    "chooseMode": "Mit szeretnél csinálni?"
+    "chooseMode": "Mit szeretnél csinálni?",
+    "topicContinentDesc": "A kontinens tájai, vizei, vonalai és pontjai a kontinens saját térképén.",
+    "topicPositionDesc": "Szomszéd országok, tengerek, hegységek, szélső pontok és a földrajzi középpont.",
+    "topicReliefDesc": "Alföldek, hátságok, hegységek és csúcsok (vázlat).",
+    "topicMineralsDesc": "Szén-, kőolaj- és földgáz-, valamint ércmedencék (vázlat).",
+    "topicZonesDesc": "Természeti övezetek és a hegyvidékek (vázlat).",
+    "topicCentresDesc": "A megyék és központjaik, Kijev és Szevasztopol.",
+    "topicWorldEconomyCountriesDesc": "A G20 országai és Kazahsztán.",
+    "topicWorldFuelBasinsDesc": "A világ fő szén-, kőolaj- és földgázmedencéi (vázlat).",
+    "topicUkraineEnergyDesc": "Energiahordozók, hő-, atom- és vízerőművek.",
+    "topicUkraineMetallurgyDesc": "Kohászati központok és az ércbázis.",
+    "topicUkraineMachineryDesc": "A gépgyártás központjai.",
+    "topicUkraineTransportDesc": "Csomópontok, kikötők és csővezetékek.",
+    "topicUkraineResortsDesc": "Üdülő- és gyógyhelyek a Kárpátoktól a Krímig.",
+    "topicEuropeCountriesDesc": "A tankönyv négy európai régiója szerint.",
+    "topicAsiaCountriesDesc": "Kelet-, Délkelet-, Dél-, Közép- és Nyugat-Ázsia országai.",
+    "topicAmericaCountriesDesc": "Fő országok és további példák.",
+    "topicOceaniaCountriesDesc": "Ausztrália városai és Óceánia államai.",
+    "topicAfricaEconomyDesc": "Nyersanyagországok, központok, kikötők.",
+    "topicWesternEuropeG7Desc": "Az európai országfejezetek fő városai és folyói.",
+    "topicRussiaDesc": "Fő városok, térségek és nyersanyagvidékek.",
+    "topicEastAsiaDesc": "Fő városok és folyók.",
+    "topicIndiaDesc": "Fő városok.",
+    "topicUsaCanadaDesc": "Fő városok és gazdasági térségek.",
+    "topicBrazilDesc": "Fő városok.",
+    "topicEgyptSouthAfricaDesc": "Fő városok, a Nílus és a Szuezi-csatorna.",
+    "topicMixedDesc": "Csak tesztekhez: területek, folyók és pontok egy térképen.",
+    "topicCountMixed": "{count} kérdezhető elem"
   },
   "setup": {
     "titleAssessment": "Számonkérés beállítása",
@@ -71,7 +100,9 @@
     "restartAnyway": "Új kör",
     "exitAnyway": "Kilépés",
     "loadingMap": "Térkép betöltése…",
-    "greyHint": "A szürke területek nem tartoznak a kérdezett egységekhez."
+    "greyHint": "A szürke területek nem tartoznak a kérdezett egységekhez.",
+    "noSelectionMixed": "Válassz egy elemet a térképen.",
+    "alreadyTriedMixed": "Ezt az elemet már kipróbáltad ennél a kérdésnél."
   },
   "practice": {
     "correct": "Helyes!",
@@ -110,7 +141,8 @@
     "title": "Térkép felfedezése",
     "labels": "Nevek megjelenítése",
     "hint": "Koppints vagy kattints egy területre, hogy lásd a nevét.",
-    "selectedName": "Kiválasztva: {name}"
+    "selectedName": "Kiválasztva: {name}",
+    "hintMixed": "Koppints vagy kattints egy elemre (terület, folyó, pont), hogy lásd a nevét."
   },
   "help": {
     "title": "Súgó",
@@ -233,11 +265,13 @@
       "invalid_reason": "Adj meg indoklást (legalább 3 karakter).",
       "nothing_enabled": "Legalább egy elemet hagyj bekapcsolva.",
       "unknown_feature": "Ismeretlen elem.",
-      "settings_conflict": "Közben máshol módosították a beállítást."
+      "settings_conflict": "Közben máshol módosították a beállítást.",
+      "invalid_setting": "Az érték a megengedett tartományon kívül esik."
     },
     "results": "Eredmények",
     "topics": "Témák",
-    "leaderboard": "Toplista"
+    "leaderboard": "Toplista",
+    "settings": "Beállítások"
   },
   "save": {
     "pending": "Mentés függőben… (a kapcsolat helyreálltakor automatikusan elküldjük)",
@@ -345,5 +379,12 @@
     "blur": "Nem aktív ablak",
     "offline": "Nincs kapcsolat",
     "interval": "{from} – {to}"
+  },
+  "appSettings": {
+    "tapTitle": "Kattintási puffer (folyók, pontok)",
+    "tapHint": "Ennyi képernyő-képponton belül számít találatnak a koppintás vagy kattintás egy folyó vagy pont közelében. Távolabb a terület jelölődik ki. A változás minden felhasználónál a következő betöltéskor érvényes.",
+    "touch": "Érintőképernyő ({min}–{max} px)",
+    "mouse": "Egér ({min}–{max} px)",
+    "defaults": "Alapértékek"
   }
 }

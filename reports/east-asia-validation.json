@@ -1,0 +1,69 @@
+{
+  "topicId": "east-asia",
+  "dataVersion": "2026.11.18.1",
+  "node": "v22.23.4",
+  "source": "sources/grade10/keletazsia",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "4 layer(s): folyok, hatter, orszagok, varosok"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "21 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"hatter\" (50 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "within 0.5° of the base map: hongkong"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "48 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "folyok",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "orszagok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 3,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "varosok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 16,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 3,
+    "line": 2,
+    "point": 16
+  },
+  "bytes": {
+    "regions": 86304,
+    "country": 35006,
+    "gzipped": 49281
+  }
+}

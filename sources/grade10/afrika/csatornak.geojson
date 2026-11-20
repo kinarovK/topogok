@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"id":"szuezicsatorna","name_hu":"Szuezi-csatorna","name_uk":"Суецький канал"},"geometry":{"type":"LineString","coordinates":[[32.3,31.25],[32.32,30.6],[32.34,30.3],[32.56,29.95]]}}]}

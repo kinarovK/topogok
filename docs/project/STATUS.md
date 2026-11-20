@@ -1,19 +1,20 @@
 # Projektállapot
 
-Frissítve: 2026-11-13.
+Frissítve: 2026-11-16.
 
 ## Aktív tervezés: online és tanári platform
 
 - [0003 specifikáció](tasks/0003_ONLINE_PLATFORM/task.md) és [döntési napló](tasks/0003_ONLINE_PLATFORM/DECISIONS.md): elkészült jóváhagyásra, hat külön fázisspecifikációval.
 - Fázisok: F1 hosting; F2 fiókok/osztályok; F3 próbálkozások/tanári panel; F4 tanári elemkészletek; F5 teljes térképes toplista/rekord; F6 oldalelhagyási jelzések.
 - A specifikáció a `main`-ben van (PR #1, tulajdonosi jóváhagyással).
+- **0005 – vegyes elemtípusok:** terület, folyó és pont egy témában, kattintási pufferrel (a szuperadmin állítja), konvenció alapú SHP/GeoJSON/GeoPackage betöltés. Megvalósítva a `staging` ágon, PR-jóváhagyásra vár: [task.md](tasks/0005_MIXED_GEOMETRY/task.md).
 - **F4–F6 (egy ciklusban, a `staging` ágon, egy PR-ral a `main`-be):**
   - [F4](tasks/0003_ONLINE_PLATFORM/phases/F4_DESIGN.md): tanári elemkészletek;
   - [F4.5](tasks/0003_ONLINE_PLATFORM/phases/F45_SIMPLE_START.md): azonnali gyakorlás, időkorlát nélküli számonkérés;
   - [F5](tasks/0003_ONLINE_PLATFORM/phases/F5_DESIGN.md): toplista és rekord;
   - [F6](tasks/0003_ONLINE_PLATFORM/phases/F6_DESIGN.md): oldalelhagyási jelzések és tanári felülvizsgálat.
 
-  Megvalósítva és tesztelve, PR-jóváhagyásra vár. Nyitott: valódi eszközös próba (F6-09), visszaállítási próba (F3-12).
+  Kiadva (PR #11). Nyitott: valódi eszközös próba (F6-09), visszaállítási próba (F3-12).
 - **F3 (körök mentése, tanári eredmények):** kiadva (PR #9). Körönként két kérés (indítás, lezárás), a szerver a játékszabályok kódjával újrajátssza a kört; tanári „Eredmények” fül. Részletek: [F3_DESIGN](tasks/0003_ONLINE_PLATFORM/phases/F3_DESIGN.md) 11.
 - **F2 (fiókok és jogosultságok):** kiadva. Cloudflare D1 (külön éles és preview adatbázis), belépés, tanári és szuperadmin felület, napló, helyreállítás, heti mentés. Részletek: [F2_DESIGN](tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN.md) 13a.
 - **F1 (online vendégkiadás): kiadva 2026-11-11.** Éles: https://topogok.pages.dev (`main`). Minden más ág a saját `<ág>.topogok.pages.dev` preview-címére kerül. Tartalma: Névjegy oldal törölve, buildazonosító a Súgóban és a `version.json`-ban, GitHub Actions kapuk, Cloudflare Pages deploy, HTTP-smoke az éles címen, A→B→recovery E2E. Részletek: [F1_RELEASE](tasks/0003_ONLINE_PLATFORM/phases/F1_RELEASE.md). Nyitott: a tankönyv felhasználási engedélye, rövid telefonos ellenőrzés az éles címen.

@@ -1,0 +1,90 @@
+{
+  "topicId": "continent-south-america",
+  "dataVersion": "2026.11.17.4",
+  "node": "v22.23.4",
+  "source": "sources/continents/foldrajz_07_osztaly.gpkg",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "5 layer(s): hegysegek, pontok, tengerek, teruletek, vonalak"
+    },
+    {
+      "id": "coast",
+      "status": "pass",
+      "detail": "C-SA cut from shp/ne_10m_land.shp: 282 polygon(s)"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "26 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"coast C-SA\" (282 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "warn",
+      "detail": "off the coarse base map, within 3° of land (drawn anyway): hornfok"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "260 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "pontok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 8,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "tengerek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "teruletek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 12,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "vonalak",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 4,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 13,
+    "line": 5,
+    "point": 8
+  },
+  "bytes": {
+    "regions": 248750,
+    "country": 481668,
+    "gzipped": 266749
+  }
+}

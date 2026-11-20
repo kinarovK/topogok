@@ -1,0 +1,82 @@
+{
+  "topicId": "continent-australia-oceania",
+  "dataVersion": "2026.11.17.4",
+  "node": "v22.23.4",
+  "source": "sources/continents/foldrajz_07_osztaly.gpkg",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "4 layer(s): hegysegek, pontok, tengerek, teruletek"
+    },
+    {
+      "id": "coast",
+      "status": "pass",
+      "detail": "C-AU cut from shp/ne_50m_land.shp: 137 polygon(s)"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "17 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"coast C-AU\" (137 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "within 0.5° of the base map: yorkfok, steeppoint, byronfok"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "88 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "pontok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 5,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "tengerek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "teruletek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 9,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 11,
+    "line": 1,
+    "point": 5
+  },
+  "bytes": {
+    "regions": 112363,
+    "country": 114588,
+    "gzipped": 89632
+  }
+}

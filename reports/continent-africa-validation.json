@@ -1,0 +1,90 @@
+{
+  "topicId": "continent-africa",
+  "dataVersion": "2026.11.17.4",
+  "node": "v22.23.4",
+  "source": "sources/continents/foldrajz_07_osztaly.gpkg",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "5 layer(s): hegysegek, pontok, tengerek, teruletek, vonalak"
+    },
+    {
+      "id": "coast",
+      "status": "pass",
+      "detail": "C-AF cut from shp/ne_50m_land.shp: 40 polygon(s)"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "28 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"coast C-AF\" (40 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "within 0.5° of the base map: rasangela, tufok, almadifok, rashafun"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "133 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "pontok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 6,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "tengerek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "teruletek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 11,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "vonalak",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 7,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 13,
+    "line": 9,
+    "point": 6
+  },
+  "bytes": {
+    "regions": 261051,
+    "country": 83326,
+    "gzipped": 135723
+  }
+}

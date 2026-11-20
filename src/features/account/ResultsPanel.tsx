@@ -1,4 +1,5 @@
 // Teacher results (F3): per-student summary and the list of rounds. One request per refresh, at most every 10 s.
+import { TopicOptions } from '../../components/TopicOptions.tsx';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { api, ApiFailure, type ClassItem, type Report, type ReportAttempt, type ReportFilters, type ReportSummary, type Student } from '../../account/api.ts';
 import { useSettings } from '../../app/settings.tsx';
@@ -81,7 +82,7 @@ export function ResultsPanel({ scope }: { scope: string | null }) {
         <Field label={t('report.topic')}>
           <select value={f.topicId} onChange={set('topicId')}>
             <option value="">{t('report.allTopics')}</option>
-            {TOPICS.map((x) => <option key={x.id} value={x.id}>{x.title[locale]}</option>)}
+            <TopicOptions />
           </select>
         </Field>
         <Field label={t('report.mode')}>

@@ -1,4 +1,5 @@
 // F4: the teacher picks, per topic, which features students may be asked about.
+import { TopicOptions } from '../../components/TopicOptions.tsx';
 import { useEffect, useState } from 'react';
 import { api, ApiFailure, type TopicSetting } from '../../account/api.ts';
 import { useSettings } from '../../app/settings.tsx';
@@ -44,6 +45,15 @@ export function TopicsPanel({ scope }: { scope: string | null }) {
   const total = regions.length;
   const enabled = total - off.size;
   const changed = [...off].sort().join('|') !== storedKey;
+  const layerGroups = topic.manifest.groups ?? [];
+  const groups = layerGroups.length > 1
+    ? layerGroups.map((g) => ({ id: g.id, title: g.title, items: regions.filter((r) => r.properties.layer === g.id) }))
+    : [{ id: null, title: null, items: regions }];
+  const setGroup = (items: typeof regions, disable: boolean) => setOff((cur) => {
+    const n = new Set(cur);
+    for (const r of items) { if (disable) n.add(r.id); else n.delete(r.id); }
+    return n;
+  });
   const toggle = (id: string) => setOff((cur) => { const n = new Set(cur); if (n.has(id)) n.delete(id); else n.add(id); return n; });
 
   const save = () => {
@@ -66,23 +76,35 @@ export function TopicsPanel({ scope }: { scope: string | null }) {
       <div className={s.toolbar}>
         <Field label={t('report.topic')}>
           <select value={topicId} onChange={(e) => { setTopicId(e.target.value as TopicId); setMessage(null); }}>
-            {TOPICS.map((x) => <option key={x.id} value={x.id}>{x.title[locale]}</option>)}
+            <TopicOptions />
           </select>
         </Field>
         <Button onClick={() => setOff(new Set())}>{t('topics.all')}</Button>
         <Button onClick={() => setOff(new Set(regions.map((r) => r.id)))}>{t('topics.none')}</Button>
       </div>
       <p className={s.meta} data-testid="topics-count" aria-live="polite">{t('topics.selected', { count: enabled, total })}</p>
-      <ul className={s.checklist}>
-        {regions.map((r) => (
-          <li key={r.id}>
-            <label>
-              <input type="checkbox" checked={!off.has(r.id)} onChange={() => toggle(r.id)} data-feature={r.id} />
-              <span>{r.properties.names[locale]}</span>
-            </label>
-          </li>
-        ))}
-      </ul>
+      {/* Mixed topics (0005): one group per source layer (e.g. countries, rivers, points), each with all/none. */}
+      {groups.map((g) => (
+        <div key={g.id ?? 'all'} data-group={g.id ?? undefined}>
+          {g.title && (
+            <div className={s.toolbar}>
+              <h3 className={s.groupTitle}>{g.title[locale]}</h3>
+              <Button variant="ghost" onClick={() => setGroup(g.items, false)}>{t('topics.all')}</Button>
+              <Button variant="ghost" onClick={() => setGroup(g.items, true)}>{t('topics.none')}</Button>
+            </div>
+          )}
+          <ul className={s.checklist}>
+            {g.items.map((r) => (
+              <li key={r.id}>
+                <label>
+                  <input type="checkbox" checked={!off.has(r.id)} onChange={() => toggle(r.id)} data-feature={r.id} />
+                  <span>{r.properties.names[locale]}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
       {/* Kept in view while scrolling a long list on a phone. */}
       <div className={s.stickyBar}>
         {enabled === 0 && <p className={s.error}>{t('account.err.nothing_enabled')}</p>}

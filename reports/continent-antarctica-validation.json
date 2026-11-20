@@ -1,0 +1,98 @@
+{
+  "topicId": "continent-antarctica",
+  "dataVersion": "2026.11.17.4",
+  "node": "v22.23.4",
+  "source": "sources/continents/foldrajz_07_osztaly.gpkg",
+  "checks": [
+    {
+      "id": "source",
+      "status": "pass",
+      "detail": "6 layer(s): hegysegek, oceanok, pontok, tengerek, teruletek, vonalak"
+    },
+    {
+      "id": "coast",
+      "status": "pass",
+      "detail": "C-AN cut from shp/ne_50m_land.shp: 107 polygon(s)"
+    },
+    {
+      "id": "features",
+      "status": "pass",
+      "detail": "11 question features"
+    },
+    {
+      "id": "background",
+      "status": "pass",
+      "detail": "base layer \"coast C-AN\" (107 polygon(s))"
+    },
+    {
+      "id": "points-on-map",
+      "status": "pass",
+      "detail": "all points lie on the base map"
+    },
+    {
+      "id": "size",
+      "status": "pass",
+      "detail": "242 KiB gzipped (limit 1465 KiB)"
+    }
+  ],
+  "layers": [
+    {
+      "layer": "hegysegek",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "oceanok",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "pontok",
+      "geomTypes": [
+        "point"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "tengerek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 4,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "teruletek",
+      "geomTypes": [
+        "area"
+      ],
+      "count": 2,
+      "skippedEmpty": 0
+    },
+    {
+      "layer": "vonalak",
+      "geomTypes": [
+        "line"
+      ],
+      "count": 1,
+      "skippedEmpty": 0
+    }
+  ],
+  "totals": {
+    "area": 7,
+    "line": 2,
+    "point": 2
+  },
+  "bytes": {
+    "regions": 454976,
+    "country": 194424,
+    "gzipped": 247556
+  }
+}

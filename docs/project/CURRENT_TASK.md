@@ -1,6 +1,6 @@
 # Aktív feladat
 
-**0005 – Vegyes elemtípusok (terület, folyó, pont) kattintási pufferrel:** terv a [0005_MIXED_GEOMETRY/task.md](tasks/0005_MIXED_GEOMETRY/task.md) fájlban, tulajdonosi jóváhagyásra vár (docs PR).
+**0005 – Vegyes elemtípusok (terület, folyó, pont) kattintási pufferrel:** megvalósítva a `staging` ágon, PR-jóváhagyásra vár ([task.md](tasks/0005_MIXED_GEOMETRY/task.md) 10. pont). Utána az első valódi vegyes téma (pl. Afrika) a tulajdonos adataiból, külön feladatként.
 
 **F4, F4.5, F5, F6:** kiadva (PR #11, 2026-11-14) (tulajdonosi döntés, 2026-11-13, [DECISIONS.md](tasks/0003_ONLINE_PLATFORM/DECISIONS.md)). A specifikált fázisok ezzel elkészültek.
 

@@ -2,7 +2,7 @@
 
 ## Repo és környezet
 
-Projektgyökér: `D:\Work\Suli\Topo`, külön Git-repó. A tágabb `D:\Work\Suli` más iskolai anyagai nem részei. Távoli repó: a tulajdonos privát GitHub-repója, `kinarovK/topogok`. CI: GitHub Actions (`.github/workflows/ci.yml`). Hosting: Cloudflare Pages, Direct Upload. Pages-projekt: `topogok` a tulajdonos fiókjában. Éles: https://topogok.pages.dev, preview: `<ág>.topogok.pages.dev` ([F1_RELEASE](project/tasks/0003_ONLINE_PLATFORM/phases/F1_RELEASE.md)).
+Projektgyökér: `D:\Work\Suli\Topo`, külön Git-repó. A tágabb `D:\Work\Suli` más iskolai anyagai nem részei. Távoli repó: a tulajdonos privát GitHub-repója, `kinarovK/topogok`. CI: GitHub Actions (`.github/workflows/ci.yml`), csak a `main` és a `staging` ágon, dokumentációs változásnál nem fut. Böngészőteszt csak `main`-en (vagy kézi indításnál, `e2e` bepipálva); a funkcióágakat helyben kell tesztelni. Ok: a privát repó ingyenes havi Actions-kerete kevés. Hosting: Cloudflare Pages, Direct Upload. Pages-projekt: `topogok` a tulajdonos fiókjában. Éles: https://topogok.pages.dev, preview: `<ág>.topogok.pages.dev` ([F1_RELEASE](project/tasks/0003_ONLINE_PLATFORM/phases/F1_RELEASE.md)).
 
 A runtime-verziót és csomagverziókat implementációkor rögzíteni kell. Egyetlen npm lockfile; CI-ben tiszta `npm ci`. A frontend futtatásához a már validált GeoJSON elegendő. Új SHP feldolgozásához dokumentált GDAL/GEOS környezet kell; a jelenlegi Windows QGIS útvonal nem lehet CI-be égetett feltétel.
 
@@ -96,6 +96,12 @@ Részletes terv: [F2_DESIGN](project/tasks/0003_ONLINE_PLATFORM/phases/F2_DESIGN
 
     Visszaállítás után kötelező minden munkamenetet visszavonni: `UPDATE sessions SET revoked_at = <most>`.
 - **Helyi futtatás:** a `node scripts/dev/serve.mjs dist 4176 --api` a valódi API-kódot futtatja memóriabeli SQLite-on. A beállítási kód: `local-setup-code-0123456789`.
+
+## Vegyes témák és kattintási puffer (0005)
+
+- Migráció: `0006_app_settings.sql`. A smoke `schema=6`-ot vár.
+- A kattintási puffert a szuperadmin a „Beállítások” fülön állítja (érintés 8–48 px, egér 4–30 px). A változás naplózott, és a következő betöltéskor minden felhasználónál érvényes.
+- Új vegyes téma: `npm run data:topic -- scripts/data/<téma>/topic.ts`, utána `node scripts/data/gen-server-topics.mjs`, majd a téma felvétele a `src/data/topicRegistry.ts`-be. Lásd: [scripts/data/README.md](../scripts/data/README.md).
 
 ## Oldalelhagyási jelzések (F6)
 

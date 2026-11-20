@@ -198,3 +198,8 @@
   padding-left: 1.25rem;
   font-variant-numeric: tabular-nums;
 }
+
+.groupTitle {
+  margin: 1rem 0 0;
+  font-size: 1.05rem;
+}

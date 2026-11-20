@@ -1,4 +1,4 @@
-import type { PolygonGeometry, Position } from '../data/validation.ts';
+import type { FeatureGeometry, PolygonGeometry, Position } from '../data/validation.ts';
 
 type Poly = Position[][];
 
@@ -76,6 +76,42 @@ export function labelPoint(geometry: PolygonGeometry): Position {
 }
 
 /** The package may carry a precomputed label point (world topic: placed so labels do not overlap). */
-export function regionLabelPoint(r: { properties: { label?: Position }; geometry: PolygonGeometry }): Position {
-  return r.properties.label ?? labelPoint(r.geometry);
+export function regionLabelPoint(r: { properties: { label?: Position }; geometry: FeatureGeometry }): Position {
+  if (r.properties.label) return r.properties.label;
+  const g = r.geometry;
+  if (g.type === 'Point') return g.coordinates;
+  if (g.type === 'LineString' || g.type === 'MultiLineString') return lineMidpoint(g.type === 'LineString' ? [g.coordinates] : g.coordinates);
+  return labelPoint(g);
+}
+
+/** Point halfway along the longest part of a line (the label of a river sits on the river). */
+export function lineMidpoint(parts: Position[][]): Position {
+  const len = (l: Position[]) => l.slice(1).reduce((s, p, i) => s + Math.hypot(p[0] - l[i]![0], p[1] - l[i]![1]), 0);
+  const line = parts.reduce((best, l) => (len(l) > len(best) ? l : best));
+  let rest = len(line) / 2;
+  for (let i = 1; i < line.length; i++) {
+    const a = line[i - 1]!; const b = line[i]!;
+    const d = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (d >= rest && d > 0) return [a[0] + ((b[0] - a[0]) * rest) / d, a[1] + ((b[1] - a[1]) * rest) / d];
+    rest -= d;
+  }
+  return line[line.length - 1]!;
+}
+
+/** Bounding box [w, s, e, n] of any feature geometry. */
+export function geometryBounds(g: FeatureGeometry): [number, number, number, number] {
+  const pts: Position[] = g.type === 'Point' ? [g.coordinates] : g.type === 'LineString' ? g.coordinates
+    : g.type === 'MultiLineString' ? g.coordinates.flat() : g.type === 'Polygon' ? g.coordinates[0]! : g.coordinates.flatMap((p) => p[0]!);
+  let w = Infinity, s = Infinity, e = -Infinity, n = -Infinity;
+  for (const [x, y] of pts) { w = Math.min(w, x); e = Math.max(e, x); s = Math.min(s, y); n = Math.max(n, y); }
+  return [w, s, e, n];
+}
+
+/** Planar area of an area feature in Web Mercator units (outer rings minus holes); 0 for lines and points. */
+export function geometryArea(g: FeatureGeometry): number {
+  if (g.type !== 'Polygon' && g.type !== 'MultiPolygon') return 0;
+  const merc = ([x, y]: Position): [number, number] => [x, Math.log(Math.tan(Math.PI / 4 + (Math.max(-85, Math.min(85, y)) * Math.PI) / 360))];
+  const ring = (r: Position[]) => { let s = 0; for (let i = 0; i < r.length - 1; i++) { const [ax, ay] = merc(r[i]!); const [bx, by] = merc(r[i + 1]!); s += ax * by - bx * ay; } return Math.abs(s) / 2; };
+  const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
+  return polys.reduce((sum, poly) => sum + ring(poly[0]!) - poly.slice(1).reduce((h, r) => h + ring(r), 0), 0);
 }

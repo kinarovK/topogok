@@ -36,5 +36,7 @@ export default defineConfig({
     { command: 'node scripts/dev/serve.mjs dist-e2e 4179 --api', port: 4179, reuseExistingServer: false },
     // F6 (page-leave signals and review) on its own database.
     { command: 'node scripts/dev/serve.mjs dist-e2e 4181 --api', port: 4181, reuseExistingServer: false },
+    // 0005 (tap buffer setting, grouped checklist) on its own database.
+    { command: 'node scripts/dev/serve.mjs dist-e2e 4182 --api', port: 4182, reuseExistingServer: false },
   ],
 });

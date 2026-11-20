@@ -43,6 +43,7 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
 
   // F4: a logged-in student is asked only about the features the teacher enabled; the rest stay grey.
   const access = useTopicAccess(topic)!;
+  const mixed = topic.manifest.geometryKind === 'mixed';
   const ids = access.enabled;
   const names = useMemo(() => new Map(topic.regions.map((r) => [r.id, r.properties.names])), [topic]);
   const viewBounds = topic.manifest.bounds;
@@ -157,12 +158,12 @@ export function GameScreen({ topic, config, onFinish, onRestart, onExit, onRende
       if (task.outcome === 'correct') { statusText = t('practice.correct'); statusClass = s.feedbackCorrect; icon = '✓'; }
       else if (task.outcome === 'failed') { statusText = t('practice.failed', { name: targetName }); statusClass = s.feedbackWrong; icon = '✗'; }
       else if (task.outcome === 'revealed') { statusText = t('practice.revealed', { name: targetName }); statusClass = s.feedbackCorrect; icon = 'ⓘ'; }
-      else if (game.selection && task.wrongIds.includes(game.selection)) { statusText = t('game.alreadyTried'); }
+      else if (game.selection && task.wrongIds.includes(game.selection)) { statusText = t(mixed ? 'game.alreadyTriedMixed' : 'game.alreadyTried'); }
       else if (game.selection) { statusText = t('game.selected'); }
       else if (last) { statusText = t('practice.wrong'); statusClass = s.feedbackWrong; icon = '✗'; }
-      else statusText = t('game.noSelection');
+      else statusText = t(mixed ? 'game.noSelectionMixed' : 'game.noSelection');
     } else {
-      statusText = game.selection ? t('game.selected') : t('game.noSelection');
+      statusText = game.selection ? t('game.selected') : t(mixed ? 'game.noSelectionMixed' : 'game.noSelection');
     }
   }
 
