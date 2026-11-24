@@ -44,6 +44,13 @@ input {
   color: inherit;
 }
 
+/* A select is as wide as its longest option (long topic names): never wider than its container. */
+select {
+  max-width: 100%;
+  min-width: 0;
+  text-overflow: ellipsis;
+}
+
 :focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;

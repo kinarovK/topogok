@@ -134,7 +134,7 @@ test('explore + help screenshots; no About page', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Névjegy|Про застосунок/ })).toHaveCount(0);
   await page.getByRole('button', { name: 'Súgó' }).click();
   await expect(page.locator('main')).toContainText('26/27 → 12');
-  await expect(page.getByTestId('version')).toContainText(/Verzió: \d+\.\d+\.\d+.* \(build: \w+\) · adatok: 2026\.11\.05\.1, 2026\.11\.09\.1/);
+  await expect(page.getByTestId('version')).toContainText(/Verzió: \d+\.\d+\.\d+.* \(build: \w+\) · adatok: 2026\.11\.05\.1, 2026\.11\.09\.1, /);
   await shot(page, 'hu-light-09-help');
 });
 

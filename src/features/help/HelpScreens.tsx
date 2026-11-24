@@ -29,7 +29,7 @@ export function HelpScreen({ onBack }: { onBack: () => void }) {
       ))}
       <div className={s.actions}><Button onClick={onBack}>{t('common.back')}</Button></div>
       <p className={s.versionLine} data-testid="version">
-        {t('help.version', { app: __APP_VERSION__, build: __BUILD_ID__ })} · {t('help.dataVersions', { versions: TOPICS.map((x) => x.dataVersion).join(', ') })}
+        {t('help.version', { app: __APP_VERSION__, build: __BUILD_ID__ })} · {t('help.dataVersions', { versions: [...new Set(TOPICS.map((x) => x.dataVersion))].sort().join(', ') })}
       </p>
     </div>
   );
