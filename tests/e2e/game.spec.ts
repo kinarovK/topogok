@@ -212,7 +212,8 @@ test.describe('round controls', () => {
       idb: (await indexedDB.databases?.())?.map((d) => d.name) ?? [],
       cookies: document.cookie,
     }));
-    expect(storage).toEqual({ local: ['topogok.preferences.v1'], session: [], idb: [], cookies: '' });
+    // Only the settings and which grade blocks are open on the home page (both on this device only).
+    expect({ ...storage, local: storage.local.sort() }).toEqual({ local: ['topogok.openGrades', 'topogok.preferences.v1'], session: [], idb: [], cookies: '' });
     expect(JSON.parse(await page.evaluate(() => localStorage.getItem('topogok.preferences.v1')!))).toEqual({ theme: 'dark', locale: 'uk' });
 
     // Exit with confirmation

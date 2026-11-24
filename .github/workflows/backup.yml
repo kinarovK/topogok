@@ -44,7 +44,18 @@ jobs:
             require('fs').writeFileSync('drop.sql', sql + '\n');
             console.log('dropping', names.length, 'tables');"
           npx --yes "$WRANGLER" d1 execute "$TARGET" --remote --file drop.sql
-          npx --yes "$WRANGLER" d1 execute "$TARGET" --remote --file prod.sql
+          # The export creates each table's triggers before the later tables they read (users_scope_* read
+          # classes), so inserting the users would fail with "no such table: main.classes". Load the tables and
+          # rows first, the triggers last.
+          node -e "
+            const fs = require('fs');
+            const sql = fs.readFileSync('prod.sql', 'utf8');
+            const triggers = sql.match(/CREATE TRIGGER[\\s\\S]*?\\bEND;/gi) ?? [];
+            fs.writeFileSync('data.sql', triggers.reduce((s, t) => s.replace(t, ''), sql));
+            fs.writeFileSync('triggers.sql', triggers.join('\\n') + '\\n');
+            console.log('triggers moved to the end:', triggers.length);"
+          npx --yes "$WRANGLER" d1 execute "$TARGET" --remote --file data.sql
+          if [ -s triggers.sql ]; then npx --yes "$WRANGLER" d1 execute "$TARGET" --remote --file triggers.sql; fi
       - name: Verify row counts
         run: |
           Q="SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM classes) AS classes, (SELECT COUNT(*) FROM audit_log) AS audit"
@@ -57,4 +68,4 @@ jobs:
             if (a !== b) { console.error('row counts differ', a, b); process.exit(1); }"
       - name: Remove the local export
         if: always()
-        run: rm -f prod.sql a.json b.json tables.json drop.sql
+        run: rm -f prod.sql data.sql triggers.sql a.json b.json tables.json drop.sql

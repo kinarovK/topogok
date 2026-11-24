@@ -4,8 +4,7 @@
 # for documentation-only changes, to stay within the free Actions minutes of a private repository.
 # Only if ALL gates pass is the exact tested `dist/` uploaded to Cloudflare Pages (Direct Upload, free plan):
 #   - push to main    → production deployment (https://topogok.pages.dev); browser tests always run
-#   - push to staging → preview deployment (https://staging.topogok.pages.dev); browser tests are skipped
-#                       (they are the slowest step), unless started by hand with "e2e" ticked
+#   - push to staging → preview deployment (https://staging.topogok.pages.dev); browser tests run as on main
 # The deploy job is skipped (not failed) while the repository has no CLOUDFLARE_* secrets.
 # No artifacts are uploaded to GitHub (the account's Actions storage quota is not used).
 
@@ -16,11 +15,6 @@ on:
     branches: [main, staging]
     paths-ignore: ['**.md', 'docs/**', 'reports/**']
   workflow_dispatch:
-    inputs:
-      e2e:
-        description: Run the browser tests (always on for main)
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -39,7 +33,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
-      RUN_E2E: ${{ github.ref == 'refs/heads/main' || inputs.e2e == true }}
+      # The repository is public, so Actions minutes are free: browser tests run on staging too, so that a
+      # regression is caught before the pull request to main (it once reached main untested).
+      RUN_E2E: true
     outputs:
       build_id: ${{ steps.id.outputs.build_id }}
     steps:
