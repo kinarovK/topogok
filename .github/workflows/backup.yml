@@ -53,9 +53,9 @@ jobs:
             require('fs').writeFileSync('drop.sql', sql + '\n');
             console.log('dropping', names.length, 'tables');"
           npx --yes "$WRANGLER" d1 execute "$TARGET" --remote --file drop.sql
-          # The export creates each table followed by its rows, so the users rows reference classes before that
-          # table exists ("no such table: main.classes" while D1 checks foreign keys), and the users_scope_*
-          # triggers read classes too. Load every table first, then the rows and indexes, the triggers last.
+          # The export writes each table followed by its rows, and D1 does not defer foreign key checks across
+          # the whole file. So: every table first, then the rows in reference order (staff users, classes,
+          # students, then the rest, which only reference users), the triggers last (users_scope_* read classes).
           node -e "
             const fs = require('fs');
             let sql = fs.readFileSync('prod.sql', 'utf8');
@@ -63,7 +63,12 @@ jobs:
             const pragmas = take(/^PRAGMA[^\\n]*\\n/gim);
             const triggers = take(/CREATE TRIGGER[\\s\\S]*?\\bEND;/gi);
             const tables = take(/CREATE TABLE[\\s\\S]*?\\);(?=[ \\t]*(\\r?\\n|$))/gi);
-            fs.writeFileSync('data.sql', pragmas.join('') + tables.join('\\n') + '\\n' + sql);
+            const users = take(/^INSERT INTO \\W?users\\W[^\\n]*\\n/gm);
+            const classes = take(/^INSERT INTO \\W?classes\\W[^\\n]*\\n/gm);
+            const student = (l) => /VALUES\\s*\\('[^']*',\\s*'student'/.test(l);
+            const rows = [...users.filter((l) => !student(l)), ...classes, ...users.filter(student)];
+            fs.writeFileSync('data.sql', pragmas.join('') + tables.join('\\n') + '\\n' + rows.join('') + sql);
+            console.log('users', users.length, 'students', users.filter(student).length, 'classes', classes.length);
             fs.writeFileSync('triggers.sql', triggers.join('\\n') + '\\n');
             console.log('tables first:', tables.length, 'triggers last:', triggers.length);"
           npx --yes "$WRANGLER" d1 execute "$TARGET" --remote --file data.sql
