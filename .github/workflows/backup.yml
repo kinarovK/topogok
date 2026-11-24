@@ -30,6 +30,15 @@ jobs:
           node-version: '22.23.4'
       - name: Export production
         run: npx --yes "$WRANGLER" d1 export topogok-prod --remote --output prod.sql
+      - name: Check the export
+        # Counts only: table, parent and row number of each broken reference, never row contents.
+        run: |
+          echo "pragmas: $(grep -c '^PRAGMA' prod.sql || true)"; grep '^PRAGMA' prod.sql || true
+          npx --yes "$WRANGLER" d1 execute topogok-prod --remote --json --command "PRAGMA foreign_key_check" > fk.json
+          node -e "
+            const r = JSON.parse(require('fs').readFileSync('fk.json', 'utf8'))[0]?.results ?? [];
+            const n = {}; for (const x of r) { const k = x.table + ' -> ' + x.parent; n[k] = (n[k] ?? 0) + 1; }
+            console.log('broken references:', r.length, JSON.stringify(n));"
       - name: Replace the oldest backup
         run: |
           SLOT=$(( ( $(date -u +%s) / 604800 ) % 4 + 1 ))
@@ -71,4 +80,4 @@ jobs:
             if (a !== b) { console.error('row counts differ', a, b); process.exit(1); }"
       - name: Remove the local export
         if: always()
-        run: rm -f prod.sql data.sql triggers.sql a.json b.json tables.json drop.sql
+        run: rm -f fk.json prod.sql data.sql triggers.sql a.json b.json tables.json drop.sql
