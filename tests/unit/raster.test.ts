@@ -75,3 +75,13 @@ test('topics are grouped by grade, ascending, keeping the registry order', async
   const groups = topicsByGrade([{ id: 'a', grade: 8 }, { id: 'b', grade: 7 }, { id: 'c', grade: 8 }] as never);
   assert.deepEqual(groups.map((g) => [g.grade, g.topics.map((x) => x.id)]), [[7, ['b']], [8, ['a', 'c']]]);
 });
+
+test('every registry entry points at a data package that exists (the test topic at its fixture version)', async () => {
+  const { existsSync } = await import('node:fs');
+  const { TOPICS } = await import('../../src/data/topicRegistry.ts');
+  const fixture = (await import('../fixtures/mixed/topic.ts')).default;
+  for (const t of TOPICS) {
+    if (t.id === 'test-mixed') assert.equal(t.dataVersion, fixture.dataVersion);
+    else assert.ok(existsSync(`public/data/${t.id}/${t.dataVersion}/manifest.json`), `${t.id} ${t.dataVersion}`);
+  }
+});

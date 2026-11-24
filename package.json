@@ -28,7 +28,8 @@
     "data:continents": "python3 scripts/data/world/derive.py --no-preview && node scripts/data/topic.ts scripts/data/continents/topics.ts && node scripts/data/gen-server-topics.mjs",
     "data:ukraine8": "node scripts/data/topic.ts scripts/data/ukraine8/topics.ts && node scripts/data/gen-server-topics.mjs",
     "data:grade9": "node scripts/data/topic.ts scripts/data/grade9/topics.ts && node scripts/data/gen-server-topics.mjs",
-    "data:grade10": "node scripts/data/topic.ts scripts/data/grade10/topics.ts && node scripts/data/gen-server-topics.mjs"
+    "data:grade10": "node scripts/data/topic.ts scripts/data/grade10/topics.ts && node scripts/data/gen-server-topics.mjs",
+    "e2e:local": "npm run build && npm run build:e2e && playwright test"
   },
   "dependencies": {
     "maplibre-gl": "6.16.0",

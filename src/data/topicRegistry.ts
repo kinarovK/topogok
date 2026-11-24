@@ -195,7 +195,7 @@ const BASE_TOPICS: readonly TopicEntry[] = [
 /** Synthetic mixed topic built from scripts/data/fixtures (0005): only in the E2E build, never shown to users. */
 const TEST_TOPICS: readonly TopicEntry[] = [
   {
-    id: 'test-mixed', dataVersion: '2026.11.17.4',
+    id: 'test-mixed', dataVersion: '2026.11.16.1',
     title: { hu: 'Teszttéma (vegyes)', uk: 'Тестова тема (змішана)' },
     featureCount: 8, counts: [5, 'all'], partialCoverage: false, grade: 7, mixed: true,
   },
