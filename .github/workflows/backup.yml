@@ -30,6 +30,15 @@ jobs:
           node-version: '22.23.4'
       - name: Export production
         run: npx --yes "$WRANGLER" d1 export topogok-prod --remote --output prod.sql
+      - name: Check the export
+        # Counts only: table, parent and row number of each broken reference, never row contents.
+        run: |
+          echo "pragmas: $(grep -c '^PRAGMA' prod.sql || true)"; grep '^PRAGMA' prod.sql || true
+          npx --yes "$WRANGLER" d1 execute topogok-prod --remote --json --command "PRAGMA foreign_key_check" > fk.json
+          node -e "
+            const r = JSON.parse(require('fs').readFileSync('fk.json', 'utf8'))[0]?.results ?? [];
+            const n = {}; for (const x of r) { const k = x.table + ' -> ' + x.parent; n[k] = (n[k] ?? 0) + 1; }
+            console.log('broken references:', r.length, JSON.stringify(n));"
       - name: Replace the oldest backup
         run: |
           SLOT=$(( ( $(date -u +%s) / 604800 ) % 4 + 1 ))
@@ -44,16 +53,24 @@ jobs:
             require('fs').writeFileSync('drop.sql', sql + '\n');
             console.log('dropping', names.length, 'tables');"
           npx --yes "$WRANGLER" d1 execute "$TARGET" --remote --file drop.sql
-          # The export creates each table's triggers before the later tables they read (users_scope_* read
-          # classes), so inserting the users would fail with "no such table: main.classes". Load the tables and
-          # rows first, the triggers last.
+          # The export writes each table followed by its rows, and D1 does not defer foreign key checks across
+          # the whole file. So: every table first, then the rows in reference order (staff users, classes,
+          # students, then the rest, which only reference users), the triggers last (users_scope_* read classes).
           node -e "
             const fs = require('fs');
-            const sql = fs.readFileSync('prod.sql', 'utf8');
-            const triggers = sql.match(/CREATE TRIGGER[\\s\\S]*?\\bEND;/gi) ?? [];
-            fs.writeFileSync('data.sql', triggers.reduce((s, t) => s.replace(t, ''), sql));
+            let sql = fs.readFileSync('prod.sql', 'utf8');
+            const take = (re) => { const m = sql.match(re) ?? []; for (const s of m) sql = sql.replace(s, ''); return m; };
+            const pragmas = take(/^PRAGMA[^\\n]*\\n/gim);
+            const triggers = take(/CREATE TRIGGER[\\s\\S]*?\\bEND;/gi);
+            const tables = take(/CREATE TABLE[\\s\\S]*?\\);(?=[ \\t]*(\\r?\\n|$))/gi);
+            const users = take(/^INSERT INTO \\W?users\\W[^\\n]*\\n/gm);
+            const classes = take(/^INSERT INTO \\W?classes\\W[^\\n]*\\n/gm);
+            const student = (l) => /VALUES\\s*\\('[^']*',\\s*'student'/.test(l);
+            const rows = [...users.filter((l) => !student(l)), ...classes, ...users.filter(student)];
+            fs.writeFileSync('data.sql', pragmas.join('') + tables.join('\\n') + '\\n' + rows.join('') + sql);
+            console.log('users', users.length, 'students', users.filter(student).length, 'classes', classes.length);
             fs.writeFileSync('triggers.sql', triggers.join('\\n') + '\\n');
-            console.log('triggers moved to the end:', triggers.length);"
+            console.log('tables first:', tables.length, 'triggers last:', triggers.length);"
           npx --yes "$WRANGLER" d1 execute "$TARGET" --remote --file data.sql
           if [ -s triggers.sql ]; then npx --yes "$WRANGLER" d1 execute "$TARGET" --remote --file triggers.sql; fi
       - name: Verify row counts
@@ -68,4 +85,4 @@ jobs:
             if (a !== b) { console.error('row counts differ', a, b); process.exit(1); }"
       - name: Remove the local export
         if: always()
-        run: rm -f prod.sql data.sql triggers.sql a.json b.json tables.json drop.sql
+        run: rm -f fk.json prod.sql data.sql triggers.sql a.json b.json tables.json drop.sql

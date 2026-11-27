@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode 
 import { getTopic, topicEntry, type TopicId } from '../data/topicRegistry.ts';
 import { DataError, type Topic } from '../data/validation.ts';
 import type { RoundRecorder } from '../account/recorder.ts';
+import { useAccount } from '../account/account.tsx';
+import { useTopicAccess } from '../account/topicAccess.ts';
 import type { AssessmentConfiguration, GameConfiguration, GameResult, Mode, PracticeConfiguration } from '../domain/types.ts';
 import { GameScreen } from '../features/game/GameScreen.tsx';
 import { HomeScreen, TopicScreen } from '../features/home/HomeScreen.tsx';
@@ -56,6 +58,15 @@ export function App() {
   }, []);
   useEffect(() => { if (currentTopicId && !topics[currentTopicId]) fetchTopic(currentTopicId); }, [currentTopicId, topics, fetchTopic]);
   const topicState: TopicState = currentTopicId ? topics[currentTopicId] ?? { status: 'loading' } : { status: 'loading' };
+  // F4: a student's question set comes with the session. Opening a topic re-reads it, and a round restarts when
+  // the teacher's selection changed meanwhile (the old round could not be saved anyway).
+  const { me, revalidate } = useAccount();
+  const isStudent = me?.role === 'student';
+  useEffect(() => {
+    if (isStudent && (view.name === 'topic' || view.name === 'setup' || view.name === 'game')) revalidate();
+  }, [isStudent, view.name, currentTopicId, revalidate]);
+  const access = useTopicAccess(topicState.status === 'ready' ? topicState.topic : null);
+  const accessVersion = access?.version ?? 0;
   const load = () => { if (currentTopicId) { setTopics((m) => ({ ...m, [currentTopicId]: { status: 'loading' } })); fetchTopic(currentTopicId); } };
 
   const active = view.name === 'game';
@@ -115,12 +126,12 @@ export function App() {
           : setView({ name: 'setup', topicId: view.topicId, mode }))} onExplore={() => setView({ name: 'explore', topicId: view.topicId })} onLeaderboard={() => setView({ name: 'leaderboard', topicId: view.topicId })} onBack={() => setView({ name: 'home' })} />;
         break;
       case 'setup':
-        content = <SetupScreen key={`${view.topicId}:${view.mode}`} mode={view.mode} topic={topic!} entry={topicEntry(view.topicId)} initial={lastSetup[`${view.topicId}:${view.mode}`]}
+        content = <SetupScreen key={`${view.topicId}:${view.mode}:${accessVersion}`} mode={view.mode} topic={topic!} entry={topicEntry(view.topicId)} initial={lastSetup[`${view.topicId}:${view.mode}`]}
           onStart={(c) => startGame(view.topicId, c)} onBack={() => setView({ name: 'topic', topicId: view.topicId })} />;
         break;
       case 'game':
         content = (
-          <GameScreen key={view.round} topic={topic!} config={view.config}
+          <GameScreen key={`${view.round}:${accessVersion}`} topic={topic!} config={view.config}
             onFinish={(result, recorder) => setView({ name: 'results', topicId: view.topicId, config: view.config, result, recorder })}
             onRestart={() => setView({ name: 'game', topicId: view.topicId, config: view.config, round: Date.now() })}
             onExit={() => setView({ name: 'topic', topicId: view.topicId })}
