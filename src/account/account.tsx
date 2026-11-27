@@ -12,6 +12,8 @@ type AccountApi = {
   state: AccountState;
   me: Me | null;
   refresh: () => Promise<void>;
+  /** Re-reads the session in the background (teacher settings may have changed); a failed request changes nothing. */
+  revalidate: () => void;
   login: (login: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -24,6 +26,24 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     (me) => setState(me ? { status: 'user', me } : { status: 'guest', offline: false }),
     (e: unknown) => setState({ status: 'guest', offline: e instanceof ApiFailure && e.code === 'offline' }),
   ), []);
+  const revalidate = useCallback(() => {
+    api.me().then(
+      (me) => setState((cur) => {
+        const next: AccountState = me ? { status: 'user', me } : { status: 'guest', offline: false };
+        return JSON.stringify(cur) === JSON.stringify(next) ? cur : next;
+      }),
+      () => { /* offline or a server hiccup: keep the current state */ },
+    );
+  }, []);
+  // A phone keeps the app open for days: coming back to it re-reads the session, so a student never plays
+  // with an outdated question set.
+  const loggedIn = state.status === 'user';
+  useEffect(() => {
+    if (!loggedIn) return;
+    const h = () => { if (document.visibilityState === 'visible') revalidate(); };
+    document.addEventListener('visibilitychange', h);
+    return () => document.removeEventListener('visibilitychange', h);
+  }, [loggedIn, revalidate]);
   useEffect(() => {
     let alive = true;
     api.me().then(
@@ -36,6 +56,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     state,
     me: state.status === 'user' ? state.me : null,
     refresh,
+    revalidate,
     async login(login, password) { await api.login(login, password); await refresh(); },
     async logout() {
       discardAllRounds(); // pending saves belong to the user who played them (F3_DESIGN §3)
@@ -44,7 +65,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         setState({ status: 'guest', offline: false });
       }
     },
-  }), [state, refresh]);
+  }), [state, refresh, revalidate]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

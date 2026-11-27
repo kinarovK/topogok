@@ -58,3 +58,25 @@ test('teacher narrows the question set; the student gets only those; guests keep
   await expect(student.locator('fieldset').first().locator('label')).toHaveText(['5', '12', 'Mindegyik (27)']);
   await ctx.close();
 });
+
+test('a student who is already in the app gets the new selection without logging in again', async ({ page, browser }) => {
+  // Runs after the test above: accounts exist, ukraine-administration is narrowed to two features.
+  const ctx = await browser.newContext();
+  const student = await ctx.newPage();
+  await login(student, BASE, 'nagy.anna', 'student-password-1');
+
+  await login(page, BASE, 'kovacs.tanar', 'teacher-password-1');
+  await page.getByRole('button', { name: 'Tanári felület' }).click();
+  await page.getByRole('button', { name: 'Témák' }).click();
+  const panel = page.getByTestId('topics-panel');
+  await panel.locator(`[data-feature="${plain[2]}"]`).check();
+  await panel.getByRole('button', { name: 'Mentés' }).click();
+  await expect(panel.getByRole('status')).toHaveText('Mentve.');
+
+  // Practice starts straight from the topic page: the round already uses the three features.
+  await (await topicCard(student, 'ukraine-administration')).click();
+  await student.locator('button', { hasText: /^Gyakorlás/ }).first().click();
+  await expect(student.locator('[data-map="main"]')).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
+  await expect(student.getByText(/· 1 \/ 3/)).toBeVisible();
+  await ctx.close();
+});
